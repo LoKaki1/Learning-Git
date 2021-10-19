@@ -1,0 +1,18 @@
+
+Units - 76, prediction_Days - 58 ratio is - 0.9602426727531383prediction day - 1
+Units - 170, prediction_Days - 65 ratio is - 0.9893174757790766prediction day - 1
+Units - 147, prediction_Days - 80 ratio is - 0.9920082696547845prediction day - 1
+Units - 179, prediction_Days - 53 ratio is - 0.9821779502319491prediction day - 2
+Units - 187, prediction_Days - 66 ratio is - 0.989666191905189prediction day - 2
+Units - 107, prediction_Days - 56 ratio is - 0.9930758593232537prediction day - 2
+Units - 160, prediction_Days - 56 ratio is - 0.965453591208474prediction day - 7
+Units - 39, prediction_Days - 82 ratio is - 0.9762225130407535prediction day - 7
+Units - 182, prediction_Days - 11 ratio is - 0.9864511867922854prediction day - 7
+Units - 73, prediction_Days - 43 ratio is - 0.9930472750711111prediction day - 7
+Units - 44, prediction_Days - 67 ratio is - 0.8827564564638667prediction day - 10
+Units - 197, prediction_Days - 30 ratio is - 0.9390448235610838prediction day - 10
+Units - 186, prediction_Days - 46 ratio is - 0.9989585440484124prediction day - 10
+Units - 156, prediction_Days - 28 ratio is - 0.7022970171984761prediction day - 30
+Units - 84, prediction_Days - 34 ratio is - 0.983404571299162prediction day - 30
+Units - 107, prediction_Days - 77 ratio is - 0.989971712700226prediction day - 30
+Units - 101, prediction_Days - 50 ratio is - 0.990446929022895prediction day - 30
