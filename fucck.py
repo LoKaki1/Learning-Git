@@ -4,7 +4,7 @@ import pandas as pd
 import yfinance as yf
 import pandas_datareader.data as pdr
 import datetime as dt
-from whatsapp import str_file, write_in_file
+# from whatsapp import str_file, write_in_file
 from yahoofinancials import YahooFinancials
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from tensorflow.keras.models import Sequential
@@ -15,13 +15,13 @@ from tensorflow.keras.layers import Dense, Dropout, LSTM
 STUPID_IDEA = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.']
 test_start = dt.datetime(2010, 1, 1).strftime('%Y-%m-%d')
 test_end = (dt.datetime.now() - dt.timedelta(days=0)).strftime('%Y-%m-%d')
-MY_X_AXIS = {'open': [], 'close': [], 'high': [], 'low': [], 'everything': []}
-POSSIBLE = {'open': [], 'close': [], 'high': [], 'low': [], 'volume': []}
+MY_X_AXIS = {'open': [], 'close': [], 'high': [], 'low': [], 'adjclose': [], 'volume': [],  }
+POSSIBLE = {'open': [], 'close': [], 'high': [], 'low': [], 'adjclose': [], 'volume': []}
 
 EPOCHS = 25
-BATCH_SIZE = 32
-UNITS = 50
-PREDICTION_DAYS = 21
+BATCH_SIZE = 1
+UNITS = 140
+PREDICTION_DAYS = 80
 PREDICTION_DAY = 1
 
 What = 'close'
@@ -54,6 +54,7 @@ def check_data(ticker, date, price):
 
 
 def get_historical_data(ticker, start=test_start, end=test_end):
+    print(end)
     ticker = ticker.strip("'")
     data = YahooFinancials(ticker)
     print(ticker)
@@ -78,7 +79,44 @@ def getting_stocks():
     return data
 
 
-def predict_tomorrow(ticker, units, prediction_days, prediction_day):
+def get_total_data(data, test_data, prediction_days, what):
+    total_data_set = pd.concat((data[what], test_data[What]), axis=0)
+    model_input = total_data_set[len(total_data_set) - len(test_data) - prediction_days:].values
+    model_input_what = model_input.reshape(-1, 1)
+    return model_input_what
+
+
+def get_all_data(data, test_data, prediction_days):
+    total_data = []
+    print(data)
+    for i in POSSIBLE:
+        total_data.append(get_total_data(data, test_data, prediction_days, i))
+    return total_data
+
+def get_scalar_fit_transform_for_all(scalar, data):
+    t = []
+    print(data)
+    for i in POSSIBLE.keys():
+        t.append(scalar.fit_transform(data[i].values.reshape(-1, 1)))
+    return t
+
+
+def get_my_x_axis():
+    t = {}
+    for i in MY_X_AXIS:
+        t[i] = MY_X_AXIS[i]
+
+    return t
+
+
+def get_possible():
+    t = {}
+    for i in POSSIBLE:
+        t[i] = POSSIBLE[i]
+
+    return t
+def predict_tomorrow(ticker, units, prediction_days, prediction_day, epochs=EPOCHS,
+                     batch_size=BATCH_SIZE, end_day=test_end):
     try:
         units = int(units)
     except Exception as e:
@@ -95,15 +133,15 @@ def predict_tomorrow(ticker, units, prediction_days, prediction_day):
     except Exception as e:
         print("Prediction Day is wrong")
         prediction_day = PREDICTION_DAY
-    data = get_historical_data(ticker)
-    all_in_one = {'open': [], 'close': [], 'high': [], 'low': [], 'volume': [], 'everything': [], }
+    data = get_historical_data(ticker, end=end_day)
+    all_in_one = get_my_x_axis()
     for i in range(len(data[What])):
         x = 0
         for j in all_in_one.keys():
             if j in POSSIBLE.keys():
                 all_in_one[j].append(data[j][i])
                 x += (data[j][i])
-        all_in_one['everything'].append(x)
+        # all_in_one['everything'].append(x)
 
     data = pd.DataFrame(data=all_in_one)
 
@@ -113,18 +151,16 @@ def predict_tomorrow(ticker, units, prediction_days, prediction_day):
     # print(123, data['everything'].values.reshape(-1, 1))
     scalar = MinMaxScaler(feature_range=(0, 1))
 
-    scaled_data_open = scalar.fit_transform(data['open'].values.reshape(-1, 1))
-    scaled_data_close = scalar.fit_transform(data['close'].values.reshape(-1, 1))
-    scaled_data_low = scalar.fit_transform(data['low'].values.reshape(-1, 1))
-    scaled_data_high = scalar.fit_transform(data['high'].values.reshape(-1, 1))
-    scaled_data_volume = scalar.fit_transform(data['volume'].values.reshape(-1, 1))
+    total_scaled_data = get_scalar_fit_transform_for_all(scalar, data)
+    # print(total_scaled_data)
     scaled_data = []
-    for i in range(len(scaled_data_close)):
-        scaled_data.append([scaled_data_close[i][-1], scaled_data_open[i][-1],
-                            scaled_data_low[i][-1], scaled_data_high[i][-1],
-                            scaled_data_volume[i][-1]])
-    # scaled_data = scalar.fit_transform(data['everything'].values.reshape(-1, 1))
-
+    for i in range(len(total_scaled_data[0])):
+        tmp = []
+        for j in range(len(total_scaled_data)):
+            tmp.append(total_scaled_data[j][i][-1])
+        scaled_data.append(tmp)
+        # scaled_data = scalar.fit_transform(data['everything'].values.reshape(-1, 1))
+    print(scaled_data)
     scaled_data = scalar.fit_transform(scaled_data)
     print(123, scaled_data)
     scaled_data_y = scalar.fit_transform(data[What].values.reshape(-1, 1))
@@ -137,7 +173,7 @@ def predict_tomorrow(ticker, units, prediction_days, prediction_day):
 
     x_train, y_train = np.array(x_train), np.array(y_train)
     x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
-
+    print("y_train = ", len(y_train))
     model = Sequential()
     model.add(LSTM(units=units, return_sequences=True, input_shape=(x_train.shape[1], 1)))
     model.add(Dropout(0.2))
@@ -148,14 +184,15 @@ def predict_tomorrow(ticker, units, prediction_days, prediction_day):
     model.add(Dense(units=prediction_day))
 
     model.compile(optimizer='adam', loss='mean_squared_error')
+    batch_size2 = len(y_train)/19
+    model.fit(x_train, y_train, epochs=epochs, batch_size=37)
 
-    model.fit(x_train, y_train, epochs=EPOCHS, batch_size=BATCH_SIZE)
 
     """"" Test The Data """""
 
-    test_data = get_historical_data(ticker)
+    test_data = get_historical_data(ticker, end=end_day)
 
-    all_in_one2 = {'open': [], 'close': [], 'high': [], 'low': [], 'volume': [], 'everything': []}
+    all_in_one2 = get_my_x_axis()
     for i in range(len(test_data[What])):
         x = 0
         for j in all_in_one.keys():
@@ -163,36 +200,19 @@ def predict_tomorrow(ticker, units, prediction_days, prediction_day):
             if j != 'everything':
                 all_in_one2[j].append(data[j][i])
                 x += test_data[j][i]
-        all_in_one2['everything'].append(x)
+        # all_in_one2['everything'].append(x)
 
     test_data = pd.DataFrame(data=all_in_one2)
 
     actual_prices = test_data[What].values
-
-    total_data_set = pd.concat((data['open'], test_data[What]), axis=0)
-    model_input_open = total_data_set[len(total_data_set) - len(test_data) - prediction_days:].values
-    model_input_open = model_input_open.reshape(-1, 1)
-
-    total_data_set = pd.concat((data['close'], test_data[What]), axis=0)
-    model_input_close = total_data_set[len(total_data_set) - len(test_data) - prediction_days:].values
-    model_input_close = model_input_close.reshape(-1, 1)
-
-    total_data_set = pd.concat((data['low'], test_data[What]), axis=0)
-    model_input_low = total_data_set[len(total_data_set) - len(test_data) - prediction_days:].values
-    model_input_low = model_input_low.reshape(-1, 1)
-
-    total_data_set = pd.concat((data['high'], test_data[What]), axis=0)
-    model_input_high = total_data_set[len(total_data_set) - len(test_data) - prediction_days:].values
-    model_input_high = model_input_high.reshape(-1, 1)
-
-    total_data_set = pd.concat((data['volume'], test_data[What]), axis=0)
-    model_input_volume = total_data_set[len(total_data_set) - len(test_data) - prediction_days:].values
-    model_input_volume = model_input_volume.reshape(-1, 1)
+    total_model_input = get_all_data(data, test_data=test_data, prediction_days=prediction_days)
 
     model_input = []
-    for i in range(len(model_input_open)):
-        model_input.append([model_input_open[i][-1], model_input_close[i][-1],  model_input_low[i][-1],
-                            model_input_high[i][-1], model_input_volume[i][-1]])
+    for i in range(len(total_model_input[0])):
+        part = []
+        for j in range(len(total_model_input)):
+            part.append(total_model_input[j][i][-1])
+        model_input.append(part)
 
     # model_input = scalar.fit_transform(model_input)
     model_input_np = np.array(model_input)
@@ -233,54 +253,25 @@ def predict_tomorrow(ticker, units, prediction_days, prediction_day):
     return prediction, data[What].values[-1]
 
 
-def predict_stocks(ticker_list, units, prediction_day, prediction_days, what=What, ):
+def predict_stocks(ticker_list, units=UNITS, prediction_day=PREDICTION_DAY, prediction_days=PREDICTION_DAYS, end=test_end,
+                   epochs=EPOCHS, batch_size=BATCH_SIZE):
+
     long_stocks = []
     short_stocks = []
     float_price = 0
     yesterday = 0
     print("units: ", units, "PD:", prediction_day, "PDS:", prediction_days)
     for my_ticker in ticker_list:
-
-
-            my_prediction, yesterday = predict_tomorrow(my_ticker, units, prediction_days=prediction_days,
-                                                        prediction_day=prediction_day)
-            print(f"Prediction -  {my_prediction, yesterday}")
-
-            # for i in str(my_prediction):
-            #     print(i)
-            #     if i in STUPID_IDEA:
-            #         float_price += i
-            # print(float_price)
-            # float_price = float(float_price)
-
-            # t = str(my_prediction).split(' ')[-1][:-3].strip('[').strip(']')
-            # float_price = ''
-            # for i in str(t):
-            #     print(i)
-            #     if i in STUPID_IDEA:
-            #         float_price += i
-            print(123456, my_prediction[-1][-1])
-            float_price = my_prediction[-1][-1]
-            if float_price > float(yesterday):
-                long_stocks.append((my_ticker, f"Predict Price - {float_price}", f"Last Price - {float(yesterday)}"))
-            else:
-                short_stocks.append((my_ticker, f"Predict Price - {float_price}", f"Last Price - {float(yesterday)}"))
-        # except Exception as e:
-        #     print(e.args)
-        #     return ""
-        #
-        # finally:
-        #     pass
-
-    print("Stocks for Long - ", '\n', "Stocks for Short - ", short_stocks)
-    # stocks_data = "".join(["ticker - ", ticker_list[-1], " Last Price - ", str(yesterday)[0:5], " Prediction Price - ",
-    #                        str(float_price)[0:5], " in date - ", str(
-    #         dt.datetime.strptime(test_end, '%Y-%m-%d') + dt.timedelta(days=(int(prediction_day))))], )
-
-    # data = write_in_file(long_stocks, short_stocks)
-    write_in_file(path='Prediction.txt', data=float_price)
-    # send_email(body=data)
+        my_prediction, yesterday = predict_tomorrow(my_ticker, units, prediction_days=prediction_days,
+                                                    prediction_day=prediction_day,
+                                                    end_day=end, epochs=epochs, batch_size=batch_size)
+        print(f"Prediction -  {my_prediction, yesterday}")
+        float_price = my_prediction[-1][-1]
+        if float_price > float(yesterday):
+            long_stocks.append((my_ticker, f"Predict Price - {float_price}", f"Last Price - {float(yesterday)}"))
+        else:
+            short_stocks.append((my_ticker, f"Predict Price - {float_price}", f"Last Price - {float(yesterday)}"))
 
     return float(float_price)
-
-
+#
+# predict_stocks(['NIO'])
