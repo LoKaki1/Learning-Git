@@ -6,7 +6,7 @@ import os
 from random import randint
 from datetime import datetime, timedelta
 
-NUMBER_RANGE = 20
+NUMBER_RANGE = 9
 
 
 def random_variables():
@@ -26,7 +26,7 @@ def predicting_value_minus_delta_times(ticker, EBUPP, delta_times):
     end_day = str(date_minus_date_time(delta_times))
     predicted_end_day = str(date_minus_date_time(delta_times+1))
 
-    predict_value = predict_stocks([ticker], units=EBUPP[2], prediction_days=EBUPP[3], epochs_par=EBUPP[0],
+    predict_value = predict_stocks([ticker], units=EBUPP[2], prediction_days=EBUPP[3], epochs=EBUPP[0],
                                    batch_size=EBUPP[1], prediction_day=EBUPP[4], end_day=predicted_end_day)
     real_value = get_historical_data(ticker, end=end_day)['close'][-1]
     print(predict_value, real_value, end_day)
@@ -55,15 +55,16 @@ def get_the_best_of_them(ticker, best_ratio):
         variables_list = random_variables()
         ratio, real_value, predict_value = get_ratio_from_all_days(ticker, variables_list)
         if ratio > best_ratio:
-            data = "".join(['\n', 'epochs - ', str(variables_list[0]),
-                            ' batch_size - ', str(variables_list[1]),
-                            ' units - ', str(variables_list[2]),
-                            ' prediction_days - ', str(variables_list[3]),
-                            ' prediction_day - ', str(variables_list[4]),
+            data = "".join(['\n', 'epochs=', str(variables_list[0]),
+                            ' batch_size=', str(variables_list[1]),
+                            ' units=', str(variables_list[2]),
+                            ' prediction_days=', str(variables_list[3]),
+                            ' prediction_day=', str(variables_list[4]),
                             ' ratio - ', str(ratio),
                             ' real value - ', str(real_value),
                             ' predict value - ', str(predict_value)[0:5],
-                            ' number of days it checked on ', str(NUMBER_RANGE)
+                            ' number of days it checked on ', str(NUMBER_RANGE),
+                            'ticker - ', str(ticker)
                             ])
             print(data)
 
@@ -73,6 +74,6 @@ def get_the_best_of_them(ticker, best_ratio):
     return best_ratio
 
 
-last_ratio = 0.95
+last_ratio = 0.98
 while True:
-    last_ratio = get_the_best_of_them('NIO', last_ratio)
+    last_ratio = get_the_best_of_them('LI', last_ratio)
