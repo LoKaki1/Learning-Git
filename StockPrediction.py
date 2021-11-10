@@ -4,7 +4,7 @@ import pandas as pd
 import yfinance as yf
 import pandas_datareader.data as pdr
 import datetime as dt
-from whatsapp import str_file, write_in_file
+# from whatsapp import str_file, write_in_file
 from yahoofinancials import YahooFinancials
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
@@ -49,7 +49,10 @@ def check_data(ticker, date, price):
     prediction_and_real_ratio = min(real_price / float(price), float(price) / real_price)
     return "\n".join(
         ["real price - ", str(real_price), "predict price - ", str(price), str(prediction_and_real_ratio)[0:5]])
-
+def write_in_file(path='Generated_data.txt', data=None):
+    file = open(path, 'a')
+    file.write(data)
+    file.close()
 
 def get_historical_data(ticker, start=test_start, end=test_end):
     ticker = ticker.strip("'")
@@ -265,7 +268,7 @@ def predict_stocks(ticker_list, units=UNITS, prediction_day=PREDICTION_DAY, pred
     return float(float_price)
 
 
-predict_stocks(['XPEV'], epochs=10, batch_size=96, units=84, prediction_days=17, prediction_day=1)
+# predict_stocks(['XPEV'], epochs=10, batch_size=96, units=84, prediction_days=17, prediction_day=1)
 # predict_stocks(['LI'], epochs=26, batch_size=50, units=94, prediction_days=64, prediction_day=1)
 #
 # predict_stocks(['XPEV'], epochs=17, batch_size=24, units=85, prediction_days=24, prediction_day=1)

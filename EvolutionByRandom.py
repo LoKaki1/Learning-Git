@@ -11,10 +11,10 @@ NUMBER_RANGE = 9
 
 def random_variables():
     epochs = randint(10, 30)
-    batch_size = randint(5, 64)
+    batch_size = 64
     units = randint(19, 100)
     prediction_days = randint(10, 80)
-    prediction_day = 1
+    prediction_day = 7
     return [epochs, batch_size, units, prediction_days, prediction_day]
 
 
@@ -76,4 +76,4 @@ def get_the_best_of_them(ticker, best_ratio):
 
 last_ratio = 0.98
 while True:
-    last_ratio = get_the_best_of_them('LI', last_ratio)
+    last_ratio = get_the_best_of_them('NIO', last_ratio)
