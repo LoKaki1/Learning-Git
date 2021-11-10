@@ -4,7 +4,7 @@ import pandas as pd
 import yfinance as yf
 import pandas_datareader.data as pdr
 import datetime as dt
-from whatsapp import str_file, write_in_file
+
 from yahoofinancials import YahooFinancials
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
