@@ -253,7 +253,7 @@ def predict_tomorrow(ticker, units, prediction_days, prediction_day,
 
 
 def predict_stocks(ticker_list, units='140', prediction_day='1', prediction_days='80',
-                   epochs_par=EPOCHS, batch_size=BATCH_SIZE, end_day=test_end):
+                   epochs=EPOCHS, batch_size=BATCH_SIZE, end_day=test_end):
     long_stocks = []
     short_stocks = []
     float_price = 0
@@ -262,7 +262,7 @@ def predict_stocks(ticker_list, units='140', prediction_day='1', prediction_days
     for my_ticker in ticker_list:
         my_prediction, yesterday = predict_tomorrow(my_ticker, units, prediction_days=prediction_days,
                                                     prediction_day=prediction_day,
-                                                    batch_size_par=batch_size, epoch_par=epochs_par, end_day=end_day)
+                                                    batch_size=batch_size, epoch=epochs, end_day=end_day)
         print(f"Prediction -  {my_prediction, yesterday}")
         print(123456, my_prediction[-1][-1])
         float_price = my_prediction[-1][-1]

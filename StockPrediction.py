@@ -4,7 +4,7 @@ import pandas as pd
 import yfinance as yf
 import pandas_datareader.data as pdr
 import datetime as dt
-
+from whatsapp import str_file, write_in_file
 from yahoofinancials import YahooFinancials
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
@@ -120,14 +120,14 @@ def predicting(ticker, units, prediction_days,
     units, prediction_days, prediction_day = data_checking(units, prediction_days, prediction_day)
 
     data = get_historical_data(ticker, end=end_day)
-    all_in_one = get_my_x_axis()
-    print(all_in_one)
-
-    """"   Setting Data   """
-    for i in range(len(data[What])):
-        for j in all_in_one.keys():
-            all_in_one[j].append(data[j][i])
-    data = pd.DataFrame(data=all_in_one)
+    # all_in_one = get_my_x_axis()
+    # print(all_in_one)
+    #
+    # """"   Setting Data   """
+    # for i in range(len(data[What])):
+    #     for j in all_in_one.keys():
+    #         all_in_one[j].append(data[j][i])
+    # data = pd.DataFrame(data=all_in_one)
     scalar = MinMaxScaler(feature_range=(0, 1))
     my_x = get_my_x_axis()
 
@@ -232,7 +232,6 @@ def predicting(ticker, units, prediction_days,
     prediction = model.predict(real_data)
     prediction = scalar.inverse_transform(prediction)
     # # Plot the Test Prediction
-
     # plt.plot(actual_prices, color='blue')
     # plt.plot(pre_prices, color='red')
     # plt.title(f'{ticker} Share Price')
@@ -244,7 +243,7 @@ def predicting(ticker, units, prediction_days,
 
 
 def predict_stocks(ticker_list, units=UNITS, prediction_day=PREDICTION_DAY, prediction_days=PREDICTION_DAYS,
-                   epochs_par=EPOCHS, batch_size=BATCH_SIZE, end_day=test_end):
+                   epochs=EPOCHS, batch_size=BATCH_SIZE, end_day=test_end):
     long_stocks = []
     short_stocks = []
     float_price = 0
@@ -253,7 +252,7 @@ def predict_stocks(ticker_list, units=UNITS, prediction_day=PREDICTION_DAY, pred
     for my_ticker in ticker_list:
         my_prediction, yesterday = predicting(my_ticker, units, prediction_days=prediction_days,
                                               prediction_day=prediction_day,
-                                              batch_size_par=batch_size, epoch_par=epochs_par, end_day=end_day)
+                                              batch_size_par=batch_size, epoch_par=epochs, end_day=end_day)
         print(f"Prediction -  {my_prediction, yesterday}")
         float_price = my_prediction[-1][-1]
         if float_price > float(yesterday):
@@ -261,7 +260,15 @@ def predict_stocks(ticker_list, units=UNITS, prediction_day=PREDICTION_DAY, pred
         else:
             short_stocks.append((my_ticker, f"Predict Price - {float_price}", f"Last Price - {float(yesterday)}"))
 
-    write_in_file(path='Prediction.txt', data=''.join([f"\n {str(float_price)}", ", date ", end_day]))
+    write_in_file(path='Prediction.txt', data=''.join([f"\n {ticker_list[-1]} is gonna be at -  {str(float_price)}",
+                                                       " in date ", end_day]))
     return float(float_price)
 
-predict_stocks(['NIO'], epochs_par=23, batch_size=33, units=89, prediction_days=77, prediction_day=1)
+
+predict_stocks(['XPEV'], epochs=10, batch_size=96, units=84, prediction_days=17, prediction_day=1)
+# predict_stocks(['LI'], epochs=26, batch_size=50, units=94, prediction_days=64, prediction_day=1)
+#
+# predict_stocks(['XPEV'], epochs=17, batch_size=24, units=85, prediction_days=24, prediction_day=1)
+# stocks = ['NIO', 'XPEV', 'LI', 'MARA', 'RIOT']
+# for i in stocks:
+#     predict_stocks([i], epochs=10, batch_size=33, units=84, prediction_days=17, prediction_day=1)
