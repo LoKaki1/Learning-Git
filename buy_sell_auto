@@ -1,0 +1,69 @@
+import random
+import time
+from StockPrediction import predict_stocks_avg
+import yfinance as yf
+
+STOCKS_PREDICTION = {'NIO': {}, 'XPEV': {}, 'LI': {}}
+
+BOUGHT = {}
+SOLD = {}
+
+
+def get_last_price(ticker):
+    return yf.download(tickers=ticker, period='1d', interval='1m')['Close'][-1]
+
+
+def buy(ticker, price):
+    if ticker not in BOUGHT:
+        if predicted_price := STOCKS_PREDICTION[ticker]['Predicted Price'] >= 1.03 * price\
+                              and ticker not in SOLD:
+            BOUGHT[ticker] = {'bought price': price, 'sold price': None, 'stop loss': price * 0.99, 'status': True}
+
+        elif ticker in SOLD and SOLD[ticker]['status']:
+            if price <= 0.97 * SOLD[ticker]['sold price'] or price >= SOLD[ticker]['stop loss']:
+                SOLD[ticker]['status'] = False
+                SOLD[ticker]['bought price'] = price
+
+
+def sell(ticker, price):
+    if ticker not in SOLD:
+        if predicted_price := STOCKS_PREDICTION[ticker]['Predicted Price'] <= 0.97 * price\
+                              and ticker not in BOUGHT:
+            SOLD[ticker] = {'sold price': price, 'bought price': None, 'stop loss': price * 1.01, 'status': True}
+
+        elif ticker in BOUGHT and BOUGHT[ticker]['status']:
+            if price <= 1.03 * BOUGHT[ticker]['bought price'] or price <= BOUGHT[ticker]['stop loss']:
+                BOUGHT[ticker]['status'] = False
+                BOUGHT[ticker]['sold price'] = price
+
+
+def move_on_stocks():
+
+    for stock in STOCKS_PREDICTION:
+
+        real_price = random.randint(0, 100)
+        # real_price = get_last_price(stock)
+        print(real_price)
+        sell(stock, real_price)
+
+        buy(stock, real_price)
+
+    with open('data.txt', 'a') as file:
+        file.write('\n' + str(BOUGHT))
+        file.write('\n' + str(SOLD))
+        file.close()
+
+
+def delete_from_file(path):
+    file = open(path, "r+")
+    file.truncate(0)
+    file.close()
+
+
+for i in STOCKS_PREDICTION:
+    STOCKS_PREDICTION[i]['Predicted Price'] = predict_stocks_avg(i)
+
+delete_from_file('data.txt')
+for i in range(10):
+    move_on_stocks()
+    time.sleep(30)
