@@ -4,7 +4,7 @@ import pandas as pd
 import yfinance as yf
 import pandas_datareader.data as pdr
 import datetime as dt
-from whatsapp import str_file, write_in_file
+
 from yahoofinancials import YahooFinancials
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
@@ -242,6 +242,10 @@ def predicting(ticker, units, prediction_days,
     # plt.show()
     return prediction, data[What].values[-1]
 
+def write_in_file(path, data):
+    with open(path, 'a') as file:
+        file.write(data)
+        file.close()
 
 def predict_stocks(ticker_list, units=UNITS, prediction_day=PREDICTION_DAY, prediction_days=PREDICTION_DAYS,
                    epochs_par=EPOCHS, batch_size=BATCH_SIZE, end_day=test_end):
@@ -264,4 +268,6 @@ def predict_stocks(ticker_list, units=UNITS, prediction_day=PREDICTION_DAY, pred
     write_in_file(path='Prediction.txt', data=''.join([f"\n {str(float_price)}", ", date ", end_day]))
     return float(float_price)
 
-predict_stocks(['NIO'], epochs_par=23, batch_size=33, units=89, prediction_days=77, prediction_day=1)
+predict_stocks(['NIO'], epochs_par=23, batch_size=64, units=89, prediction_days=77, prediction_day=1)
+predict_stocks(['XPEV'], epochs_par=23, batch_size=64, units=89, prediction_days=77, prediction_day=1)
+predict_stocks(['LI'], epochs_par=23, batch_size=64, units=89, prediction_days=77, prediction_day=1)

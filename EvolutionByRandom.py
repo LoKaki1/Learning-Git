@@ -7,15 +7,12 @@ from random import randint
 from datetime import datetime, timedelta
 
 NUMBER_RANGE = 20
+PREDICTION_DAY = 7
+BATCH_SIZE = 64
 
 
 def random_variables():
-    epochs = randint(10, 30)
-    batch_size = randint(5, 64)
-    units = randint(19, 100)
-    prediction_days = randint(10, 80)
-    prediction_day = 1
-    return [epochs, batch_size, units, prediction_days, prediction_day]
+    return [randint(10, 50), BATCH_SIZE , randint(19, 100), randint(10, 80), PREDICTION_DAY]
 
 
 def date_minus_date_time(delta_time):
@@ -73,6 +70,6 @@ def get_the_best_of_them(ticker, best_ratio):
     return best_ratio
 
 
-last_ratio = 0.95
+last_ratio = 0.90
 while True:
     last_ratio = get_the_best_of_them('NIO', last_ratio)
