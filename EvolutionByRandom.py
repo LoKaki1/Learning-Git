@@ -71,5 +71,6 @@ def get_the_best_of_them(ticker, best_ratio):
 
 
 last_ratio = 0.90
+stocks_it_can_choose = ['NIO', 'XPEV', 'LI', 'TTOO', 'RIOT']
 while True:
-    last_ratio = get_the_best_of_them('NIO', last_ratio)
+    last_ratio = get_the_best_of_them(stocks_it_can_choose[randint(0, len(stocks_it_can_choose) - 1)], last_ratio)
