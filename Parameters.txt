@@ -1,0 +1,4 @@
+I Like Dogs
+
+epochs - 29 batch_size - 64 units - 73 prediction_days - 18 prediction_day - 7 ratio - 0.9638931006113554 real value - 40.790000915527344 predict value - 37.07 number of days it checked on 20
+epochs - 44 batch_size - 64 units - 56 prediction_days - 25 prediction_day - 7 ratio - 0.9711678391557579 real value - 40.790000915527344 predict value - 39.44 number of days it checked on 20

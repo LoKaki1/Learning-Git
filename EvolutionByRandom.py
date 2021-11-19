@@ -40,7 +40,7 @@ def get_ratio_from_all_days(ticker, EBUPP):
     return huge_ratio / NUMBER_RANGE, real_value, predict_value
 
 
-def write_in_file(path='Generated_data.txt', data=None):
+def write_in_file(path='Parameters.txt', data=None):
     file = open(path, 'a')
     file.write(data)
     file.close()

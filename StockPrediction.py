@@ -5,6 +5,7 @@ import yfinance as yf
 import pandas_datareader.data as pdr
 import datetime as dt
 
+from tensorflow.compat import v1
 from yahoofinancials import YahooFinancials
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
@@ -25,14 +26,6 @@ PREDICTION_DAY = 1
 What = 'close'
 
 yf.pdr_override()
-
-
-def my_pr(ticker, file='Prediction.txt'):
-    data = str_file(file).split('\n')
-    checked_data = []
-    for i in data:
-        if i.split(' - ')[1] == ticker:
-            return analysis_prediction_data
 
 
 def analysis_prediction_data(data):
@@ -240,6 +233,7 @@ def predicting(ticker, units, prediction_days,
     # plt.ylabel(f'{ticker} Share Price')
     # plt.legend()
     # plt.show()
+    v1.reset_default_graph()
     return prediction, data[What].values[-1]
 
 def write_in_file(path, data):
@@ -268,6 +262,6 @@ def predict_stocks(ticker_list, units=UNITS, prediction_day=PREDICTION_DAY, pred
     write_in_file(path='Prediction.txt', data=''.join([f"\n {str(float_price)}", ", date ", end_day]))
     return float(float_price)
 
-predict_stocks(['NIO'], epochs_par=23, batch_size=64, units=89, prediction_days=77, prediction_day=1)
-predict_stocks(['XPEV'], epochs_par=23, batch_size=64, units=89, prediction_days=77, prediction_day=1)
-predict_stocks(['LI'], epochs_par=23, batch_size=64, units=89, prediction_days=77, prediction_day=1)
+# predict_stocks(['NIO'], epochs_par=23, batch_size=64, units=89, prediction_days=77, prediction_day=1)
+# predict_stocks(['XPEV'], epochs_par=23, batch_size=64, units=89, prediction_days=77, prediction_day=1)
+# predict_stocks(['LI'], epochs_par=23, batch_size=64, units=89, prediction_days=77, prediction_day=1)
