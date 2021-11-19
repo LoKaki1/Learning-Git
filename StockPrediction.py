@@ -103,8 +103,8 @@ def data_checking(units, prediction_days, prediction_day):
 
 def predicting(ticker, units, prediction_days,
                prediction_day,
-               epoch_par=EPOCHS,
-               batch_size_par=BATCH_SIZE, end_day=test_end):
+               epochs=EPOCHS,
+               batch_size=BATCH_SIZE, end_day=test_end):
     """
     This func predicts a stock value in a given day and it gets the parameters for it to work
     """
@@ -159,50 +159,8 @@ def predicting(ticker, units, prediction_days,
 
     model.compile(optimizer='adam', loss='mean_squared_error')
 
-    model.fit(x_train, y_train, epochs=epoch_par, batch_size=batch_size_par)
-
+    model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size)
     """"" Test The Data """""
-    #
-    # test_data = get_historical_data(ticker, end=end_day)
-    # all_in_one2 = get_my_x_axis()
-    # test_data = pd.DataFrame(data=all_in_one)
-    #
-    # actual_prices = test_data[What].values
-    #
-    # total_data_set = pd.concat((data['open'], test_data['open']), axis=0)
-    # model_input_open = total_data_set[len(total_data_set) - len(test_data) - prediction_days:].values
-    # model_input_open = model_input_open.reshape(-1, 1)
-    #
-    # total_data_set = pd.concat((data['close'], test_data['close']), axis=0)
-    # model_input_close = total_data_set[len(total_data_set) - len(test_data) - prediction_days:].values
-    # model_input_close = model_input_close.reshape(-1, 1)
-    #
-    # total_data_set = pd.concat((data['low'], test_data['low']), axis=0)
-    # model_input_low = total_data_set[len(total_data_set) - len(test_data) - prediction_days:].values
-    # model_input_low = model_input_low.reshape(-1, 1)
-    #
-    # total_data_set = pd.concat((data['high'], test_data['high']), axis=0)
-    # model_input_high = total_data_set[len(total_data_set) - len(test_data) - prediction_days:].values
-    # model_input_high = model_input_high.reshape(-1, 1)
-    #
-    # total_data_set = pd.concat((data['adjclose'], test_data['adjclose']), axis=0)
-    # model_input_adjclose = total_data_set[len(total_data_set) - len(test_data) - prediction_days:].values
-    # model_input_adjclose = model_input_adjclose.reshape(-1, 1)
-    #
-    # total_data_set = pd.concat((data['volume'], test_data['volume']), axis=0)
-    # model_input_volume = total_data_set[len(total_data_set) - len(test_data) - prediction_days:].values
-    # model_input_volume = model_input_volume.reshape(-1, 1)
-    #
-    # model_input = []
-    # for i in range(len(model_input_high)):
-    #     model_input.append([model_input_open[i][-1], model_input_close[i][-1],
-    #                         model_input_high[i][-1], model_input_low[i][-1],
-    #                         model_input_volume[i][-1], model_input_adjclose[i][-1]])
-    #
-    #
-    # print(model_input[4::])
-    #
-    # model_input = scalar.transform(model_input)
     model_input = scaled_data
 
     """" Make Prediction On Test Data """
@@ -226,42 +184,41 @@ def predicting(ticker, units, prediction_days,
     prediction = scalar.inverse_transform(prediction)
     # # Plot the Test Prediction
 
-    # plt.plot(actual_prices, color='blue')
-    # plt.plot(pre_prices, color='red')
-    # plt.title(f'{ticker} Share Price')
-    # plt.xlabel('Time')
-    # plt.ylabel(f'{ticker} Share Price')
-    # plt.legend()
-    # plt.show()
+    plt.plot(y_train, color='blue')
+    plt.plot(pre_prices[0], color='red')
+    plt.title(f'{ticker} Share Price')
+    plt.xlabel('Time')
+    plt.ylabel(f'{ticker} Share Price')
+    plt.legend()
+    plt.show()
     v1.reset_default_graph()
     return prediction, data[What].values[-1]
+
 
 def write_in_file(path, data):
     with open(path, 'a') as file:
         file.write(data)
         file.close()
 
-def predict_stocks(ticker_list, units=UNITS, prediction_day=PREDICTION_DAY, prediction_days=PREDICTION_DAYS,
-                   epochs_par=EPOCHS, batch_size=BATCH_SIZE, end_day=test_end):
+
+def predict_stocks(ticker, units=UNITS, prediction_day=PREDICTION_DAY, prediction_days=PREDICTION_DAYS,
+                   epochs=EPOCHS, batch_size=BATCH_SIZE, end_day=test_end):
     long_stocks = []
     short_stocks = []
     float_price = 0
     yesterday = 0
     print("units: ", units, "PD:", prediction_day, "PDS:", prediction_days)
-    for my_ticker in ticker_list:
-        my_prediction, yesterday = predicting(my_ticker, units, prediction_days=prediction_days,
-                                              prediction_day=prediction_day,
-                                              batch_size_par=batch_size, epoch_par=epochs_par, end_day=end_day)
-        print(f"Prediction -  {my_prediction, yesterday}")
-        float_price = my_prediction[-1][-1]
-        if float_price > float(yesterday):
-            long_stocks.append((my_ticker, f"Predict Price - {float_price}", f"Last Price - {float(yesterday)}"))
-        else:
-            short_stocks.append((my_ticker, f"Predict Price - {float_price}", f"Last Price - {float(yesterday)}"))
+
+    my_prediction, yesterday = predicting(ticker, units, prediction_days=prediction_days,
+                                          prediction_day=prediction_day,
+                                          batch_size=batch_size, epochs=epochs, end_day=end_day)
+    print(f"Prediction -  {my_prediction, yesterday}")
+    float_price = my_prediction[-1][-1]
+    if float_price > float(yesterday):
+        long_stocks.append((ticker, f"Predict Price - {float_price}", f"Last Price - {float(yesterday)}"))
+    else:
+        short_stocks.append((ticker, f"Predict Price - {float_price}", f"Last Price - {float(yesterday)}"))
 
     write_in_file(path='Prediction.txt', data=''.join([f"\n {str(float_price)}", ", date ", end_day]))
     return float(float_price)
 
-# predict_stocks(['NIO'], epochs_par=23, batch_size=64, units=89, prediction_days=77, prediction_day=1)
-# predict_stocks(['XPEV'], epochs_par=23, batch_size=64, units=89, prediction_days=77, prediction_day=1)
-# predict_stocks(['LI'], epochs_par=23, batch_size=64, units=89, prediction_days=77, prediction_day=1)
