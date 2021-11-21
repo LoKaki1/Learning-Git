@@ -2,3 +2,18 @@ I Like Dogs
 
 epochs - 29 batch_size - 64 units - 73 prediction_days - 18 prediction_day - 7 ratio - 0.9638931006113554 real value - 40.790000915527344 predict value - 37.07 number of days it checked on 20
 epochs - 44 batch_size - 64 units - 56 prediction_days - 25 prediction_day - 7 ratio - 0.9711678391557579 real value - 40.790000915527344 predict value - 39.44 number of days it checked on 20
+epochs - 16 batch_size - None units - None prediction_days - 11 prediction_day - 7 ratio - 0.9299815071720072 real value - 32.630001068115234 predict value - 27.89 number of days it checked on 20
+epochs - 29 batch_size - None units - None prediction_days - 48 prediction_day - 7 ratio - 0.9444764354233286 real value - 32.630001068115234 predict value - 29.26 number of days it checked on 20
+epochs - 42 batch_size - None units - None prediction_days - 30 prediction_day - 7 ratio - 0.9475830034353626 real value - 32.630001068115234 predict value - 29.31 number of days it checked on 20
+epochs - 36 batch_size - None units - None prediction_days - 47 prediction_day - 7 ratio - 0.9559102347757895 real value - 32.630001068115234 predict value - 29.41 number of days it checked on 20
+epochs - 21 batch_size - None units - None prediction_days - 56 prediction_day - 4 ratio - 0.9741372933466467 real value - 29.979999542236328 predict value - 29.56 number of days it checked on 10
+epochs - 14 batch_size - None units - None prediction_days - 39 prediction_day - 4 ratio - 0.9777397316709843 real value - 29.979999542236328 predict value - 28.85 number of days it checked on 10
+epochs - 16 batch_size - None units - None prediction_days - 38 prediction_day - 4 ratio - 0.9821102110834069 real value - 29.639999389648438 predict value - 29.35 number of days it checked on 10
+epochs - 34 batch_size - None units - None prediction_days - 78 prediction_day - 1 ratio - 0.9340022906766494 real value - 39.54999923706055 predict value - 41.40 number of days it checked on 10
+epochs - 35 batch_size - None units - None prediction_days - 30 prediction_day - 1 ratio - 0.9454367672139309 real value - 39.54999923706055 predict value - 44.43 number of days it checked on 10
+epochs - 15 batch_size - None units - None prediction_days - 36 prediction_day - 1 ratio - 0.9500965456288288 real value - 39.54999923706055 predict value - 39.14 number of days it checked on 10
+epochs - 23 batch_size - None units - None prediction_days - 45 prediction_day - 1 ratio - 0.960027180610344 real value - 39.54999923706055 predict value - 41.55 number of days it checked on 10
+epochs - 15 batch_size - None units - None prediction_days - 16 prediction_day - 1 ratio - 0.9613446902753612 real value - 39.54999923706055 predict value - 40.32 number of days it checked on 10
+epochs - 17 batch_size - None units - None prediction_days - 67 prediction_day - 1 ratio - 0.9705291893342448 real value - 29.639999389648438 predict value - 31.38 number of days it checked on 10
+epochs - 47 batch_size - None units - None prediction_days - 78 prediction_day - 1 ratio - 0.9737628317612398 real value - 29.639999389648438 predict value - 31.60 number of days it checked on 10
+epochs - 14 batch_size - None units - None prediction_days - 66 prediction_day - 1 ratio - 0.975678325099864 real value - 29.639999389648438 predict value - 30.40 number of days it checked on 10

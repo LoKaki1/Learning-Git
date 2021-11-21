@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import yfinance as yf
-import pandas_datareader.data as pdr
 import datetime as dt
 
 from tensorflow.compat import v1
@@ -22,7 +21,7 @@ BATCH_SIZE = 32
 UNITS = 140
 PREDICTION_DAYS = 80
 PREDICTION_DAY = 1
-
+SAMPLES = 15
 What = 'close'
 
 yf.pdr_override()
@@ -83,28 +82,24 @@ def getting_stocks():
 
 def data_checking(units, prediction_days, prediction_day):
     try:
-        units = int(units)
-    except ValueError:
-        print("Units are wrong")
-        units = UNITS
-    try:
         prediction_days = int(prediction_days)
-    except ValueError:
+    except (ValueError, TypeError):
         print("Prediction Days are wrong")
         prediction_days = PREDICTION_DAYS
     try:
         prediction_day = int(prediction_day)
 
-    except ValueError:
+    except (ValueError, TypeError):
         print("Prediction Day is wrong")
         prediction_day = PREDICTION_DAY
     return units, prediction_days, prediction_day
 
 
-def predicting(ticker, units, prediction_days,
-               prediction_day,
+def predicting(ticker, units=None, prediction_days=None,
+               prediction_day=None,
                epochs=EPOCHS,
-               batch_size=BATCH_SIZE, end_day=test_end):
+               batch_size=BATCH_SIZE, end_day=test_end,
+               samples=SAMPLES):
     """
     This func predicts a stock value in a given day and it gets the parameters for it to work
     """
@@ -139,7 +134,6 @@ def predicting(ticker, units, prediction_days,
     scaled_data_y = scalar.fit_transform(data[What].values.reshape(-1, 1))
     x_train = []
     y_train = []
-    print(scaled_data)
 
     for x in range(prediction_days, len(scaled_data)):
         x_train.append(scaled_data[x - prediction_days:x, 0])
@@ -147,7 +141,11 @@ def predicting(ticker, units, prediction_days,
 
     x_train, y_train = np.array(x_train), np.array(y_train)
     x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
-
+    try:
+        units = int(units)
+    except (ValueError, TypeError):
+        units = len(y_train) // samples
+        batch_size = len(y_train) // units
     model = Sequential()
     model.add(LSTM(units=units, return_sequences=True, input_shape=(x_train.shape[1], 1)))
     model.add(Dropout(0.2))
@@ -158,7 +156,7 @@ def predicting(ticker, units, prediction_days,
     model.add(Dense(units=prediction_day))
 
     model.compile(optimizer='adam', loss='mean_squared_error')
-
+    batch_size = len(y_train) // units if not batch_size else BATCH_SIZE
     model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size)
     """"" Test The Data """""
     model_input = scaled_data
@@ -170,7 +168,7 @@ def predicting(ticker, units, prediction_days,
 
     x_test = np.array(x_test)
     x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
-
+    print(x_test[0], x_train[0])
     pre_prices = model.predict(x_test)
     pre_prices = scalar.inverse_transform(pre_prices)
 
@@ -180,19 +178,24 @@ def predicting(ticker, units, prediction_days,
 
     real_data = np.array(real_data)
     real_data = np.reshape(real_data, (real_data.shape[0], real_data.shape[1], 1))
+    print(real_data)
     prediction = model.predict(real_data)
     prediction = scalar.inverse_transform(prediction)
-    # # Plot the Test Prediction
+    """  Plot the Test Prediction """
+    # plot(data['close'], pre_prices, ticker)
+    v1.reset_default_graph()
+    return prediction, data[What].values[-1]
 
-    plt.plot(y_train, color='blue')
-    plt.plot(pre_prices[0], color='red')
+
+def plot(data, pre_prices, ticker):
+    plt.plot(data, color='blue')
+    print(pre_prices)
+    plt.plot(pre_prices, color='red')
     plt.title(f'{ticker} Share Price')
     plt.xlabel('Time')
     plt.ylabel(f'{ticker} Share Price')
     plt.legend()
     plt.show()
-    v1.reset_default_graph()
-    return prediction, data[What].values[-1]
 
 
 def write_in_file(path, data):
@@ -201,18 +204,16 @@ def write_in_file(path, data):
         file.close()
 
 
-def predict_stocks(ticker, units=UNITS, prediction_day=PREDICTION_DAY, prediction_days=PREDICTION_DAYS,
+def predict_stocks(ticker, units=None, prediction_day=PREDICTION_DAY, prediction_days=PREDICTION_DAYS,
                    epochs=EPOCHS, batch_size=BATCH_SIZE, end_day=test_end):
     long_stocks = []
     short_stocks = []
-    float_price = 0
-    yesterday = 0
     print("units: ", units, "PD:", prediction_day, "PDS:", prediction_days)
 
     my_prediction, yesterday = predicting(ticker, units, prediction_days=prediction_days,
                                           prediction_day=prediction_day,
                                           batch_size=batch_size, epochs=epochs, end_day=end_day)
-    print(f"Prediction -  {my_prediction, yesterday}")
+    print(f"Prediction -  {my_prediction[-1], yesterday}")
     float_price = my_prediction[-1][-1]
     if float_price > float(yesterday):
         long_stocks.append((ticker, f"Predict Price - {float_price}", f"Last Price - {float(yesterday)}"))
@@ -222,3 +223,22 @@ def predict_stocks(ticker, units=UNITS, prediction_day=PREDICTION_DAY, predictio
     write_in_file(path='Prediction.txt', data=''.join([f"\n {str(float_price)}", ", date ", end_day]))
     return float(float_price)
 
+
+def predict_stocks_avg(ticker, units=None,
+                       prediction_day=None,
+                       prediction_days=None,
+                       epochs=None, batch_size=None,
+                       end_day=test_end, average=3):
+    return sum(predict_stocks(ticker, units,
+                              prediction_day,
+                              prediction_days,
+                              epochs, batch_size,
+                              end_day) for i in range(average)) / average
+
+
+# print(predict_stocks('NIO'))
+# stocks = ['NIO', 'XPEV', 'LI']
+# for i in stocks:
+#     write_in_file(data=str(predict_stocks_avg(i)), path='Average.txt')
+#
+#

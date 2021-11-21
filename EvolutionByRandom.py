@@ -6,13 +6,13 @@ import os
 from random import randint
 from datetime import datetime, timedelta
 
-NUMBER_RANGE = 20
-PREDICTION_DAY = 7
-BATCH_SIZE = 64
-
+NUMBER_RANGE = 10
+PREDICTION_DAY = 1
+BATCH_SIZE = None
+UNITS = None
 
 def random_variables():
-    return [randint(10, 50), BATCH_SIZE , randint(19, 100), randint(10, 80), PREDICTION_DAY]
+    return [randint(10, 50), BATCH_SIZE, UNITS, randint(10, 80), PREDICTION_DAY]
 
 
 def date_minus_date_time(delta_time):
@@ -22,20 +22,25 @@ def date_minus_date_time(delta_time):
 def predicting_value_minus_delta_times(ticker, EBUPP, delta_times):
     end_day = str(date_minus_date_time(delta_times))
     predicted_end_day = str(date_minus_date_time(delta_times+1))
-
-    predict_value = predict_stocks([ticker], units=EBUPP[2], prediction_days=EBUPP[3], epochs_par=EBUPP[0],
-                                   batch_size=EBUPP[1], prediction_day=EBUPP[4], end_day=predicted_end_day)
+    try:
+        predict_value = predict_stocks(ticker, units=EBUPP[2], prediction_days=EBUPP[3], epochs=EBUPP[0],
+                                       batch_size=EBUPP[1], prediction_day=EBUPP[4], end_day=predicted_end_day)
+    except Exception as e:
+        print(e.args)
+        predict_value, real_value = predicting_value_minus_delta_times(ticker, EBUPP, delta_times)
     real_value = get_historical_data(ticker, end=end_day)['close'][-1]
     print(predict_value, real_value, end_day)
     return predict_value, real_value
 
 
-def get_ratio_from_all_days(ticker, EBUPP):
+def get_ratio_from_all_days(ticker, EBUPP, ):
     real_value, predict_value = 0, 0
     huge_ratio = 0
     for i in range(NUMBER_RANGE):
         predict_value, real_value = predicting_value_minus_delta_times(ticker, EBUPP, i)
         ratio_for_this_delta = min(predict_value / real_value, real_value / predict_value)
+        if ratio_for_this_delta < 0.95:
+            break
         huge_ratio += ratio_for_this_delta
     return huge_ratio / NUMBER_RANGE, real_value, predict_value
 
