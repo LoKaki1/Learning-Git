@@ -17,3 +17,5 @@ epochs - 15 batch_size - None units - None prediction_days - 16 prediction_day -
 epochs - 17 batch_size - None units - None prediction_days - 67 prediction_day - 1 ratio - 0.9705291893342448 real value - 29.639999389648438 predict value - 31.38 number of days it checked on 10
 epochs - 47 batch_size - None units - None prediction_days - 78 prediction_day - 1 ratio - 0.9737628317612398 real value - 29.639999389648438 predict value - 31.60 number of days it checked on 10
 epochs - 14 batch_size - None units - None prediction_days - 66 prediction_day - 1 ratio - 0.975678325099864 real value - 29.639999389648438 predict value - 30.40 number of days it checked on 10
+epochs - 32 batch_size - None units - None prediction_days - 73 prediction_day - 1 ratio - 0.9714630706228352 real value - 30.639999389648438 predict value - 29.77 number of days it checked on 10
+epochs - 15 batch_size - None units - None prediction_days - 49 prediction_day - 1 ratio - 0.9822158813594786 real value - 30.639999389648438 predict value - 31.30 number of days it checked on 10

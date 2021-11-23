@@ -16,10 +16,10 @@ test_end = (dt.datetime.now() - dt.timedelta(days=0)).strftime('%Y-%m-%d')
 MY_X_AXIS = {'open': [], 'close': [], 'high': [], 'low': [], 'volume': [], 'adjclose': []}
 POSSIBLE = {'open': [], 'close': [], 'high': [], 'low': [], 'volume': [], 'adjclose': []}
 
-EPOCHS = 25
+EPOCHS = 15
 BATCH_SIZE = 32
 UNITS = 140
-PREDICTION_DAYS = 80
+PREDICTION_DAYS = 49
 PREDICTION_DAY = 1
 SAMPLES = 15
 What = 'close'
@@ -80,7 +80,7 @@ def getting_stocks():
     return data
 
 
-def data_checking(units, prediction_days, prediction_day):
+def data_checking(prediction_days, prediction_day):
     try:
         prediction_days = int(prediction_days)
     except (ValueError, TypeError):
@@ -92,7 +92,7 @@ def data_checking(units, prediction_days, prediction_day):
     except (ValueError, TypeError):
         print("Prediction Day is wrong")
         prediction_day = PREDICTION_DAY
-    return units, prediction_days, prediction_day
+    return prediction_days, prediction_day
 
 
 def predicting(ticker, units=None, prediction_days=None,
@@ -105,7 +105,7 @@ def predicting(ticker, units=None, prediction_days=None,
     """
 
     """    Checking If Data Is Good   """
-    units, prediction_days, prediction_day = data_checking(units, prediction_days, prediction_day)
+    prediction_days, prediction_day = data_checking(prediction_days, prediction_day)
 
     data = get_historical_data(ticker, end=end_day)
     all_in_one = get_my_x_axis()
@@ -144,8 +144,11 @@ def predicting(ticker, units=None, prediction_days=None,
     try:
         units = int(units)
     except (ValueError, TypeError):
+
         units = len(y_train) // samples
         batch_size = len(y_train) // units
+        epochs = EPOCHS
+        prediction_days = PREDICTION_DAYS
     model = Sequential()
     model.add(LSTM(units=units, return_sequences=True, input_shape=(x_train.shape[1], 1)))
     model.add(Dropout(0.2))
@@ -208,7 +211,7 @@ def predict_stocks(ticker, units=None, prediction_day=PREDICTION_DAY, prediction
                    epochs=EPOCHS, batch_size=BATCH_SIZE, end_day=test_end):
     long_stocks = []
     short_stocks = []
-    print("units: ", units, "PD:", prediction_day, "PDS:", prediction_days)
+    print("units: ", units, "PD:", prediction_day, "PDS:", prediction_days , batch_size)
 
     my_prediction, yesterday = predicting(ticker, units, prediction_days=prediction_days,
                                           prediction_day=prediction_day,
@@ -236,9 +239,8 @@ def predict_stocks_avg(ticker, units=None,
                               end_day) for i in range(average)) / average
 
 
-# print(predict_stocks('NIO'))
-# stocks = ['NIO', 'XPEV', 'LI']
-# for i in stocks:
-#     write_in_file(data=str(predict_stocks_avg(i)), path='Average.txt')
-#
-#
+stocks = ['NIO', 'XPEV', 'LI']
+for i in stocks:
+    write_in_file(data=str(predict_stocks_avg(i)), path='Average.txt')
+
+
