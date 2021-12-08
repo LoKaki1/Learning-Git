@@ -4,15 +4,15 @@ using random values with predicting some prices and compare it with the real val
 using test_data() that returns the real values and the predicting values that, Ai
 predicted according to its model
 """
-from ClassifierStocksAI import test_model, accuracy_ratio
+from ClassifierStocksAI import test_model, accuracy_ratio, get_historical_data
 from Common import write_in_file
 from random import randint, Random
 
-TICKER_LIST = ['NIO', 'RIOT']
+TICKER_LIST = ['NIO', 'RIOT', 'TSLA', 'AAPL', 'XPEV', 'LI']
 
 """ Constant  """
-GARBAGE_PATH = r'C:\Users\meir\Learning-Git\predicting_stocks\settings_for_ai\garbage_parameters_status.txt'
-PATH = r'C:\Users\meir\Learning-Git\predicting_stocks\settings_for_ai\parameters_status.txt'
+GARBAGE_PATH = r'../predicting_stocks/settings_for_ai/garbage_parameters_status.txt'
+PATH = r'../predicting_stocks/settings_for_ai/parameters_status.txt'
 BATCH_SIZE = 64
 PREDICTION_DAY = 1
 DENSE_UNITS = 0.2
@@ -104,10 +104,16 @@ def generate_best_values():
             break
 
 
-""" Should be fixed, I think it works pair every stock induvidally
+""" 
+    
+    Should be fixed, I think it works pair every stock individually
     Solution, Create json file that contains the parameters that suits best for a specific stock 
     
  """
 
+print(get_historical_data('TSLA'))
+print(get_historical_data('AAPL'))
+print(get_historical_data('XPEV'))
+print(get_historical_data('LI'))
 
 generate_best_values()

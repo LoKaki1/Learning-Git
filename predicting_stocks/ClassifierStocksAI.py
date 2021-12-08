@@ -19,7 +19,7 @@ START_INT = 600
 STOP_INT = -1
 TICKER = 'NIO'
 X_VALUES = ['open', 'close', 'low', 'high', ]
-START = dt.datetime(2020, 1, 1).strftime('%Y-%m-%d')
+START = dt.datetime(2019, 12, 1).strftime('%Y-%m-%d')
 END = (dt.datetime.now() - dt.timedelta(days=0)).strftime('%Y-%m-%d')
 PREDICTION_DAYS = 21
 UNITS = 51
@@ -35,10 +35,15 @@ def get_historical_data(ticker, start=START, end=END):
     ticker = ticker.strip("'")
     data = YahooFinancials(ticker)
     data = data.get_historical_price_data(start, end, 'daily')
-    t_data = pd.DataFrame(data[ticker]['prices'])
-    t_data = t_data.drop('date', axis=1).set_index('formatted_date')
-    t_data.head()
-
+    if 'prices' in pd.DataFrame(data[ticker]).keys():
+        t_data = pd.DataFrame(data[ticker]['prices'])
+        t_data = t_data.drop('date', axis=1).set_index('formatted_date')
+        t_data.head()
+    else:
+        data = data.get_historical_price_data(dt.datetime(2020, 3, 1).strftime('%Y-%m-%d'), end, 'daily')
+        t_data = pd.DataFrame(data[ticker]['prices'])
+        t_data = t_data.drop('date', axis=1).set_index('formatted_date')
+        t_data.head()
     return t_data
 
 
@@ -364,12 +369,12 @@ def build_model_for_multiple_prediction(ticker, prediction_day=PREDICTION_DAY,
 
 
 def main():
-    ticker = 'AAPL'
-    model = build_model_for_multiple_prediction(ticker=ticker, epochs=25, units=51, prediction_days=21, dense_units=0.2)
+    ticker = 'NIO'
+    model = build_model_for_multiple_prediction(ticker, epochs=19, units=48, prediction_days=13, dense_units=0.2)
     # t, y = test_model('RIOT', units=51, prediction_days=21, model=model)
     # plot_two_graphs(t, y, 'RIOT')
     # print(accuracy_ratio(t, y))
-    print(predict_stock_price_at_specific_day(ticker, model=model))
+    print(predict_stock_price_at_specific_day(ticker, model=model), get_historical_data(ticker)['close'][-1])
 
 
 if __name__ == '__main__':

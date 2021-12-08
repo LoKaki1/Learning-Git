@@ -2,7 +2,7 @@
 import random
 import time
 
-from StocksPrediction import predict_stocks_avg
+from ClassifierStocksAI import predict_stocks_avg
 import yfinance as yf
 
 STOCKS_TO_PREDICT = ['NIO', 'XPEV', 'LI', 'TTOO', 'RIOT', 'TSLA']
@@ -91,7 +91,7 @@ def predict(ticker):
     """
     Returns a predict price from a ticker of today (Want to keep the screen clean as f#%$)
     """
-    return predict_stocks_avg(ticker, average=5)
+    return predict_stocks_avg(ticker, avg=5)
 
 
 def predict_dict():
@@ -110,7 +110,8 @@ def stocks_worth_trading(stocks_prediction, profit=PROFIT, ):
                 max(stocks_prediction[ticker][0] / stocks_prediction[ticker][1],
                     stocks_prediction[ticker][1] / stocks_prediction[ticker][0]) >= get_last_price(ticker) * profit
                 or max(stocks_prediction[ticker][0] / stocks_prediction[ticker][1],
-                    stocks_prediction[ticker][1] / stocks_prediction[ticker][0]) <= get_last_price(ticker) * (2 - profit))
+                       stocks_prediction[ticker][1] / stocks_prediction[ticker][0]) <= get_last_price(ticker) * (
+                            2 - profit))
 
 
 def update_file(actions, money_achieved, path='documentation.txt'):

@@ -1008,3 +1008,7 @@ ticker=RIOT, epochs=13, units=59, prediction_days=64, dense_units=0.2,     ratio
 ticker=RIOT, epochs=21, units=50, prediction_days=55, dense_units=0.2,     ratio=[0.82075244]
 ticker=RIOT, epochs=27, units=37, prediction_days=26, dense_units=0.2,     ratio=[0.8747144]
 ticker=NIO, epochs=23, units=34, prediction_days=44, dense_units=0.2,     ratio=[0.7571999]
+ticker=RIOT, epochs=16, units=40, prediction_days=68, dense_units=0.2,     ratio=[0.8512153]
+ticker=RIOT, epochs=21, units=47, prediction_days=41, dense_units=0.2,     ratio=[0.64288116]
+ticker=RIOT, epochs=16, units=33, prediction_days=54, dense_units=0.2,     ratio=[0.7584767]
+ticker=TSLA, epochs=19, units=50, prediction_days=13, dense_units=0.2,     ratio=[0.86263454]

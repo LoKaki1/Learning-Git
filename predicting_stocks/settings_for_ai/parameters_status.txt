@@ -25,3 +25,6 @@ ticker=NIO, epochs=12, units=51, prediction_days=7, dense_units=0.2,     ratio=[
 ticker=NIO, epochs=19, units=48, prediction_days=13, dense_units=0.2,     ratio=[0.96008974]
 ticker=RIOT, epochs=17, units=38, prediction_days=16, dense_units=0.2,     ratio=[0.96658105]
 ticker=RIOT, epochs=18, units=25, prediction_days=13, dense_units=0.2,     ratio=[0.97160465]
+
+
+ticker=AAPL, epochs=20, units=34, prediction_days=22, dense_units=0.2,     ratio=[0.9595187]
