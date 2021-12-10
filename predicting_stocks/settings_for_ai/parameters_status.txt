@@ -28,3 +28,11 @@ ticker=RIOT, epochs=18, units=25, prediction_days=13, dense_units=0.2,     ratio
 
 
 ticker=AAPL, epochs=20, units=34, prediction_days=22, dense_units=0.2,     ratio=[0.9595187]
+ticker=RIOT, epochs=14, units=28, prediction_days=17, dense_units=0.2,     ratio=[0.9665744]
+ticker=AAPL, epochs=20, units=32, prediction_days=24, dense_units=0.2,     ratio=[0.9748199]
+ticker=AAPL, epochs=23, units=48, prediction_days=29, dense_units=0.2,     ratio=[0.9673854]
+ticker=TSLA, epochs=19, units=34, prediction_days=7, dense_units=0.2,     ratio=[0.97744936]
+ticker=AAPL, epochs=18, units=23, prediction_days=18, dense_units=0.2,     ratio=[0.9842963]
+
+
+ticker=AAPL, epochs=18, units=59, prediction_days=11, dense_units=0.2,     ratio=[0.99006516]

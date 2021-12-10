@@ -19,7 +19,7 @@ START_INT = 600
 STOP_INT = -1
 TICKER = 'NIO'
 X_VALUES = ['open', 'close', 'low', 'high', ]
-START = dt.datetime(2019, 12, 1).strftime('%Y-%m-%d')
+START = dt.datetime(2020, 1, 1).strftime('%Y-%m-%d')
 END = (dt.datetime.now() - dt.timedelta(days=0)).strftime('%Y-%m-%d')
 PREDICTION_DAYS = 21
 UNITS = 51
@@ -33,17 +33,14 @@ BATCH_SIZE = 64
 
 def get_historical_data(ticker, start=START, end=END):
     ticker = ticker.strip("'")
-    data = YahooFinancials(ticker)
+    data = t = YahooFinancials(ticker)
     data = data.get_historical_price_data(start, end, 'daily')
-    if 'prices' in pd.DataFrame(data[ticker]).keys():
-        t_data = pd.DataFrame(data[ticker]['prices'])
-        t_data = t_data.drop('date', axis=1).set_index('formatted_date')
-        t_data.head()
-    else:
-        data = data.get_historical_price_data(dt.datetime(2020, 3, 1).strftime('%Y-%m-%d'), end, 'daily')
-        t_data = pd.DataFrame(data[ticker]['prices'])
-        t_data = t_data.drop('date', axis=1).set_index('formatted_date')
-        t_data.head()
+    while'prices' not in data[ticker].keys():
+        data = t.get_historical_price_data(dt.datetime(2021, 1, 1).strftime('%Y-%m-%d'), end, 'daily')
+        print(data)
+    t_data = pd.DataFrame(data[ticker]['prices'])
+    t_data = t_data.drop('date', axis=1).set_index('formatted_date')
+    t_data.head()
     return t_data
 
 
@@ -151,8 +148,8 @@ def build_model(x_train, y_train,
 
 
 def test_model_func(ticker, scalar, model, prediction_days,
-                    test_start=dt.datetime(2019, 8, 1).strftime('%Y-%m-%d'),
-                    test_end=dt.datetime(2020, 5, 1).strftime('%Y-%m-%d')):
+                    test_start=dt.datetime(2021, 1, 1).strftime('%Y-%m-%d'),
+                    test_end=dt.datetime(2021, 5, 1).strftime('%Y-%m-%d')):
     """ Test Model
     This part is seeing how accuracy the model on a data that exists but wasn't on it's training"""
     int_start = START_INT
@@ -370,7 +367,7 @@ def build_model_for_multiple_prediction(ticker, prediction_day=PREDICTION_DAY,
 
 def main():
     ticker = 'NIO'
-    model = build_model_for_multiple_prediction(ticker, epochs=19, units=48, prediction_days=13, dense_units=0.2)
+    model = build_model_for_multiple_prediction(ticker, epochs=19, units=300, prediction_days=13, dense_units=0.2)
     # t, y = test_model('RIOT', units=51, prediction_days=21, model=model)
     # plot_two_graphs(t, y, 'RIOT')
     # print(accuracy_ratio(t, y))

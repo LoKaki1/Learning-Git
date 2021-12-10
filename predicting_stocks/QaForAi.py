@@ -74,6 +74,7 @@ def generate_best_values():
         """
         Pick a random stock because I do not want the parameters to be specific on one stock
         """
+
         current_ratio = ratio(ticker, parameters)
 
         " Save parameters if ratio is bigger than the last ratio which means those parameters are better than previous"
