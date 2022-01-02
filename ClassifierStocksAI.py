@@ -9,39 +9,52 @@ import ast
 
 from yahoofinancials import YahooFinancials
 from sklearn.preprocessing import MinMaxScaler
-from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, LSTM
-from Common import write_in_file, plot
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.backend import clear_session
+from Common import return_json_data, write_in_file, plot
 
 """ Load Data """
 START_INT = 600
 STOP_INT = -1
 TICKER = 'NIO'
 X_VALUES = ['open', 'low', 'high', 'close', ]
-START = dt.datetime(2020, 1, 1).strftime('%Y-%m-%d')
+START = dt.datetime(2020, 3, 15).strftime('%Y-%m-%d')
 END = (dt.datetime.now() - dt.timedelta(days=0)).strftime('%Y-%m-%d')
 END_TEST = (dt.datetime.now() - dt.timedelta(days=2)).strftime('%Y-%m-%d')
-PREDICTION_DAYS = 32
+PREDICTION_DAYS = 30
 UNITS = 100
-PREDICTION_DAY = 12
+PREDICTION_DAY = 1
 DENSE_UNITS = 0.2
 EPOCHS = 25
-BATCH_SIZE = 64
+BATCH_SIZE = 32
 
 """ Prepare Data """
 
 
 def get_historical_data(ticker, start=START, end=END):
-    ticker = ticker.strip("'")
-    data = YahooFinancials(ticker)
-    data = data.get_historical_price_data(start, end, 'daily')
-    t_data = pd.DataFrame(data[ticker]['prices'])
-    t_data = t_data.drop('date', axis=1).set_index('formatted_date')
-    t_data.head()
-    return t_data
+    return (pd.DataFrame(
+        YahooFinancials(ticker).get_historical_price_data(
+            start_date=start if start is not None else START,
+            end_date=end if end is not None else END,
+            time_interval='daily')[
+            ticker]['prices']).drop('date', axis=1).set_index('formatted_date'))
 
 
-def get_data(ticker, start_day=START, end_day=END, ):
+def generate_data(*args, ticker):
+    # json_data = return_json_data(ticker) if None in args else args
+    # print("generate_data", args, json_data)
+    # if json_data is None:
+    #     return EPOCHS, UNITS, PREDICTION_DAY, PREDICTION_DAYS
+    # return json_data
+    json_data = return_json_data(ticker)
+    for index, i in enumerate(json_data):
+        print(type(json_data))
+        json_data[index] = args[index] if args[index] is not None else json_data[index]
+    return json_data
+
+
+def get_data(ticker, start_day, end_day):
     """
     :param ticker: stock to get its historical data
     :param start_day: the date that from that you take historical data
@@ -50,41 +63,38 @@ def get_data(ticker, start_day=START, end_day=END, ):
     :return: Historical data of a stock and divide it into lists that each contains [open, close, high, low]
     """
     data = get_historical_data(ticker, start_day, end_day)
-    t = [[data[key][i]
-          for key in X_VALUES]
-         for i in range(len(data['close']))]
-    return t
+    return [[data[key][index]
+             for key in X_VALUES]
+            for index, i in enumerate(data['close'])]
 
 
-def fit_data(ticker, train_data=None, start_day=START, end_day=END, ):
+def fit_data(ticker, start_day, end_day):
     """ func that sets the data to be between 0 and 1 means (40, 10) = (0.123, 0.01) something like that
         :returns the data after fitting it into numbers between 0 and 1
     """
-    train_data = get_data(ticker, start_day, end_day,) if train_data is None else train_data
+    train_data = get_data(ticker, start_day, end_day)
     """ Making data without lists because scaled data cant
      use lists so data before = [[1, 2, 3, ...], [2, 3, 4, ...] ...] data after = [1, 2, 3, 2, 3, 4 ...] """
 
-    data = []
-    for i in train_data:
-        for t in i:
-            data.append(t)
+    data = np.array([t for i in train_data
+                     for t in i]).reshape(-1, 1)
+
     "Reshape so it matches with scalar api"
-    data = np.array(data).reshape(-1, 1)
     scalar = MinMaxScaler(feature_range=(0, 1))
     """ Fits x values of data (now it makes the real values ) """
-    print(data)
     scaled_data = scalar.fit_transform(data)
     return scaled_data, scalar
 
 
-def prepare_data(scaled_data, prediction_days=PREDICTION_DAYS, prediction_day=PREDICTION_DAY):
+def prepare_data(scaled_data, prediction_days, prediction_day):
     """ func to prepare data that in x_train it contains prediction_days values and in y_train the predicted price"""
     x_train = []
     y_train = []
+    print(prediction_days, prediction_day)
     delta = len(X_VALUES) * prediction_days
     length_const = len(X_VALUES)
     """ Means to start counting from prediction_days index 'til the end """
-    for x in range(delta, len(scaled_data) - (prediction_day * length_const), length_const):
+    for x in range(delta, len(scaled_data) - ((prediction_day - 1) * length_const), length_const):
         """ x_train[0] = array[scaled_data[0], scaled_data[1], ... scaled_data[prediction_days]]
             x_train[1] = array[scaled_data[1], scaled_data[2], ... scaled_data[prediction_days + 1]]
             ...
@@ -95,39 +105,45 @@ def prepare_data(scaled_data, prediction_days=PREDICTION_DAYS, prediction_day=PR
         """
 
         x_train.append(scaled_data[x - delta: x, 0])
-
-        """ Remember I changed to discover open to match test model + 1 = close + 2 = high + 3 = low"""
-        y_train.append(scaled_data[x + 0: x + (prediction_day * length_const): length_const, 0])
+        """ Remember I changed to discover open to match test model + 0 = open + 1 = low + 2 = high + 3 = close"""
+        y_train.append(scaled_data[x + 3: x + (prediction_day * length_const) + 3: length_const, 0][-1])
     """ Reshape the arrays that
     x_train.shape[0] = length of big array 
 
     x_train[n] = [x_train[n][0], x_train[n][1], ... x_train[n][prediction_days]]"""
-
-    x_train, y_train = np.array(x_train), np.array(y_train)
+    check_data(x_train, y_train)
+    x_train, y_train = np.array(x_train), np.array(y_train).reshape(-1, 1)
     """  x_train.shape[0] = the length of the array, x_train.shape[1] =  prediction days 
      means to create a shape with length of x_train.len and width of prediction days on one dimension
     """
-    print(y_train)
     x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
-    y_train = np.reshape(y_train, (y_train.shape[0], y_train.shape[1], 1))
-    print(y_train)
     return x_train, y_train
 
 
-def build_model(x_train, y_train,
-                units=UNITS,
-                prediction_day=PREDICTION_DAY,
-                dense_units=DENSE_UNITS, epochs=EPOCHS, batch_size=BATCH_SIZE):
-    """ Build Model """
+def check_data(x_train, y_train):
+    for i in range(0, len(x_train) - 1):
+        if y_train[i] != x_train[i + 1][-1]:
+            raise InterruptedError("something went wrong in the code please check it")
 
+
+def build_model(x_train,
+                y_train,
+                units,
+                epochs):
+    """ Build Model """
+    """ Clear session """
+    clear_session()
+
+    """ Building The Model """
     model = Sequential()
     model.add(LSTM(units=units, return_sequences=True, input_shape=(x_train.shape[1], 1)))
-    model.add(Dropout(dense_units))
+    model.add(Dropout(DENSE_UNITS))
     model.add(LSTM(units=units, return_sequences=True))
-    model.add(Dropout(dense_units))
+    model.add(Dropout(DENSE_UNITS))
     model.add(LSTM(units=units))
-    model.add(Dropout(dense_units))
-    model.add(Dense(units=prediction_day))
+    model.add(Dropout(DENSE_UNITS))
+
+    model.add(Dense(units=UNITS))
 
     model.compile(optimizer='adam', loss='mean_squared_error')
     """ Fitting x_train to y_train, that makes
@@ -135,19 +151,17 @@ def build_model(x_train, y_train,
       example:  
             x_train =  (23, 24, 25, 26, 123123 ... * (prediction_days)) * all_data
             y_train = (1) ...* all_data - create a func that x[n] = y[n]    """
-    model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size)
+    print(epochs)
+    model.fit(x_train, y_train, epochs=epochs, batch_size=BATCH_SIZE, verbose='2')
     return model
 
 
-def test_model_func(ticker, scalar, model, prediction_days, prediction_day=PREDICTION_DAY,
-                    test_start=dt.datetime(2020, 10, 1).strftime('%Y-%m-%d'),
-                    test_end=END_TEST):
-    """ Test Model
-    This part is seeing how accuracy the model on a data that exists but wasn't on it's training"""
-    predicted_prices, real_prices = [], []
+def return_test_data(test_start, test_end, prediction_days, prediction_day, ticker, scalar):
     test_data_time = (dt.datetime.strptime(test_start, '%Y-%m-%d') -
                       dt.timedelta(days=prediction_days)).strftime('%Y-%m-%d')
+
     test_data = pd.DataFrame(get_data(ticker, start_day=test_data_time, end_day=test_end)).values
+    actual_data = []
     model_inputs = test_data.reshape(-1, 1)
     x_test = []
     length = len(X_VALUES)
@@ -155,19 +169,35 @@ def test_model_func(ticker, scalar, model, prediction_days, prediction_day=PREDI
 
     model_inputs = scalar.transform(model_inputs)
 
-    for i in range(delta, len(model_inputs), length):
+    for i in range(delta, len(model_inputs) - ((prediction_day - 1) * length), length):
         x_test.append(model_inputs[i - delta: i, 0])
-        print(x_test[-1], model_inputs[i])
-        real_prices.append(scalar.inverse_transform(np.array([model_inputs[i: i + prediction_day: length,
-                                                              0]]).reshape(-1, 1))[-1][-1])
+        actual_data.append(model_inputs[i - 6: i - 6 + (prediction_day * length): length, 0][0])
+    return x_test, actual_data
 
+
+def test_model_func(ticker,
+                    scalar,
+                    model,
+                    prediction_days,
+                    prediction_day,
+                    test_start=dt.datetime(2020, 10, 1).strftime('%Y-%m-%d'),
+                    test_end=END_TEST):
+    """ Test Model
+    This part is seeing how accuracy the model on a data that exists but wasn't on it's training"""
+    x_test, actual_data = return_test_data(test_start, test_end, prediction_days, prediction_day, ticker, scalar)
     x_test = np.array(x_test)
     x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
-
+    actual_data = np.array(actual_data).reshape(-1, 1)
+    actual_data = scalar.inverse_transform(actual_data)
     predicted_prices = model.predict(x_test)
     predicted_prices = scalar.inverse_transform(predicted_prices)
-    print(predicted_prices, real_prices)
-    return predicted_prices, real_prices
+    print(len(predicted_prices), len(predicted_prices[-1]), len(actual_data))
+    pt = []
+    for i in predicted_prices:
+        pt.append(i[-1])
+
+    pt = np.array(pt)
+    return pt, actual_data
 
 
 def plot_two_graphs(predicted_prices, real_prices, ticker):
@@ -180,12 +210,12 @@ def plot_two_graphs(predicted_prices, real_prices, ticker):
 
 
 def accuracy_ratio(predicted_price, actual_data):
-    return sum([min(predicted_price[i] / actual_data[i],
-                    actual_data[i] / predicted_price[i])
+    return sum([min(t / actual_data[i],
+                    actual_data[i] / t)
                 for i, t in enumerate(predicted_price)]) / len(predicted_price)
 
 
-def predict_data(scaled_data, scalar, model, prediction_day=PREDICTION_DAY, prediction_days=PREDICTION_DAYS):
+def predict_data(scaled_data, scalar, model, prediction_days, prediction_day):
     """ Setting model inputs to be equal to scaled data...
         reason for that is because I wanna use the same training data to
         prediction data which makes the neural network gets smarter everyday, because it uses new data
@@ -194,8 +224,8 @@ def predict_data(scaled_data, scalar, model, prediction_day=PREDICTION_DAY, pred
     """
     real_data = last prediction_days values of scaled data 
     """
-    real_data = [model_inputs[len(model_inputs) + prediction_day -
-                              prediction_days * len(X_VALUES): len(model_inputs + prediction_day), 0]]
+    real_data = [model_inputs[len(model_inputs) -
+                              prediction_days * len(X_VALUES): len(model_inputs) + prediction_day, 0]]
     real_data = np.array(real_data)
     real_data = np.reshape(real_data, (real_data.shape[0], real_data.shape[1], 1))
     """ After we took the last prediction_days values, we give this x value 
@@ -208,14 +238,12 @@ def predict_data(scaled_data, scalar, model, prediction_day=PREDICTION_DAY, pred
 
 
 def predict_stock_price_at_specific_day(ticker,
-                                        prediction_day=PREDICTION_DAY,
-                                        prediction_days=PREDICTION_DAYS,
-                                        units=UNITS,
-                                        dense_units=DENSE_UNITS,
-                                        epochs=EPOCHS,
+                                        prediction_day=None,
+                                        prediction_days=None,
+                                        units=None,
+                                        epochs=None,
                                         start_day=START,
                                         end_day=END,
-                                        batch_size=BATCH_SIZE,
                                         model=None):
     """ :return predicted stock price in a specific day
 
@@ -231,16 +259,20 @@ def predict_stock_price_at_specific_day(ticker,
 
 
      """
-
+    epochs, units, prediction_days, prediction_day = generate_data(epochs,
+                                                                   units,
+                                                                   prediction_days,
+                                                                   prediction_day,
+                                                                   ticker=ticker)
+    print(epochs, units, prediction_days, prediction_day)
     scaled_data, scalar = fit_data(ticker, start_day=start_day, end_day=end_day)
-    x_train, y_train = prepare_data(scaled_data, prediction_days)
-    model = build_model(x_train, y_train, units=units, prediction_day=prediction_day, dense_units=dense_units,
-                        epochs=epochs, batch_size=batch_size) if model is None else model
+    x_train, y_train = prepare_data(scaled_data, prediction_days, prediction_day)
+    model = build_model(x_train, y_train, units=units,
+                        epochs=epochs, ) if model is None else model
 
     price = predict_data(scaled_data, model=model,
-                         prediction_day=prediction_day,
                          prediction_days=prediction_days,
-                         scalar=scalar)
+                         scalar=scalar, prediction_day=prediction_day)
 
     end_day_predicted = (dt.datetime.strptime(end_day,
                                               '%Y-%m-%d') +
@@ -281,11 +313,13 @@ def get_data_from_saved_file(ticker, ):
     return ast.literal_eval(data)
 
 
-def test_model(ticker, prediction_day=PREDICTION_DAY,
-               prediction_days=PREDICTION_DAYS,
-               units=UNITS,
-               dense_units=DENSE_UNITS, epochs=EPOCHS,
-               end_day=END, batch_size=BATCH_SIZE, model=None):
+def test_model(ticker,
+               prediction_day=None,
+               prediction_days=None,
+               units=None,
+               epochs=None,
+               start_day=None,
+               end_day=None, model=None):
     """
     function to test the model by making
     prediction on existing data that wasn't given for the model,
@@ -303,20 +337,30 @@ def test_model(ticker, prediction_day=PREDICTION_DAY,
                           ..
                           [last]]
     """
-    scaled_data, scalar = fit_data(ticker, end_day=end_day)
-    x_train, y_train = prepare_data(scaled_data, prediction_days)
-    model = build_model(x_train, y_train, units=units, prediction_day=prediction_day, dense_units=dense_units,
-                        epochs=epochs, batch_size=batch_size) if model is None else model
-    return test_model_func(model=model, scalar=scalar, ticker=ticker, prediction_days=prediction_days, )
+    if epochs is None or units is None or prediction_days is None:
+        epochs, units, prediction_days, prediction_day = generate_data(epochs,
+                                                                       prediction_days,
+                                                                       units,
+                                                                       prediction_day,
+                                                                       ticker=ticker)
+    print(epochs, units, prediction_days, prediction_day)
+
+    scaled_data, scalar = fit_data(ticker, start_day=start_day, end_day=end_day)
+    x_train, y_train = prepare_data(scaled_data, prediction_days, prediction_day)
+    model = build_model(x_train, y_train, units=units,
+                        epochs=epochs, ) if model is None else model
+    return test_model_func(model=model, scalar=scalar, ticker=ticker, prediction_day=prediction_day,
+                           prediction_days=prediction_days, )
 
 
-def predict_stocks_avg(ticker, prediction_day=PREDICTION_DAY,
-                       prediction_days=PREDICTION_DAYS,
-                       units=UNITS,
-                       dense_units=DENSE_UNITS, avg=4):
+def predict_stocks_avg(ticker,
+                       prediction_day,
+                       prediction_days,
+                       units,
+                       avg=4):
     number = sum(
         [predict_stock_price_at_specific_day(ticker, prediction_day=prediction_day, prediction_days=prediction_days,
-                                             units=units, dense_units=dense_units
+                                             units=units,
                                              ) in range(avg)]) / avg
     write_in_file(path='Data/avg.txt', data=str(number))
     return number
@@ -326,23 +370,32 @@ def dumb_test_model(ticker='NIO'):
     return test_model(ticker, units=1, prediction_days=21, epochs=1)
 
 
-def build_model_for_multiple_prediction(ticker, prediction_day=PREDICTION_DAY,
-                                        prediction_days=PREDICTION_DAYS,
-                                        units=UNITS,
-                                        dense_units=DENSE_UNITS, epochs=EPOCHS,
-                                        end_day=END, batch_size=BATCH_SIZE, ):
-    scaled_data, scalar = fit_data(ticker, end_day=end_day)
-    x_train, y_train = prepare_data(scaled_data, prediction_days)
-    return build_model(x_train, y_train, units=units, prediction_day=prediction_day, dense_units=dense_units,
-                       epochs=epochs, batch_size=batch_size)
+def build_model_for_multiple_prediction(ticker, prediction_day=None,
+                                        prediction_days=None,
+                                        units=None,
+                                        epochs=None,
+                                        start_day=START,
+                                        end_day=END,):
+    epochs, units, prediction_days, prediction_day = generate_data(epochs,
+                                                                   prediction_days,
+                                                                   units,
+                                                                   prediction_day,
+                                                                   ticker=ticker)
+    print(epochs, units, prediction_days)
+    scaled_data, scalar = fit_data(ticker, start_day=start_day, end_day=end_day)
+    x_train, y_train = prepare_data(scaled_data, prediction_days, prediction_day)
+    return build_model(x_train, y_train, units=units,
+                       epochs=epochs, )
 
 
 def main():
     ticker = 'NIO'
-    model = build_model_for_multiple_prediction(ticker)
+    model = build_model_for_multiple_prediction(ticker, )
     predict_stock_price_at_specific_day(ticker, model=model)
     p, r = test_model(ticker, model=model)
+    print(accuracy_ratio(p, r))
     plot(p, r, ticker)
+    print(ticker)
 
 
 if __name__ == '__main__':
