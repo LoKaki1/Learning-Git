@@ -42,14 +42,8 @@ def get_historical_data(ticker, start=START, end=END):
 
 
 def generate_data(*args, ticker):
-    # json_data = return_json_data(ticker) if None in args else args
-    # print("generate_data", args, json_data)
-    # if json_data is None:
-    #     return EPOCHS, UNITS, PREDICTION_DAY, PREDICTION_DAYS
-    # return json_data
     json_data = return_json_data(ticker)
     for index, i in enumerate(json_data):
-        print(type(json_data))
         json_data[index] = args[index] if args[index] is not None else json_data[index]
     return json_data
 
@@ -63,6 +57,7 @@ def get_data(ticker, start_day, end_day):
     :return: Historical data of a stock and divide it into lists that each contains [open, close, high, low]
     """
     data = get_historical_data(ticker, start_day, end_day)
+    print(data['close'][-1])
     return [[data[key][index]
              for key in X_VALUES]
             for index, i in enumerate(data['close'])]
@@ -129,7 +124,8 @@ def check_data(x_train, y_train):
 def build_model(x_train,
                 y_train,
                 units,
-                epochs):
+                epochs,
+                ticker=None):
     """ Build Model """
     """ Clear session """
     clear_session()
@@ -143,7 +139,8 @@ def build_model(x_train,
     model.add(LSTM(units=units))
     model.add(Dropout(DENSE_UNITS))
 
-    model.add(Dense(units=UNITS))
+    model.add(Dense(units=UNITS,))
+    model.add(Dense(units=UNITS + 1,))
 
     model.compile(optimizer='adam', loss='mean_squared_error')
     """ Fitting x_train to y_train, that makes
@@ -151,7 +148,7 @@ def build_model(x_train,
       example:  
             x_train =  (23, 24, 25, 26, 123123 ... * (prediction_days)) * all_data
             y_train = (1) ...* all_data - create a func that x[n] = y[n]    """
-    print(epochs)
+    print(epochs, ticker)
     model.fit(x_train, y_train, epochs=epochs, batch_size=BATCH_SIZE, verbose='2')
     return model
 
@@ -180,7 +177,7 @@ def test_model_func(ticker,
                     model,
                     prediction_days,
                     prediction_day,
-                    test_start=dt.datetime(2020, 10, 1).strftime('%Y-%m-%d'),
+                    test_start=dt.datetime(2021, 5, 1).strftime('%Y-%m-%d'),
                     test_end=END_TEST):
     """ Test Model
     This part is seeing how accuracy the model on a data that exists but wasn't on it's training"""
