@@ -28,7 +28,7 @@ PREDICTION_DAY = 1
 DENSE_UNITS = 0.2
 EPOCHS = 25
 BATCH_SIZE = 32
-
+PARAMETERS = [EPOCHS, UNITS, PREDICTION_DAYS, PREDICTION_DAY]
 """ Prepare Data """
 
 
@@ -42,21 +42,16 @@ def get_historical_data(ticker, start=START, end=END):
 
 
 def generate_data(*args, ticker):
-    # json_data = return_json_data(ticker) if None in args else args
-    # print("generate_data", args, json_data)
-    # if json_data is None:
-    #     return EPOCHS, UNITS, PREDICTION_DAY, PREDICTION_DAYS
-    # return json_data
     json_data = return_json_data(ticker)
     for index, i in enumerate(json_data):
-        print(type(json_data))
-        json_data[index] = args[index] if args[index] is not None else json_data[index]
+        json_data[index] = i if i is not None else PARAMETERS[index]
+        json_data[index] = args[index] if args[index] is not None else i
     return json_data
 
 
 def get_data(ticker, start_day, end_day):
     """
-    :param ticker: stock to get its historical data
+    param ticker: stock to get its historical data
     :param start_day: the date that from that you take historical data
     :param end_day: the date that until it you take historical data
     (start_day, end_day) require internet connection
@@ -245,9 +240,9 @@ def predict_stock_price_at_specific_day(ticker,
                                         start_day=START,
                                         end_day=END,
                                         model=None):
-    """ :return predicted stock price in a specific day
+    """ return predicted stock price in a specific day
 
-        :param
+        param
             ticker: name of the stock you predict
             prediction_day: what day from you predict
             prediction_days: how many days each prediction is based on
@@ -258,7 +253,7 @@ def predict_stock_price_at_specific_day(ticker,
                 each day y i
 
 
-     """
+    """
     epochs, units, prediction_days, prediction_day = generate_data(epochs,
                                                                    units,
                                                                    prediction_days,
