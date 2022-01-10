@@ -44,8 +44,8 @@ def get_historical_data(ticker, start=START, end=END):
 def generate_data(*args, ticker):
     json_data = return_json_data(ticker)
     for index, i in enumerate(json_data):
-        json_data[index] = i if i is not None else PARAMETERS[index]
         json_data[index] = args[index] if args[index] is not None else i
+        json_data[index] = i if i is not None else PARAMETERS[index]
     return json_data
 
 
