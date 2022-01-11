@@ -2,10 +2,12 @@ from ibapi.client import EClient
 from ibapi.wrapper import EWrapper
 from ibapi.contract import Contract
 import pandas as pd
-
+import time
+import threading
 
 class MyWrapper(EWrapper):
     def __init__(self):
+        super().__init__()
         self.data = []
         self.df = None
 
@@ -37,14 +39,14 @@ class MyWrapper(EWrapper):
 
         # so everyone can get data use fx
         fx = Contract()
-        fx.secType = "CASH"
-        fx.symbol = "USD"
-        fx.currency = "JPY"
-        fx.exchange = "IDEALPRO"
+        fx.secType = "STK"
+        fx.symbol = "NIO"
+        fx.currency = "USD"
+        fx.exchange = "SMART"
 
         # setting update to 1 minute still sends an update every tick? but timestamps are 1 min
         # I don't think keepUpToDate sends a realtimeBar every 5 secs, just updates the last bar.
-        app.reqHistoricalData(1, fx, queryTime, "6 M", "1 min", "MIDPOINT", 0, 1, True, [])
+        app.reqHistoricalData(1, fx, queryTime, "12 M", "1 min", "MIDPOINT", 0, 1, True, [])
 
 
 wrap = MyWrapper()
@@ -52,17 +54,24 @@ app = EClient(wrap)
 app.connect("127.0.0.1", 7497, clientId=999)
 
 # I just use this in jupyter so I can interact with df
-import threading
+
 
 threading.Thread(target=app.run).start()
 
 # this isn't needed in jupyter, just run another cell
-import time
 
-time.sleep(100)  # in 5 minutes check the df and close
+# time.sleep(900)  # in 5 minutes check the df and close
+timing = time.time() + 2900
+while timing > time.time():
+    try:
+        wrap.df.to_csv("myfile2.csv")  # save in file
+        print(wrap.df)
+        break
+    except AttributeError:
+        print('still waiting (please learn async maybe it is related to that)', wrap.df)
 
-print(wrap.df)
-wrap.df.to_csv("myfile.csv")  # save in file
+    time.sleep(20)
+
 app.disconnect()
 
 # in jupyter to show plot
