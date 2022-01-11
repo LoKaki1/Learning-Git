@@ -64,7 +64,8 @@ def get_data(ticker, start_day, end_day):
 
 
 def fit_data(ticker, start_day, end_day):
-    """ func that sets the data to be between 0 and 1 means (40, 10) = (0.123, 0.01) something like that
+    """
+        func that sets the data to be between 0 and 1 means (40, 10) = (0.123, 0.01) something like that
         :returns the data after fitting it into numbers between 0 and 1
     """
     train_data = get_data(ticker, start_day, end_day)
