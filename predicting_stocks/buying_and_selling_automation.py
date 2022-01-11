@@ -1,8 +1,6 @@
 """ This script buys and sells stocks according to what robot says """
-import random
-import time
 
-from StocksPrediction import predict_stocks_avg
+import time
 import yfinance as yf
 
 STOCKS_TO_PREDICT = ['NIO', 'XPEV', 'LI', 'TTOO', 'RIOT', 'TSLA']

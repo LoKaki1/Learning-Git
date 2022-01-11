@@ -29,6 +29,7 @@ DENSE_UNITS = 0.2
 EPOCHS = 25
 BATCH_SIZE = 32
 PARAMETERS = [EPOCHS, UNITS, PREDICTION_DAYS, PREDICTION_DAY]
+TICKER_HISTORICAL_DATA = {}
 """ Prepare Data """
 
 
@@ -51,19 +52,22 @@ def generate_data(*args, ticker):
 
 def get_data(ticker, start_day, end_day):
     """
-    param ticker: stock to get its historical data
+    :param ticker: stock to get its historical data
     :param start_day: the date that from that you take historical data
-    :param end_day: the date that until it you take historical data
+    :param end_day: the date that until it, you take historical data
     (start_day, end_day) require internet connection
     :return: Historical data of a stock and divide it into lists that each contains [open, close, high, low]
     """
+    global TICKER_HISTORICAL_DATA
     data = get_historical_data(ticker, start_day, end_day)
-    return [[data[key][index]
-             for key in X_VALUES]
-            for index, i in enumerate(data['close'])]
+    TICKER_HISTORICAL_DATA[ticker] = [[data[key][index]
+                                       for key in X_VALUES]
+                                      for index, i in enumerate(data['close'])]\
+        if ticker not in TICKER_HISTORICAL_DATA else TICKER_HISTORICAL_DATA[ticker]
+    return TICKER_HISTORICAL_DATA[ticker]
 
 
-def fit_data(ticker, start_day, end_day):
+def fit_data(ticker, start_day, end_day, ):
     """
         func that sets the data to be between 0 and 1 means (40, 10) = (0.123, 0.01) something like that
         :returns the data after fitting it into numbers between 0 and 1
@@ -213,8 +217,8 @@ def accuracy_ratio(predicted_price, actual_data):
 
 def predict_data(scaled_data, scalar, model, prediction_days, prediction_day):
     """ Setting model inputs to be equal to scaled data...
-        reason for that is because I wanna use the same training data to
-        prediction data which makes the neural network gets smarter everyday, because it uses new data
+        reason for that is because I want to use the same training data to
+        prediction data which makes the neural network gets smarter every day, because it uses new data
     """
     model_inputs = scaled_data
     """
@@ -324,23 +328,20 @@ def test_model(ticker,
     prediction_days before that day
 
     For example -
-        prices = [1, 2, .. prediction_days]
+        prices = [1, 2, ... prediction_days]
         predicted_price = model.predict(prices)
     :returns -
-        predicted_prices = [[first] [second]..[last]]
+        predicted_prices = [[first] [second]...[last]]
         actual_prices = [[first]
                          [second]
-                          ..
+                          ...
                           [last]]
     """
-    if epochs is None or units is None or prediction_days is None:
-        epochs, units, prediction_days, prediction_day = generate_data(epochs,
-                                                                       prediction_days,
-                                                                       units,
-                                                                       prediction_day,
-                                                                       ticker=ticker)
-    print(epochs, units, prediction_days, prediction_day)
-
+    epochs, units, prediction_days, prediction_day = generate_data(epochs,
+                                                                   prediction_days,
+                                                                   units,
+                                                                   prediction_day,
+                                                                   ticker=ticker)
     scaled_data, scalar = fit_data(ticker, start_day=start_day, end_day=end_day)
     x_train, y_train = prepare_data(scaled_data, prediction_days, prediction_day)
     model = build_model(x_train, y_train, units=units,
@@ -371,7 +372,7 @@ def build_model_for_multiple_prediction(ticker, prediction_day=None,
                                         units=None,
                                         epochs=None,
                                         start_day=START,
-                                        end_day=END,):
+                                        end_day=END, ):
     epochs, units, prediction_days, prediction_day = generate_data(epochs,
                                                                    prediction_days,
                                                                    units,

@@ -47,7 +47,6 @@ def ratio(ticker, *args):
     predicted_values, real_values = test_model(ticker,
                                                epochs=epochs,
                                                units=units,
-                                               dense_units=dense_units,
                                                prediction_days=prediction_days)
     return accuracy_ratio(predicted_values, real_values)
 

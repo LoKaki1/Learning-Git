@@ -32,9 +32,13 @@ def write_in_json_file(path, data, ticker=None):
         json.dump(json_object, a_file)
 
 
-def return_json_data(ticker, json_path=r'C:\Users\meir\PycharmProjects\Learning-Git\predicting_stocks\settings_for_ai\parameters_status.json'):
-    with open(json_path, 'r'):
-        print(json_path)
+def return_json_data(ticker, json_path=r'../predicting_stocks/settings_for_ai/parameters_status'):
+    try:
+        with open(json_path, 'r'):
+            print(json_path)
+    except FileNotFoundError:
+        print('did not find file', json_path, sep=', ')
+        return [None, None, None, None]
 
     if not json_path:
         return None
@@ -45,7 +49,6 @@ def return_json_data(ticker, json_path=r'C:\Users\meir\PycharmProjects\Learning-
             return [p['epochs'], p['units'], p['prediction_days'], p['prediction_day']]
         else:
             return [None, None, None, None]
-
 
 
 def save_model(train_images, train_labels):
