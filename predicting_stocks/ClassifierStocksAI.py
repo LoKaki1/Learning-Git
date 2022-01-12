@@ -22,14 +22,26 @@ X_VALUES = ['open', 'low', 'high', 'close', ]
 START = dt.datetime(2020, 3, 15).strftime('%Y-%m-%d')
 END = (dt.datetime.now() - dt.timedelta(days=0)).strftime('%Y-%m-%d')
 END_TEST = (dt.datetime.now() - dt.timedelta(days=2)).strftime('%Y-%m-%d')
-PREDICTION_DAYS = 30
-UNITS = 100
-PREDICTION_DAY = 1
+PREDICTION_DAYS = 80
+UNITS = 40
+PREDICTION_DAY = 15
 DENSE_UNITS = 0.2
 EPOCHS = 25
-BATCH_SIZE = 32
+BATCH_SIZE = 512
 PARAMETERS = [EPOCHS, UNITS, PREDICTION_DAYS, PREDICTION_DAY]
-TICKER_HISTORICAL_DATA = {}
+
+
+def read_csv(path='../Trading/myfile4.csv'):
+    return pd.read_csv(path)
+
+
+def __get_data(data):
+    return [[data[key][index]
+             for key in X_VALUES]
+            for index, i in enumerate(data['close'])]
+
+
+TICKER_HISTORICAL_DATA = {'NIO': __get_data(read_csv())}
 """ Prepare Data """
 
 
@@ -151,7 +163,7 @@ def build_model(x_train,
       example:  
             x_train =  (23, 24, 25, 26, 123123 ... * (prediction_days)) * all_data
             y_train = (1) ...* all_data - create a func that x[n] = y[n]    """
-    model.fit(x_train, y_train, epochs=epochs, batch_size=BATCH_SIZE, verbose='2')
+    model.fit(x_train, y_train, epochs=epochs, batch_size=BATCH_SIZE, verbose='auto')
     return model
 
 
@@ -270,10 +282,10 @@ def predict_stock_price_at_specific_day(ticker,
                                                  prediction_days, units,
                                                  prediction_day, start_day,
                                                  end_day, model_and_its_args)
+
     price = predict_data(scaled_data, model=model,
                          prediction_days=prediction_days,
                          scalar=scalar, prediction_day=prediction_day)
-
     end_day_predicted = (dt.datetime.strptime(end_day, '%Y-%m-%d') +
                          dt.timedelta(days=prediction_day)).strftime('%Y-%m-%d')
     write_in_file('prediction.txt', ''.join(['\n', str(price[-1][-1]), ' ', str(end_day_predicted)]))
