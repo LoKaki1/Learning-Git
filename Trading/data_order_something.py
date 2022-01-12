@@ -17,7 +17,7 @@ class MyWrapper(EWrapper):
         self.start()
 
     def historicalData(self, reqId, bar):
-        self.data.append(vars(bar));
+        self.data.append(vars(bar))
 
     def historicalDataUpdate(self, reqId, bar):
         line = vars(bar)
@@ -46,7 +46,7 @@ class MyWrapper(EWrapper):
 
         # setting update to 1 minute still sends an update every tick? but timestamps are 1 min
         # I don't think keepUpToDate sends a realtimeBar every 5 secs, just updates the last bar.
-        app.reqHistoricalData(1, fx, queryTime, "12 M", "1 min", "MIDPOINT", 0, 1, True, [])
+        app.reqHistoricalData(1, fx, queryTime, '6 M', "1 min", "MIDPOINT", 0, 1, True, [])
 
 
 wrap = MyWrapper()
@@ -64,13 +64,12 @@ threading.Thread(target=app.run).start()
 timing = time.time() + 2900
 while timing > time.time():
     try:
-        wrap.df.to_csv("myfile2.csv")  # save in file
+        wrap.df.to_csv("myfile3.csv")  # save in file
         print(wrap.df)
         break
     except AttributeError:
         print('still waiting (please learn async maybe it is related to that)', wrap.df)
-
-    time.sleep(20)
+    time.sleep(5)
 
 app.disconnect()
 
