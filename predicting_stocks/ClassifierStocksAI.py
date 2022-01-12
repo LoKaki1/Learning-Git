@@ -62,7 +62,7 @@ def get_data(ticker, start_day, end_day):
     data = get_historical_data(ticker, start_day, end_day)
     TICKER_HISTORICAL_DATA[ticker] = [[data[key][index]
                                        for key in X_VALUES]
-                                      for index, i in enumerate(data['close'])]\
+                                      for index, i in enumerate(data['close'])] \
         if ticker not in TICKER_HISTORICAL_DATA else TICKER_HISTORICAL_DATA[ticker]
     return TICKER_HISTORICAL_DATA[ticker]
 
@@ -151,7 +151,6 @@ def build_model(x_train,
       example:  
             x_train =  (23, 24, 25, 26, 123123 ... * (prediction_days)) * all_data
             y_train = (1) ...* all_data - create a func that x[n] = y[n]    """
-    print(epochs)
     model.fit(x_train, y_train, epochs=epochs, batch_size=BATCH_SIZE, verbose='2')
     return model
 
@@ -259,16 +258,16 @@ def predict_stock_price_at_specific_day(ticker,
 
 
     """
-    epochs, units, prediction_days, prediction_day = generate_data(epochs,
-                                                                   units,
-                                                                   prediction_days,
-                                                                   prediction_day,
-                                                                   ticker=ticker)
-    print(epochs, units, prediction_days, prediction_day)
-    scaled_data, scalar = fit_data(ticker, start_day=start_day, end_day=end_day)
-    x_train, y_train = prepare_data(scaled_data, prediction_days, prediction_day)
-    model = build_model(x_train, y_train, units=units,
-                        epochs=epochs, ) if model is None else model
+    if model is None:
+        epochs, units, prediction_days, prediction_day = generate_data(epochs,
+                                                                       units,
+                                                                       prediction_days,
+                                                                       prediction_day,
+                                                                       ticker=ticker)
+        scaled_data, scalar = fit_data(ticker, start_day=start_day, end_day=end_day)
+        x_train, y_train = prepare_data(scaled_data, prediction_days, prediction_day)
+        model = build_model(x_train, y_train, units=units,
+                            epochs=epochs, )
 
     price = predict_data(scaled_data, model=model,
                          prediction_days=prediction_days,
@@ -367,20 +366,30 @@ def dumb_test_model(ticker='NIO'):
     return test_model(ticker, units=1, prediction_days=21, epochs=1)
 
 
+def generate_fit_and_prepare_data(ticker, epochs, prediction_days, units, prediction_day, start_day, end_day):
+    epochs, units, prediction_days, prediction_day = generate_data(epochs,
+                                                                   prediction_days,
+                                                                   units,
+                                                                   prediction_day,
+                                                                   ticker=ticker)
+    scaled_data, scalar = fit_data(ticker, start_day=start_day, end_day=end_day)
+    x_train, y_train = prepare_data(scaled_data, prediction_days, prediction_day)
+    return epochs, units, prediction_days, prediction_day, scalar, scaled_data, x_train, y_train
+
+
 def build_model_for_multiple_prediction(ticker, prediction_day=None,
                                         prediction_days=None,
                                         units=None,
                                         epochs=None,
                                         start_day=START,
                                         end_day=END, ):
-    epochs, units, prediction_days, prediction_day = generate_data(epochs,
-                                                                   prediction_days,
-                                                                   units,
-                                                                   prediction_day,
-                                                                   ticker=ticker)
-    print(epochs, units, prediction_days)
-    scaled_data, scalar = fit_data(ticker, start_day=start_day, end_day=end_day)
-    x_train, y_train = prepare_data(scaled_data, prediction_days, prediction_day)
+    epochs, units, prediction_days, prediction_day, \
+        scalar, scaled_data, \
+        x_train, y_train = generate_fit_and_prepare_data(ticker,
+                                                         epochs,
+                                                         prediction_days,
+                                                         units, prediction_day,
+                                                         start_day, end_day)
     return build_model(x_train, y_train, units=units,
                        epochs=epochs, )
 
