@@ -111,7 +111,7 @@ def prepare_data(scaled_data, prediction_days, prediction_day):
     x_train.shape[0] = length of big array 
 
     x_train[n] = [x_train[n][0], x_train[n][1], ... x_train[n][prediction_days]]"""
-    check_data(x_train, y_train)
+    check_data(x_train, y_train, prediction_day)
     x_train, y_train = np.array(x_train), np.array(y_train).reshape(-1, 1)
     """  x_train.shape[0] = the length of the array, x_train.shape[1] =  prediction days 
      means to create a shape with length of x_train.len and width of prediction days on one dimension
@@ -120,9 +120,9 @@ def prepare_data(scaled_data, prediction_days, prediction_day):
     return x_train, y_train
 
 
-def check_data(x_train, y_train):
-    for i in range(0, len(x_train) - 1):
-        if y_train[i] != x_train[i + 1][-1]:
+def check_data(x_train, y_train, constant=1):
+    for i in range(0, len(x_train) - constant):
+        if y_train[i] != x_train[i + constant][-1]:
             raise InterruptedError("something went wrong in the code please check it")
 
 
