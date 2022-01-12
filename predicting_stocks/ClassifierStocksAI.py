@@ -26,11 +26,16 @@ PREDICTION_DAYS = 30
 UNITS = 100
 PREDICTION_DAY = 1
 DENSE_UNITS = 0.2
-EPOCHS = 25
-BATCH_SIZE = 32
+EPOCHS = 12
+BATCH_SIZE = 128
 PARAMETERS = [EPOCHS, UNITS, PREDICTION_DAYS, PREDICTION_DAY]
 TICKER_HISTORICAL_DATA = {}
 """ Prepare Data """
+
+
+def read_csv_file(file='../Trading/myfile3.csv'):
+    data = pd.read_csv(file)
+    return data
 
 
 def get_historical_data(ticker, start=START, end=END):
@@ -50,7 +55,7 @@ def generate_data(*args, ticker):
     return json_data
 
 
-def get_data(ticker, start_day, end_day):
+def get_data(ticker, start_day, end_day, data_that_given=None):
     """
     :param ticker: stock to get its historical data
     :param start_day: the date that from that you take historical data
@@ -59,11 +64,12 @@ def get_data(ticker, start_day, end_day):
     :return: Historical data of a stock and divide it into lists that each contains [open, close, high, low]
     """
     global TICKER_HISTORICAL_DATA
-    data = get_historical_data(ticker, start_day, end_day)
+    data = get_historical_data(ticker, start_day, end_day) if data_that_given is None else data_that_given
     TICKER_HISTORICAL_DATA[ticker] = [[data[key][index]
                                        for key in X_VALUES]
                                       for index, i in enumerate(data['close'])]\
         if ticker not in TICKER_HISTORICAL_DATA else TICKER_HISTORICAL_DATA[ticker]
+
     return TICKER_HISTORICAL_DATA[ticker]
 
 
@@ -152,7 +158,7 @@ def build_model(x_train,
             x_train =  (23, 24, 25, 26, 123123 ... * (prediction_days)) * all_data
             y_train = (1) ...* all_data - create a func that x[n] = y[n]    """
     print(epochs)
-    model.fit(x_train, y_train, epochs=epochs, batch_size=BATCH_SIZE, verbose='2')
+    model.fit(x_train, y_train, epochs=epochs, batch_size=BATCH_SIZE, )
     return model
 
 
@@ -372,21 +378,24 @@ def build_model_for_multiple_prediction(ticker, prediction_day=None,
                                         units=None,
                                         epochs=None,
                                         start_day=START,
-                                        end_day=END, ):
+                                        end_day=END, data_that_fits=None):
     epochs, units, prediction_days, prediction_day = generate_data(epochs,
                                                                    prediction_days,
                                                                    units,
                                                                    prediction_day,
                                                                    ticker=ticker)
     print(epochs, units, prediction_days)
-    scaled_data, scalar = fit_data(ticker, start_day=start_day, end_day=end_day)
+    scaled_data, scalar = fit_data(ticker, start_day=start_day, end_day=end_day)\
+        if data_that_fits is None else data_that_fits
     x_train, y_train = prepare_data(scaled_data, prediction_days, prediction_day)
     return build_model(x_train, y_train, units=units,
                        epochs=epochs, )
 
 
 def main():
+    print(read_csv_file('../Trading/myfile2.csv'))
     ticker = 'NIO'
+    fit_data(ticker, START, END)
     model = build_model_for_multiple_prediction(ticker, )
     predict_stock_price_at_specific_day(ticker, model=model)
     p, r = test_model(ticker, model=model)
