@@ -15,6 +15,8 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.backend import clear_session
 from tensorflow.keras.callbacks import ModelCheckpoint
 from Common import return_json_data, write_in_file, plot
+from Trading.data_order_something import read_data
+import os
 
 """ Load Data """
 START_INT = 600
@@ -34,8 +36,8 @@ PARAMETERS = [EPOCHS, UNITS, PREDICTION_DAYS, PREDICTION_DAY]
 checkpoint_path = "cp.ckpt"
 
 
-def read_csv(path='../Trading/myfile4.csv'):
-    return pd.read_csv(path)
+def read_csv(path, ticker=None):
+    return pd.read_csv(path) if os.path.exists(path) else pd.read_csv(read_data(ticker))
 
 
 def __get_data(data):
@@ -65,8 +67,9 @@ def generate_data(*args, ticker):
     return json_data
 
 
-def get_data(ticker, start_day, end_day):
+def get_data(ticker, start_day, end_day, daily=False):
     """
+    :param daily: pass
     :param ticker: stock to get its historical data
     :param start_day: the date that from that you take historical data
     :param end_day: the date that until it, you take historical data
@@ -75,10 +78,12 @@ def get_data(ticker, start_day, end_day):
     """
     global TICKER_HISTORICAL_DATA
     data = get_historical_data(ticker, start_day, end_day)
-    TICKER_HISTORICAL_DATA[ticker] = [[data[key][index]
-                                       for key in X_VALUES]
-                                      for index, i in enumerate(data['close'])] \
-        if ticker not in TICKER_HISTORICAL_DATA else TICKER_HISTORICAL_DATA[ticker]
+    if daily:
+        TICKER_HISTORICAL_DATA[ticker] = __get_data(data) \
+            if ticker not in TICKER_HISTORICAL_DATA else TICKER_HISTORICAL_DATA[ticker]
+
+    else:
+        TICKER_HISTORICAL_DATA[ticker] = __get_data(read_csv(f'../Trading/Historical_data/{ticker}.csv', ticker))
     return TICKER_HISTORICAL_DATA[ticker]
 
 
