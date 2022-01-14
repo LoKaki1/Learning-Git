@@ -51,7 +51,7 @@ class MyWrapper(EWrapper, EClient):
 
         # setting update to 1 minute still sends an update every tick? but timestamps are 1 min
         # I don't think keepUpToDate sends a realtimeBar every 5 secs, just updates the last bar.
-        self.app.reqHistoricalData(1, fx, query_time, "30000 S", "1 min", "MIDPOINT", 0, 1, True, [])
+        self.app.reqHistoricalData(1, fx, query_time, "3 D", "1 min", "MIDPOINT", 0, 1, True, [])
 
 
 def read_data(ticker='NIO'):
@@ -68,7 +68,7 @@ def read_data(ticker='NIO'):
         except AttributeError:
             print('still waiting (please learn async maybe it is related to that)', app.wrapper.df)
 
-        time.sleep(10)
+            time.sleep(10)
 
     app.disconnect()
     app.wrapper.df.close.plot()

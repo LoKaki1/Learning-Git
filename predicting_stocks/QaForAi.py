@@ -6,7 +6,7 @@ predicted according to its model
 """
 from ClassifierStocksAI import test_model, accuracy_ratio
 from Common import write_in_file
-from random import randint, Random
+from random import randint
 
 TICKER_LIST = ['NIO', 'RIOT']
 
@@ -14,19 +14,9 @@ TICKER_LIST = ['NIO', 'RIOT']
 GARBAGE_PATH = r'C:\Users\meir\Learning-Git\predicting_stocks\settings_for_ai\garbage_parameters_status.txt'
 PATH = r'C:\Users\meir\Learning-Git\predicting_stocks\settings_for_ai\parameters_status.txt'
 BATCH_SIZE = 64
-PREDICTION_DAY = 1
+PREDICTION_DAY = 15
 DENSE_UNITS = 0.2
 LAST_RATIO = 0.95
-
-
-def random_double(random_multiplier=1):
-    """
-
-    :param random_multiplier: what range you want it for example -
-        if random_multiplier = 10 then the range of the float number can be 0.84 or 0.21 etc.
-    :return: random float
-    """
-    return float(f'0.{Random().randint(1, 9 * random_multiplier)}')
 
 
 def generate_random_values():
@@ -53,7 +43,7 @@ def ratio(ticker, *args):
 
 def generate_best_values():
     """
-    function that write the best parameters for ai in PATH file, by running the test
+    function that write the best parameters for AI in PATH file, by running the test
     model function multiple times on different parameters
     """
     last_ratio = LAST_RATIO
@@ -103,7 +93,7 @@ def generate_best_values():
             break
 
 
-""" Should be fixed, I think it works pair every stock induvidally
+""" Should be fixed, I think it works pair every stock individually
     Solution, Create json file that contains the parameters that suits best for a specific stock 
     
  """

@@ -1,7 +1,6 @@
 """
 Classifier stocks prediction that predict stock in a specific day
 """
-import os
 
 import numpy as np
 import pandas as pd
@@ -13,7 +12,6 @@ from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.layers import Dense, Dropout, LSTM
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.backend import clear_session
-from tensorflow.keras.callbacks import ModelCheckpoint
 from Common import return_json_data, write_in_file, plot
 from Trading.data_order_something import read_data
 import os
@@ -26,7 +24,7 @@ X_VALUES = ['open', 'low', 'high', 'close', ]
 START = dt.datetime(2020, 3, 15).strftime('%Y-%m-%d')
 END = (dt.datetime.now() - dt.timedelta(days=0)).strftime('%Y-%m-%d')
 END_TEST = (dt.datetime.now() - dt.timedelta(days=2)).strftime('%Y-%m-%d')
-PREDICTION_DAYS = 42
+PREDICTION_DAYS = 25
 UNITS = 50
 PREDICTION_DAY = 5
 DENSE_UNITS = 0.2
@@ -67,8 +65,9 @@ def generate_data(*args, ticker):
     return json_data
 
 
-def get_data(ticker, start_day, end_day, daily=False):
+def get_data(ticker, start_day, end_day, daily):
     """
+
     :param daily: pass
     :param ticker: stock to get its historical data
     :param start_day: the date that from that you take historical data
@@ -87,12 +86,12 @@ def get_data(ticker, start_day, end_day, daily=False):
     return TICKER_HISTORICAL_DATA[ticker]
 
 
-def fit_data(ticker, start_day, end_day, ):
+def fit_data(ticker, start_day, end_day, daily):
     """
         func that sets the data to be between 0 and 1 means (40, 10) = (0.123, 0.01) something like that
         :returns the data after fitting it into numbers between 0 and 1
     """
-    train_data = get_data(ticker, start_day, end_day)
+    train_data = get_data(ticker, start_day, end_day, daily)
     """ Making data without lists because scaled data cant
      use lists so data before = [[1, 2, 3, ...], [2, 3, 4, ...] ...] data after = [1, 2, 3, 2, 3, 4 ...] """
 
@@ -166,7 +165,7 @@ def build_model(x_train,
     model.add(LSTM(units=units))
     model.add(Dropout(DENSE_UNITS))
 
-    model.add(Dense(units=UNITS))
+    model.add(Dense(units=1))
 
     model.compile(optimizer='adam', loss='mean_squared_error')
     """ Fitting x_train to y_train, that makes
@@ -175,27 +174,20 @@ def build_model(x_train,
             x_train =  (23, 24, 25, 26, 123123 ... * (prediction_days)) * all_data
             y_train = (1) ...* all_data - create a func that x[n] = y[n]    """
     model.summary()
-
-    checkpoint_dir = os.path.dirname(checkpoint_path)
-
-    # Create a callback that saves the model's weights
-    cp_callback = ModelCheckpoint(filepath=checkpoint_path,
-                                  save_weights_only=True,
-                                  verbose=1)
     model.fit(x_train, y_train,
-              epochs=epochs, batch_size=BATCH_SIZE, verbose='auto',
-              validation_data=(x_train, y_train),)
+              epochs=epochs, batch_size=BATCH_SIZE, verbose='auto',)
+
     if saved_model:
         model.save(f'saved_model/{ticker}_model')
 
     return model
 
 
-def return_test_data(test_start, test_end, prediction_days, prediction_day, ticker, scalar):
+def return_test_data(test_start, test_end, prediction_days, prediction_day, ticker, scalar, daily):
     test_data_time = (dt.datetime.strptime(test_start, '%Y-%m-%d') -
                       dt.timedelta(days=prediction_days)).strftime('%Y-%m-%d')
 
-    test_data = pd.DataFrame(get_data(ticker, start_day=test_data_time, end_day=test_end)).values
+    test_data = pd.DataFrame(get_data(ticker, start_day=test_data_time, end_day=test_end, daily=daily), ).values
     actual_data = []
     model_inputs = test_data.reshape(-1, 1)
     x_test = []
@@ -215,11 +207,13 @@ def test_model_func(ticker,
                     model,
                     prediction_days,
                     prediction_day,
+                    daily,
                     test_start=dt.datetime(2020, 10, 1).strftime('%Y-%m-%d'),
-                    test_end=END_TEST):
+                    test_end=END_TEST,
+                    ):
     """ Test Model
     This part is seeing how accuracy the model on a data that exists but wasn't on it's training"""
-    x_test, actual_data = return_test_data(test_start, test_end, prediction_days, prediction_day, ticker, scalar)
+    x_test, actual_data = return_test_data(test_start, test_end, prediction_days, prediction_day, ticker, scalar, daily)
     x_test = np.array(x_test)
     x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
     actual_data = np.array(actual_data).reshape(-1, 1)
@@ -280,7 +274,8 @@ def predict_stock_price_at_specific_day(ticker,
                                         epochs=None,
                                         start_day=START,
                                         end_day=END,
-                                        model_and_its_args=None):
+                                        model_and_its_args=None,
+                                        daily=True):
     """ return predicted stock price in a specific day
 
         param
@@ -305,7 +300,7 @@ def predict_stock_price_at_specific_day(ticker,
                                                  epochs,
                                                  prediction_days, units,
                                                  prediction_day, start_day,
-                                                 end_day, model_and_its_args)
+                                                 end_day, model_and_its_args, daily)
 
     price = predict_data(scaled_data, model=model,
                          prediction_days=prediction_days,
@@ -320,7 +315,7 @@ def preparation_for_machine(ticker,
                             epochs,
                             prediction_days, units,
                             prediction_day, start_day,
-                            end_day, model_and_its_args):
+                            end_day, model_and_its_args, daily):
     if model_and_its_args is not None:
         return model_and_its_args
     epochs, units, prediction_days, prediction_day, \
@@ -329,7 +324,7 @@ def preparation_for_machine(ticker,
                                                          epochs,
                                                          prediction_days,
                                                          units, prediction_day,
-                                                         start_day, end_day)
+                                                         start_day, end_day, daily)
     model = build_model(x_train, y_train, units=units,
                         epochs=epochs, ticker=ticker)
     return model, scalar, scaled_data, epochs, units, prediction_days, prediction_day
@@ -371,7 +366,8 @@ def test_model(ticker,
                units=None,
                epochs=None,
                start_day=None,
-               end_day=None, model_and_its_args=None):
+               end_day=None, model_and_its_args=None,
+               daily=True):
     """
     function to test the model by making
     prediction on existing data that wasn't given for the model,
@@ -399,9 +395,9 @@ def test_model(ticker,
                                                  epochs,
                                                  prediction_days, units,
                                                  prediction_day, start_day,
-                                                 end_day, model_and_its_args)
+                                                 end_day, model_and_its_args, daily)
     return test_model_func(model=model, scalar=scalar, ticker=ticker, prediction_day=prediction_day,
-                           prediction_days=prediction_days, )
+                           prediction_days=prediction_days, daily=daily)
 
 
 def predict_stocks_avg(ticker,
@@ -421,13 +417,14 @@ def dumb_test_model(ticker='NIO'):
     return test_model(ticker, units=1, prediction_days=21, epochs=1)
 
 
-def generate_fit_and_prepare_data(ticker, epochs, prediction_days, units, prediction_day, start_day, end_day):
+def generate_fit_and_prepare_data(ticker, epochs, prediction_days, units, prediction_day, start_day, end_day, daily):
     epochs, units, prediction_days, prediction_day = generate_data(epochs,
                                                                    prediction_days,
                                                                    units,
                                                                    prediction_day,
-                                                                   ticker=ticker)
-    scaled_data, scalar = fit_data(ticker, start_day=start_day, end_day=end_day)
+                                                                   ticker=ticker,
+                                                                   )
+    scaled_data, scalar = fit_data(ticker, start_day=start_day, end_day=end_day, daily=daily)
     x_train, y_train = prepare_data(scaled_data, prediction_days, prediction_day)
     return epochs, units, prediction_days, prediction_day, scalar, scaled_data, x_train, y_train
 
@@ -437,18 +434,19 @@ def build_model_for_multiple_prediction(ticker, prediction_day=None,
                                         units=None,
                                         epochs=None,
                                         start_day=START,
-                                        end_day=END, ):
+                                        end_day=END,
+                                        daily=True):
     return preparation_for_machine(ticker,
                                    epochs,
                                    prediction_days, units,
                                    prediction_day, start_day,
-                                   end_day, None)
+                                   end_day, None, daily=daily)
 
 
 def main():
     ticker = 'NIO'
     model_and_its_args = build_model_for_multiple_prediction(ticker, )
-    predict_stock_price_at_specific_day(ticker, model_and_its_args=model_and_its_args)
+    print(predict_stock_price_at_specific_day(ticker, model_and_its_args=model_and_its_args))
     pr, ap = test_model(ticker, model_and_its_args=model_and_its_args)
     plot_two_graphs(pr, ap, ticker)
     print(accuracy_ratio(pr, ap))
