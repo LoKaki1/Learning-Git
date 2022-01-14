@@ -1,6 +1,7 @@
 """
 Classifier stocks prediction that predict stock in a specific day
 """
+import os
 
 import numpy as np
 import pandas as pd
@@ -12,6 +13,7 @@ from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.layers import Dense, Dropout, LSTM
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.backend import clear_session
+from tensorflow.keras.callbacks import ModelCheckpoint
 from Common import return_json_data, write_in_file, plot
 
 """ Load Data """
@@ -22,13 +24,14 @@ X_VALUES = ['open', 'low', 'high', 'close', ]
 START = dt.datetime(2020, 3, 15).strftime('%Y-%m-%d')
 END = (dt.datetime.now() - dt.timedelta(days=0)).strftime('%Y-%m-%d')
 END_TEST = (dt.datetime.now() - dt.timedelta(days=2)).strftime('%Y-%m-%d')
-PREDICTION_DAYS = 80
-UNITS = 40
-PREDICTION_DAY = 15
+PREDICTION_DAYS = 42
+UNITS = 50
+PREDICTION_DAY = 5
 DENSE_UNITS = 0.2
-EPOCHS = 25
-BATCH_SIZE = 512
+EPOCHS = 12
+BATCH_SIZE = 64
 PARAMETERS = [EPOCHS, UNITS, PREDICTION_DAYS, PREDICTION_DAY]
+checkpoint_path = "cp.ckpt"
 
 
 def read_csv(path='../Trading/myfile4.csv'):
@@ -41,7 +44,7 @@ def __get_data(data):
             for index, i in enumerate(data['close'])]
 
 
-TICKER_HISTORICAL_DATA = {'NIO': __get_data(read_csv())}
+TICKER_HISTORICAL_DATA = {}
 """ Prepare Data """
 
 
@@ -141,7 +144,10 @@ def check_data(x_train, y_train, constant=1):
 def build_model(x_train,
                 y_train,
                 units,
-                epochs):
+                epochs,
+                ticker=None,
+                saved_model=True
+                ):
     """ Build Model """
     """ Clear session """
     clear_session()
@@ -163,7 +169,20 @@ def build_model(x_train,
       example:  
             x_train =  (23, 24, 25, 26, 123123 ... * (prediction_days)) * all_data
             y_train = (1) ...* all_data - create a func that x[n] = y[n]    """
-    model.fit(x_train, y_train, epochs=epochs, batch_size=BATCH_SIZE, verbose='auto')
+    model.summary()
+
+    checkpoint_dir = os.path.dirname(checkpoint_path)
+
+    # Create a callback that saves the model's weights
+    cp_callback = ModelCheckpoint(filepath=checkpoint_path,
+                                  save_weights_only=True,
+                                  verbose=1)
+    model.fit(x_train, y_train,
+              epochs=epochs, batch_size=BATCH_SIZE, verbose='auto',
+              validation_data=(x_train, y_train),)
+    if saved_model:
+        model.save(f'saved_model/{ticker}_model')
+
     return model
 
 
@@ -307,7 +326,7 @@ def preparation_for_machine(ticker,
                                                          units, prediction_day,
                                                          start_day, end_day)
     model = build_model(x_train, y_train, units=units,
-                        epochs=epochs, )
+                        epochs=epochs, ticker=ticker)
     return model, scalar, scaled_data, epochs, units, prediction_days, prediction_day
 
 

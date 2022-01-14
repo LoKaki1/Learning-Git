@@ -5,48 +5,53 @@ import pandas as pd
 import time
 import threading
 
+TICKER = 'NIO'
+
+
+def start():
+    query_time = ""
+
+    # so everyone can get data use fx
+    fx = Contract()
+    fx.secType = "STK"
+    fx.symbol = TICKER
+    fx.currency = "USD"
+    fx.exchange = "SMART"
+
+    # setting update to 1 minute still sends an update every tick? but timestamps are 1 min
+    # I don't think keepUpToDate sends a realtimeBar every 5 secs, just updates the last bar.
+    app.reqHistoricalData(1, fx, query_time, "30000 S", "1 min", "MIDPOINT", 0, 1, True, [])
+
+
 class MyWrapper(EWrapper):
     def __init__(self):
         super().__init__()
+        self.nextValidOrderId = None
         self.data = []
         self.df = None
 
-    def nextValidId(self, orderId: int):
-        print("Setting nextValidOrderId: %d", orderId)
-        self.nextValidOrderId = orderId
-        self.start()
+    def nextValidId(self, order_id: int):
+        print("Setting nextValidOrderId: %d", order_id)
+        self.nextValidOrderId = order_id
+        start()
 
-    def historicalData(self, reqId, bar):
-        self.data.append(vars(bar));
+    def historicalData(self, req_id, bar):
+        self.data.append(vars(bar))
 
-    def historicalDataUpdate(self, reqId, bar):
+    def historicalDataUpdate(self, req_id, bar):
         line = vars(bar)
         # pop date and make it the index, add rest to df
         # will overwrite last bar at that same time
         self.df.loc[pd.to_datetime(line.pop('date'))] = line
 
-    def historicalDataEnd(self, reqId: int, start: str, end: str):
-        print("HistoricalDataEnd. ReqId:", reqId, "from", start, "to", end)
+    def historicalDataEnd(self, req_id: int, start_date: str, end_date: str):
+        print("HistoricalDataEnd. ReqId:", req_id, "from", start_date, "to", end_date)
         self.df = pd.DataFrame(self.data)
         self.df['date'] = pd.to_datetime(self.df['date'])
         self.df.set_index('date', inplace=True)
 
-    def error(self, reqId, errorCode, errorString):
-        print("Error. Id: ", reqId, " Code: ", errorCode, " Msg: ", errorString)
-
-    def start(self):
-        queryTime = ""
-
-        # so everyone can get data use fx
-        fx = Contract()
-        fx.secType = "STK"
-        fx.symbol = "NIO"
-        fx.currency = "USD"
-        fx.exchange = "SMART"
-
-        # setting update to 1 minute still sends an update every tick? but timestamps are 1 min
-        # I don't think keepUpToDate sends a realtimeBar every 5 secs, just updates the last bar.
-        app.reqHistoricalData(1, fx, queryTime, "1 D", "1 min", "MIDPOINT", 0, 1, True, [])
+    def error(self, req_id, error_code, error_string):
+        print("Error. Id: ", req_id, " Code: ", error_code, " Msg: ", error_string)
 
 
 wrap = MyWrapper()
