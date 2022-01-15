@@ -5,12 +5,11 @@ Classifier stocks prediction that predict stock in a specific day
 import numpy as np
 import pandas as pd
 import datetime as dt
-import ast
 
 from yahoofinancials import YahooFinancials
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.layers import Dense, Dropout, LSTM
-from tensorflow.keras.models import Sequential
+from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.backend import clear_session
 from Common import return_json_data, write_in_file, plot
 from Trading.data_order_something import read_data
@@ -24,14 +23,13 @@ X_VALUES = ['open', 'low', 'high', 'close', ]
 START = dt.datetime(2020, 3, 15).strftime('%Y-%m-%d')
 END = (dt.datetime.now() - dt.timedelta(days=0)).strftime('%Y-%m-%d')
 END_TEST = (dt.datetime.now() - dt.timedelta(days=2)).strftime('%Y-%m-%d')
-PREDICTION_DAYS = 25
+PREDICTION_DAYS = 30
 UNITS = 50
 PREDICTION_DAY = 5
 DENSE_UNITS = 0.2
 EPOCHS = 12
 BATCH_SIZE = 64
 PARAMETERS = [EPOCHS, UNITS, PREDICTION_DAYS, PREDICTION_DAY]
-checkpoint_path = "cp.ckpt"
 
 
 def read_csv(path, ticker=None):
@@ -82,6 +80,7 @@ def get_data(ticker, start_day, end_day, daily):
             if ticker not in TICKER_HISTORICAL_DATA else TICKER_HISTORICAL_DATA[ticker]
 
     else:
+        print('You want intraday')
         TICKER_HISTORICAL_DATA[ticker] = __get_data(read_csv(f'../Trading/Historical_data/{ticker}.csv', ticker))
     return TICKER_HISTORICAL_DATA[ticker]
 
@@ -150,13 +149,17 @@ def build_model(x_train,
                 units,
                 epochs,
                 ticker=None,
-                saved_model=True
+                saved_model=True,
+                use_saved_model=False
                 ):
     """ Build Model """
     """ Clear session """
     clear_session()
 
     """ Building The Model """
+    if use_saved_model:
+        return __load_model(ticker)
+
     model = Sequential()
     model.add(LSTM(units=units, return_sequences=True, input_shape=(x_train.shape[1], 1)))
     model.add(Dropout(DENSE_UNITS))
@@ -165,6 +168,7 @@ def build_model(x_train,
     model.add(LSTM(units=units))
     model.add(Dropout(DENSE_UNITS))
 
+    """ Returns only one value """
     model.add(Dense(units=1))
 
     model.compile(optimizer='adam', loss='mean_squared_error')
@@ -175,7 +179,7 @@ def build_model(x_train,
             y_train = (1) ...* all_data - create a func that x[n] = y[n]    """
     model.summary()
     model.fit(x_train, y_train,
-              epochs=epochs, batch_size=BATCH_SIZE, verbose='auto',)
+              epochs=epochs, batch_size=BATCH_SIZE, verbose='auto', )
 
     if saved_model:
         model.save(f'saved_model/{ticker}_model')
@@ -296,17 +300,20 @@ def predict_stock_price_at_specific_day(ticker,
         scaled_data, \
         epochs, units, \
         prediction_days, \
-        prediction_day = preparation_for_machine(ticker,
-                                                 epochs,
-                                                 prediction_days, units,
-                                                 prediction_day, start_day,
-                                                 end_day, model_and_its_args, daily)
+        prediction_day, daily = preparation_for_machine(ticker,
+                                                        epochs,
+                                                        prediction_days, units,
+                                                        prediction_day, start_day,
+                                                        end_day, model_and_its_args, daily)
 
     price = predict_data(scaled_data, model=model,
                          prediction_days=prediction_days,
                          scalar=scalar, prediction_day=prediction_day)
-    end_day_predicted = (dt.datetime.strptime(end_day, '%Y-%m-%d') +
-                         dt.timedelta(days=prediction_day)).strftime('%Y-%m-%d')
+    if daily:
+        end_day_predicted = (dt.datetime.strptime(end_day, '%Y-%m-%d') +
+                             dt.timedelta(days=prediction_day)).strftime('%Y-%m-%d')
+    else:
+        end_day_predicted = dt.datetime.now() + dt.timedelta(minutes=prediction_day)
     write_in_file('prediction.txt', ''.join(['\n', str(price[-1][-1]), ' ', str(end_day_predicted)]))
     return price
 
@@ -315,7 +322,7 @@ def preparation_for_machine(ticker,
                             epochs,
                             prediction_days, units,
                             prediction_day, start_day,
-                            end_day, model_and_its_args, daily):
+                            end_day, model_and_its_args, daily,):
     if model_and_its_args is not None:
         return model_and_its_args
     epochs, units, prediction_days, prediction_day, \
@@ -326,38 +333,8 @@ def preparation_for_machine(ticker,
                                                          units, prediction_day,
                                                          start_day, end_day, daily)
     model = build_model(x_train, y_train, units=units,
-                        epochs=epochs, ticker=ticker)
-    return model, scalar, scaled_data, epochs, units, prediction_days, prediction_day
-
-
-def save_historical_data(ticker, start=START, end=END):
-    """
-
-    :param ticker: Ticker to save the historical data
-    :param start: from what date (if nothing so the big START date)
-    :param end:  'til what date  (if nothing so the big END date which it is today by default)
-
-    :Doing saving an historical data of a stock into file in /Data/ticker.txt
-    *IMPORTANT* this func must use internet to be used otherwise you can't get the data to save
-    """
-    data = get_historical_data(ticker, start, end)
-    data = {ticker: dict((i, list(data[i].values)) for i in data)}
-    with open(f'./Data/{ticker}.txt', 'w') as t:
-        t.write(str(data))
-        t.close()
-
-
-def get_data_from_saved_file(ticker, ):
-    """
-
-    :param ticker: Ticker to get historical data from its file
-    :return: dictionary of historical data of a stock that has been saved earlier using save_historical_data()
-
-    Format - ticker name.txt in Data directory, otherwise it will not find the data
-    """
-    file = open(f'./Data/{ticker}.txt', 'r')
-    data = file.read()
-    return ast.literal_eval(data)
+                        epochs=epochs, ticker=ticker, )
+    return model, scalar, scaled_data, epochs, units, prediction_days, prediction_day, daily
 
 
 def test_model(ticker,
@@ -366,8 +343,7 @@ def test_model(ticker,
                units=None,
                epochs=None,
                start_day=None,
-               end_day=None, model_and_its_args=None,
-               daily=True):
+               end_day=None, model_and_its_args=None, daily=True, ):
     """
     function to test the model by making
     prediction on existing data that wasn't given for the model,
@@ -391,26 +367,13 @@ def test_model(ticker,
         scaled_data, \
         epochs, units, \
         prediction_days, \
-        prediction_day = preparation_for_machine(ticker,
-                                                 epochs,
-                                                 prediction_days, units,
-                                                 prediction_day, start_day,
-                                                 end_day, model_and_its_args, daily)
+        prediction_day, daily = preparation_for_machine(ticker,
+                                                        epochs,
+                                                        prediction_days, units,
+                                                        prediction_day, start_day,
+                                                        end_day, model_and_its_args, daily, )
     return test_model_func(model=model, scalar=scalar, ticker=ticker, prediction_day=prediction_day,
                            prediction_days=prediction_days, daily=daily)
-
-
-def predict_stocks_avg(ticker,
-                       prediction_day,
-                       prediction_days,
-                       units,
-                       avg=4):
-    number = sum(
-        [predict_stock_price_at_specific_day(ticker, prediction_day=prediction_day, prediction_days=prediction_days,
-                                             units=units,
-                                             ) in range(avg)]) / avg
-    write_in_file(path='Data/avg.txt', data=str(number))
-    return number
 
 
 def dumb_test_model(ticker='NIO'):
@@ -436,6 +399,11 @@ def build_model_for_multiple_prediction(ticker, prediction_day=None,
                                         start_day=START,
                                         end_day=END,
                                         daily=True):
+    """
+    function to create model for multiple predictions the model here
+     is automatically false because we can't create model from model
+    """
+
     return preparation_for_machine(ticker,
                                    epochs,
                                    prediction_days, units,
@@ -443,13 +411,17 @@ def build_model_for_multiple_prediction(ticker, prediction_day=None,
                                    end_day, None, daily=daily)
 
 
+def __load_model(ticker, ):
+    """
+    Function to load model from saved model file
+    """
+
+    return load_model(path) if os.path.exists((path := f'saved_model/{ticker}_model')) else None
+
+
 def main():
-    ticker = 'NIO'
-    model_and_its_args = build_model_for_multiple_prediction(ticker, )
-    print(predict_stock_price_at_specific_day(ticker, model_and_its_args=model_and_its_args))
-    pr, ap = test_model(ticker, model_and_its_args=model_and_its_args)
-    plot_two_graphs(pr, ap, ticker)
-    print(accuracy_ratio(pr, ap))
+    ticker = 'RELI'
+    model_and_its_args = build_model_for_multiple_prediction(ticker, daily=False, )
 
 
 if __name__ == '__main__':

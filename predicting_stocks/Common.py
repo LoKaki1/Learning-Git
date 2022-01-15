@@ -1,8 +1,5 @@
 import json
 import matplotlib.pyplot as plt
-import os
-from tensorflow.keras.callbacks import ModelCheckpoint
-import os
 import ast
 
 
@@ -51,17 +48,34 @@ def return_json_data(ticker, json_path=r'../predicting_stocks/settings_for_ai/pa
             return [None, None, None, None]
 
 
-def save_model(train_images, train_labels):
-    checkpoint_path = "training_2/cp-{epoch:04d}.ckpt"
-    checkpoint_dir = os.path.dirname(checkpoint_path)
+def save_historical_data(ticker, start=START, end=END):
+    """
 
-    batch_size = 32
+    :param ticker: Ticker to save the historical data
+    :param start: from what date (if nothing so the big START date)
+    :param end:  'til what date  (if nothing so the big END date which it is today by default)
 
-    # Create a callback that saves the model's weights every 5 epochs
-    cp_callback = ModelCheckpoint(
-        filepath=checkpoint_path,
-        verbose=1,
-        save_weights_only=True,
-        save_freq=5 * batch_size)
+    :Doing saving an historical data of a stock into file in /Data/ticker.txt
+    *IMPORTANT* this func must use internet to be used otherwise you can't get the data to save
+    """
+    data = get_historical_data(ticker, start, end)
+    data = {ticker: dict((i, list(data[i].values)) for i in data)}
+    with open(f'./Data/{ticker}.txt', 'w') as t:
+        t.write(str(data))
+        t.close()
+
+
+def get_data_from_saved_file(ticker, ):
+    """
+
+    :param ticker: Ticker to get historical data from its file
+    :return: dictionary of historical data of a stock that has been saved earlier using save_historical_data()
+
+    Format - ticker name.txt in Data directory, otherwise it will not find the data
+    """
+    file = open(f'./Data/{ticker}.txt', 'r')
+    data = file.read()
+    return ast.literal_eval(data)
+
 
 return_json_data('NIO')

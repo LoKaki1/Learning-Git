@@ -33,7 +33,7 @@ def secondary_main(ticker='NIO'):
     epochs, units, prediction_days, prediction_day, \
         scalar, scaled_data, \
         x_train, y_train = generate_fit_and_prepare_data(ticker,
-                                                         None, None, None, None, None, None, )
+                                                         None, None, None, None, None, None, True)
     model_inputs = scaled_data
     real_data = [model_inputs[len(model_inputs) -
                               prediction_days * 4: len(model_inputs) + prediction_day, 0]]
@@ -41,7 +41,7 @@ def secondary_main(ticker='NIO'):
     real_data = np.reshape(real_data, (real_data.shape[0], real_data.shape[1], 1))
     t = new_model.predict(real_data)
     print(t)
-    print((p:=scalar.inverse_transform(np.array([t]).reshape(-1, 1))), len(p) )
+    print((p := scalar.inverse_transform(np.array([t]).reshape(-1, 1))), len(p))
 
 
 if __name__ == '__main__':
