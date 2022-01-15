@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import datetime as dt
 
+from collections.abc import Iterable
 from yahoofinancials import YahooFinancials
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.layers import Dense, Dropout, LSTM
@@ -23,7 +24,7 @@ X_VALUES = ['open', 'low', 'high', 'close', ]
 START = dt.datetime(2020, 3, 15).strftime('%Y-%m-%d')
 END = (dt.datetime.now() - dt.timedelta(days=0)).strftime('%Y-%m-%d')
 END_TEST = (dt.datetime.now() - dt.timedelta(days=2)).strftime('%Y-%m-%d')
-PREDICTION_DAYS = 30
+PREDICTION_DAYS = 12
 UNITS = 50
 PREDICTION_DAY = 5
 DENSE_UNITS = 0.2
@@ -57,13 +58,20 @@ def get_historical_data(ticker, start=START, end=END):
 
 def generate_data(*args, ticker):
     json_data = return_json_data(ticker)
+    for i in range(10):
+        if isinstance(args[0], Iterable):
+            args = args[0]
+        else:
+            break
+
     for index, i in enumerate(json_data):
         json_data[index] = args[index] if args[index] is not None else i
         json_data[index] = i if i is not None else PARAMETERS[index]
+    print(json_data)
     return json_data
 
 
-def get_data(ticker, start_day, end_day, daily):
+def get_data(ticker, start_day, end_day, daily, _):
     """
 
     :param daily: pass
@@ -79,8 +87,7 @@ def get_data(ticker, start_day, end_day, daily):
         TICKER_HISTORICAL_DATA[ticker] = __get_data(data) \
             if ticker not in TICKER_HISTORICAL_DATA else TICKER_HISTORICAL_DATA[ticker]
 
-    else:
-        print('You want intraday')
+    elif load_from_local:
         TICKER_HISTORICAL_DATA[ticker] = __get_data(read_csv(f'../Trading/Historical_data/{ticker}.csv', ticker))
     return TICKER_HISTORICAL_DATA[ticker]
 
@@ -148,17 +155,17 @@ def build_model(x_train,
                 y_train,
                 units,
                 epochs,
+                load_model_from_local,
                 ticker=None,
                 saved_model=True,
-                use_saved_model=False
                 ):
     """ Build Model """
     """ Clear session """
     clear_session()
 
     """ Building The Model """
-    if use_saved_model:
-        return __load_model(ticker)
+    if load_model_from_local and (model := __load_model(ticker)) is not None:
+        return model
 
     model = Sequential()
     model.add(LSTM(units=units, return_sequences=True, input_shape=(x_train.shape[1], 1)))
@@ -191,7 +198,7 @@ def return_test_data(test_start, test_end, prediction_days, prediction_day, tick
     test_data_time = (dt.datetime.strptime(test_start, '%Y-%m-%d') -
                       dt.timedelta(days=prediction_days)).strftime('%Y-%m-%d')
 
-    test_data = pd.DataFrame(get_data(ticker, start_day=test_data_time, end_day=test_end, daily=daily), ).values
+    test_data = pd.DataFrame(get_data(ticker, start_day=test_data_time, end_day=test_end, daily=daily)).values
     actual_data = []
     model_inputs = test_data.reshape(-1, 1)
     x_test = []
@@ -217,7 +224,11 @@ def test_model_func(ticker,
                     ):
     """ Test Model
     This part is seeing how accuracy the model on a data that exists but wasn't on it's training"""
-    x_test, actual_data = return_test_data(test_start, test_end, prediction_days, prediction_day, ticker, scalar, daily)
+    x_test, actual_data = return_test_data(test_start=test_start,
+                                           test_end=test_end,
+                                           prediction_days=prediction_days,
+                                           prediction_day=prediction_day,
+                                           ticker=ticker, scalar=scalar, daily=daily)
     x_test = np.array(x_test)
     x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
     actual_data = np.array(actual_data).reshape(-1, 1)
@@ -265,8 +276,11 @@ def predict_data(scaled_data, scalar, model, prediction_days, prediction_day):
     """ After we took the last prediction_days values, we give this x value 
     to predict function and returns the next value according
      to their value and the func it creates in the fit method """
-    prediction = model.predict(real_data)
-
+    try:
+        prediction = model.predict(real_data)
+    except ValueError:
+        raise ValueError("One of the parameters change please delete the last model or change the flag that won't "
+                         "take the last model")
     prediction = scalar.inverse_transform(prediction)
     return prediction
 
@@ -279,7 +293,8 @@ def predict_stock_price_at_specific_day(ticker,
                                         start_day=START,
                                         end_day=END,
                                         model_and_its_args=None,
-                                        daily=True):
+                                        daily=True,
+                                        load_model_from_local=True):
     """ return predicted stock price in a specific day
 
         param
@@ -300,11 +315,15 @@ def predict_stock_price_at_specific_day(ticker,
         scaled_data, \
         epochs, units, \
         prediction_days, \
-        prediction_day, daily = preparation_for_machine(ticker,
-                                                        epochs,
+        prediction_day, daily = preparation_for_machine(epochs,
                                                         prediction_days, units,
-                                                        prediction_day, start_day,
-                                                        end_day, model_and_its_args, daily)
+                                                        prediction_day,
+                                                        ticker=ticker,
+                                                        start_day=start_day,
+                                                        end_day=end_day,
+                                                        model_and_its_args=model_and_its_args,
+                                                        daily=daily,
+                                                        load_model_from_local=load_model_from_local)
 
     price = predict_data(scaled_data, model=model,
                          prediction_days=prediction_days,
@@ -318,22 +337,21 @@ def predict_stock_price_at_specific_day(ticker,
     return price
 
 
-def preparation_for_machine(ticker,
-                            epochs,
-                            prediction_days, units,
-                            prediction_day, start_day,
-                            end_day, model_and_its_args, daily,):
+def preparation_for_machine(*args, ticker,
+                            start_day,
+                            end_day,
+                            model_and_its_args,
+                            daily,
+                            load_model_from_local):
     if model_and_its_args is not None:
+        print("model is not None")
         return model_and_its_args
     epochs, units, prediction_days, prediction_day, \
         scalar, scaled_data, \
-        x_train, y_train = generate_fit_and_prepare_data(ticker,
-                                                         epochs,
-                                                         prediction_days,
-                                                         units, prediction_day,
-                                                         start_day, end_day, daily)
+        x_train, y_train = generate_fit_and_prepare_data(args, ticker=ticker,
+                                                         start_day=start_day, end_day=end_day, daily=daily)
     model = build_model(x_train, y_train, units=units,
-                        epochs=epochs, ticker=ticker, )
+                        epochs=epochs, ticker=ticker, load_model_from_local=load_model_from_local)
     return model, scalar, scaled_data, epochs, units, prediction_days, prediction_day, daily
 
 
@@ -343,7 +361,10 @@ def test_model(ticker,
                units=None,
                epochs=None,
                start_day=None,
-               end_day=None, model_and_its_args=None, daily=True, ):
+               end_day=None,
+               model_and_its_args=None,
+               daily=True,
+               load_model_from_local=True):
     """
     function to test the model by making
     prediction on existing data that wasn't given for the model,
@@ -367,11 +388,15 @@ def test_model(ticker,
         scaled_data, \
         epochs, units, \
         prediction_days, \
-        prediction_day, daily = preparation_for_machine(ticker,
-                                                        epochs,
+        prediction_day, daily = preparation_for_machine(epochs,
                                                         prediction_days, units,
-                                                        prediction_day, start_day,
-                                                        end_day, model_and_its_args, daily, )
+                                                        prediction_day, ticker=ticker,
+                                                        start_day=start_day,
+                                                        end_day=end_day,
+                                                        model_and_its_args=model_and_its_args,
+                                                        daily=daily,
+                                                        load_model_from_local=load_model_from_local)
+
     return test_model_func(model=model, scalar=scalar, ticker=ticker, prediction_day=prediction_day,
                            prediction_days=prediction_days, daily=daily)
 
@@ -380,15 +405,13 @@ def dumb_test_model(ticker='NIO'):
     return test_model(ticker, units=1, prediction_days=21, epochs=1)
 
 
-def generate_fit_and_prepare_data(ticker, epochs, prediction_days, units, prediction_day, start_day, end_day, daily):
-    epochs, units, prediction_days, prediction_day = generate_data(epochs,
-                                                                   prediction_days,
-                                                                   units,
-                                                                   prediction_day,
-                                                                   ticker=ticker,
-                                                                   )
-    scaled_data, scalar = fit_data(ticker, start_day=start_day, end_day=end_day, daily=daily)
-    x_train, y_train = prepare_data(scaled_data, prediction_days, prediction_day)
+def generate_fit_and_prepare_data(*args, ticker, start_day, end_day, daily):
+    epochs, units, prediction_days, prediction_day = generate_data(args,
+                                                                   ticker=ticker,)
+    scaled_data, scalar = fit_data(ticker=ticker, start_day=start_day, end_day=end_day, daily=daily)
+    x_train, y_train = prepare_data(scaled_data=scaled_data,
+                                    prediction_days=prediction_days,
+                                    prediction_day=prediction_day)
     return epochs, units, prediction_days, prediction_day, scalar, scaled_data, x_train, y_train
 
 
@@ -396,19 +419,24 @@ def build_model_for_multiple_prediction(ticker, prediction_day=None,
                                         prediction_days=None,
                                         units=None,
                                         epochs=None,
+                                        daily=True,
+                                        load_model_from_local=True,
                                         start_day=START,
                                         end_day=END,
-                                        daily=True):
+                                        ):
     """
     function to create model for multiple predictions the model here
      is automatically false because we can't create model from model
     """
 
-    return preparation_for_machine(ticker,
-                                   epochs,
+    return preparation_for_machine(epochs,
                                    prediction_days, units,
-                                   prediction_day, start_day,
-                                   end_day, None, daily=daily)
+                                   prediction_day, ticker=ticker,
+                                   start_day=start_day,
+                                   end_day=end_day,
+                                   model_and_its_args=None,
+                                   daily=daily,
+                                   load_model_from_local=load_model_from_local)
 
 
 def __load_model(ticker, ):
@@ -420,8 +448,10 @@ def __load_model(ticker, ):
 
 
 def main():
-    ticker = 'RELI'
-    model_and_its_args = build_model_for_multiple_prediction(ticker, daily=False, )
+    ticker = 'NIO'
+    predict_stock_price_at_specific_day(ticker, daily=False, load_model_from_local=True)
+    t, p = test_model(ticker, daily=False, )
+    plot_two_graphs(t, p, ticker=ticker)
 
 
 if __name__ == '__main__':

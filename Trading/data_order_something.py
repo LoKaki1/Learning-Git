@@ -40,7 +40,7 @@ class MyWrapper(EWrapper, EClient):
     def error(self, req_id, error_code, error_string):
         print("Error. Id: ", req_id, " Code: ", error_code, " Msg: ", error_string)
 
-    def start(self):
+    def start(self, other):
         query_time = ""
         # so everyone can get data use fx
         fx = Contract()
@@ -51,13 +51,13 @@ class MyWrapper(EWrapper, EClient):
 
         # setting update to 1 minute still sends an update every tick? but timestamps are 1 min
         # I don't think keepUpToDate sends a realtimeBar every 5 secs, just updates the last bar.
-        self.app.reqHistoricalData(1, fx, query_time, "3 D", "1 min", "MIDPOINT", 0, 1, True, [])
+        self.app.reqHistoricalData(1, fx, query_time, f"{other} D", "1 min", "MIDPOINT", 0, 1, True, [])
 
 
-def read_data(ticker='NIO'):
+def read_data(ticker='NIO', other='3'):
     app = MyWrapper(ticker).app
 
-    threading.Thread(target=app.run).start()
+    threading.Thread(target=app.run).start(other)
     timing = time.time() + 2900
     path = None
     while timing > time.time():

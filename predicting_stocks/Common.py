@@ -48,21 +48,21 @@ def return_json_data(ticker, json_path=r'../predicting_stocks/settings_for_ai/pa
             return [None, None, None, None]
 
 
-def save_historical_data(ticker, start=START, end=END):
-    """
-
-    :param ticker: Ticker to save the historical data
-    :param start: from what date (if nothing so the big START date)
-    :param end:  'til what date  (if nothing so the big END date which it is today by default)
-
-    :Doing saving an historical data of a stock into file in /Data/ticker.txt
-    *IMPORTANT* this func must use internet to be used otherwise you can't get the data to save
-    """
-    data = get_historical_data(ticker, start, end)
-    data = {ticker: dict((i, list(data[i].values)) for i in data)}
-    with open(f'./Data/{ticker}.txt', 'w') as t:
-        t.write(str(data))
-        t.close()
+# def save_historical_data(ticker, start=START, end=END):
+#     """
+#
+#     :param ticker: Ticker to save the historical data
+#     :param start: from what date (if nothing so the big START date)
+#     :param end:  'til what date  (if nothing so the big END date which it is today by default)
+#
+#     :Doing saving an historical data of a stock into file in /Data/ticker.txt
+#     *IMPORTANT* this func must use internet to be used otherwise you can't get the data to save
+#     """
+#     data = get_historical_data(ticker, start, end)
+#     data = {ticker: dict((i, list(data[i].values)) for i in data)}
+#     with open(f'./Data/{ticker}.txt', 'w') as t:
+#         t.write(str(data))
+#         t.close()
 
 
 def get_data_from_saved_file(ticker, ):
