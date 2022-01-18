@@ -7,7 +7,7 @@ import threading
 
 
 class MyWrapper(EWrapper, EClient):
-    def __init__(self, ticker):
+    def __init__(self, ticker, other='3'):
         super().__init__()
         self.nextValidOrderId = None
         self.data = []
@@ -15,6 +15,7 @@ class MyWrapper(EWrapper, EClient):
         self.ticker = ticker
         self.wrapper = EWrapper()
         self.app = EClient(self)
+        self.other = other
         self.app.connect("127.0.0.1", 7497, clientId=999)
 
     def nextValidId(self, order_id: int):
@@ -40,7 +41,7 @@ class MyWrapper(EWrapper, EClient):
     def error(self, req_id, error_code, error_string):
         print("Error. Id: ", req_id, " Code: ", error_code, " Msg: ", error_string)
 
-    def start(self, other):
+    def start(self,):
         query_time = ""
         # so everyone can get data use fx
         fx = Contract()
@@ -51,13 +52,13 @@ class MyWrapper(EWrapper, EClient):
 
         # setting update to 1 minute still sends an update every tick? but timestamps are 1 min
         # I don't think keepUpToDate sends a realtimeBar every 5 secs, just updates the last bar.
-        self.app.reqHistoricalData(1, fx, query_time, f"{other} D", "1 min", "MIDPOINT", 0, 1, True, [])
+        self.app.reqHistoricalData(1, fx, query_time, f"{self.other} D", "1 min", "MIDPOINT", 0, 1, True, [])
 
 
 def read_data(ticker='NIO', other='3'):
-    app = MyWrapper(ticker).app
+    app = MyWrapper(ticker, other).app
 
-    threading.Thread(target=app.run).start(other)
+    threading.Thread(target=app.run).start()
     timing = time.time() + 2900
     path = None
     while timing > time.time():

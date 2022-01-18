@@ -488,7 +488,7 @@ def __load_model(ticker, ):
 
 def main():
     ticker = 'NIO'
-    predict_stock_price_at_specific_day(ticker, daily=True, load_model_from_local=True)
+    predict_stock_price_at_specific_day(ticker, daily=False, load_model_from_local=False)
     t, p = test_model(ticker, daily=True, load_model_from_local=True)
     print(accuracy_ratio(t, p))
     plot_two_graphs(t, p, ticker=ticker)
