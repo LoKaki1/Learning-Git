@@ -4,7 +4,7 @@ from ibapi.contract import Contract
 import pandas as pd
 import time
 import threading
-
+import yfinance as yf
 
 class MyWrapper(EWrapper, EClient):
     def __init__(self, ticker, other='3'):
