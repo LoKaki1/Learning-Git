@@ -8,6 +8,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.backend import clear_session
 import Common as Cm
 from Trading.data_order_something import read_data
+import yfinance as yf
 
 TICKER = 'NIO'
 X_VALUES = ['open', 'low', 'high', 'close', ]
@@ -15,9 +16,9 @@ START = dt.datetime(2020, 4, 15).strftime('%Y-%m-%d')
 END = (dt.datetime.now() - dt.timedelta(days=0)).strftime('%Y-%m-%d')
 TEST_END = (dt.datetime.now() - dt.timedelta(days=2)).strftime('%Y-%m-%d')
 TEST_START = START
-PREDICTION_DAYS = 12
+PREDICTION_DAYS = 21
 UNITS = 50
-PREDICTION_DAY = 5
+PREDICTION_DAY = 1
 DENSE_UNITS = 0.2
 EPOCHS = 12
 BATCH_SIZE = 64
@@ -62,12 +63,14 @@ class ClassifierAi:
         self.test_end = test_end
         self.real_prices = []
         self.predicted_prices = []
+        self.scaled_data = None
 
     def generate_data(self, *args):
         json_data = Cm.return_json_data(self.ticker)
         for index, i in enumerate(json_data):
             json_data[index] = args[index] if args[index] is not None else i
-            json_data[index] = i if i is not None else PARAMETERS[index]
+            if json_data[index] is None:
+                json_data[index] = i if i is not None else PARAMETERS[index]
         print(json_data)
         return json_data
 
@@ -86,8 +89,8 @@ class ClassifierAi:
         "Reshape so it matches with scalar api"
         self.scalar = MinMaxScaler(feature_range=(0, 1))
         """ Fits x values of data (now it makes the real values ) """
-        scaled_data = self.scalar.fit_transform(data)
-        return scaled_data
+        self.scaled_data = self.scalar.fit_transform(data)
+        return self.scaled_data
 
     def get_data(self):
         """
@@ -98,13 +101,26 @@ class ClassifierAi:
 
         elif self.load_data_from_local:
             "Means it's not daily but also load from local (no way to get daily from local, meanwhile)"
-            return Cm.iterate_data(Cm.read_csv(f'../Trading/Historical_data/{self.ticker}.csv',
-                                               self.ticker, other=self.other))
-        else:
-            read_data(self.ticker, self.other)
-            return Cm.iterate_data(Cm.read_csv(f'../Trading/Historical_data/{self.ticker}.csv', self.ticker))
+            # p = data if 'open' in ((data := test(self.other)).keys()) else Cm.iterate_data(
+            #     Cm.read_csv(f'../Trading/Historical_data/{self.ticker}.csv',
+            #                 self.ticker, other=self.other))
+            try:
+                return Cm.get_data_from_file_or_yahoo(self.ticker, self.other)
+            except SyntaxError:
+                return Cm.iterate_data(
+                    Cm.read_csv(f'../Trading/Historical_data/{self.ticker}.csv',
+                                self.ticker, other=self.other))
 
-    def prepare_data(self, scaled_data, ):
+        else:
+
+            try:
+                return Cm.intraday_with_yahoo(self.ticker, self.other)
+            except Exception as e:
+                print(e)
+                read_data(self.ticker, self.other)
+                return Cm.iterate_data(Cm.read_csv(f'../Trading/Historical_data/{self.ticker}.csv', self.ticker))
+
+    def prepare_data(self, scaled_data):
         """ func to prepare data that in x_train it contains prediction_days values and in y_train the predicted
         price """
         x_train = []
@@ -331,17 +347,15 @@ class ClassifierAi:
                         self.real_prices[i] / t)
                     for i, t in enumerate(self.predicted_prices)]) / len(self.predicted_prices)
 
-    def __help(self):
-        return self.predicted_prices if len(self.real_prices) > len(self.predicted_prices) else self.real_prices
+
+def test(ticker, other: [str, int] = '3'):
+    return yf.download(tickers=ticker, period=f'{str(other)}d', interval='1m')
 
 
 def main():
-
-    prediction = ClassifierAi('NIO', daily=True, load_model_from_local=False)
-    prediction.predict_stock_price_at_specific_day()
-    prediction.test_model()
-    print(prediction.accuracy_ratio())
-    prediction.plot_two_graphs()
+    my_man = ClassifierAi('NIO', daily=False, load_data_from_local=False,
+                          load_model_from_local=False, prediction_days=20, prediction_day=10, other=5)
+    my_man.predict_stock_price_at_specific_day()
 
 
 if __name__ == '__main__':
