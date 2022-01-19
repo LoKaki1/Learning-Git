@@ -42,7 +42,8 @@ class ClassifierAi:
                  save_model=True,
                  test_start=TEST_START,
                  test_end=TEST_END,
-                 other=3):
+                 other=3,
+                 source='IBKR'):
         self.ticker = ticker
         self.epochs, self.units, self.prediction_days, self.prediction_day = self.generate_data(epochs,
                                                                                                 units,
@@ -64,6 +65,7 @@ class ClassifierAi:
         self.real_prices = []
         self.predicted_prices = []
         self.scaled_data = None
+        self.source = source
 
     def generate_data(self, *args):
         json_data = Cm.return_json_data(self.ticker)
@@ -92,6 +94,11 @@ class ClassifierAi:
         self.scaled_data = self.scalar.fit_transform(data)
         return self.scaled_data
 
+    def _get_data_from_interactive(self):
+        return Cm.iterate_data(
+            Cm.read_csv(f'../Trading/Historical_data/{self.ticker}.csv',
+                        self.ticker, other=self.other))
+
     def get_data(self):
         """
         :return: Historical data of a stock and divide it into lists that each contains [open, close, high, low]
@@ -101,24 +108,23 @@ class ClassifierAi:
 
         elif self.load_data_from_local:
             "Means it's not daily but also load from local (no way to get daily from local, meanwhile)"
-            # p = data if 'open' in ((data := test(self.other)).keys()) else Cm.iterate_data(
-            #     Cm.read_csv(f'../Trading/Historical_data/{self.ticker}.csv',
-            #                 self.ticker, other=self.other))
+            # source to choose whether you want ibkr or yahoo, ibkr contains premarket, yahoo does not
+            if self.source == 'IBKR':
+                return self._get_data_from_interactive()
             try:
                 return Cm.get_data_from_file_or_yahoo(self.ticker, self.other)
             except SyntaxError:
-                return Cm.iterate_data(
-                    Cm.read_csv(f'../Trading/Historical_data/{self.ticker}.csv',
-                                self.ticker, other=self.other))
+                return self._get_data_from_interactive()
 
         else:
-
+            if self.source == 'IBKR':
+                read_data(self.ticker, self.other)
+                return self._get_data_from_interactive()
             try:
                 return Cm.intraday_with_yahoo(self.ticker, self.other)
-            except Exception as e:
-                print(e)
+            except [Exception]:
                 read_data(self.ticker, self.other)
-                return Cm.iterate_data(Cm.read_csv(f'../Trading/Historical_data/{self.ticker}.csv', self.ticker))
+                return self._get_data_from_interactive()
 
     def prepare_data(self, scaled_data):
         """ func to prepare data that in x_train it contains prediction_days values and in y_train the predicted
@@ -151,7 +157,6 @@ class ClassifierAi:
         """  x_train.shape[0] = the length of the array, x_train.shape[1] =  prediction days 
          means to create a shape with length of x_train.len and width of prediction days on one dimension
         """
-
         x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
         return x_train, y_train
 
@@ -353,8 +358,8 @@ def test(ticker, other: [str, int] = '3'):
 
 
 def main():
-    my_man = ClassifierAi('NIO', daily=False, load_data_from_local=False,
-                          load_model_from_local=False, prediction_days=20, prediction_day=10, other=5)
+    my_man = ClassifierAi('NIO', daily=False, load_data_from_local=True,
+                          load_model_from_local=False, prediction_days=20, prediction_day=10, other=2)
     my_man.predict_stock_price_at_specific_day()
 
 
