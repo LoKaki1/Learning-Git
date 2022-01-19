@@ -4,7 +4,7 @@ from ibapi.contract import Contract
 import pandas as pd
 import time
 import threading
-import yfinance as yf
+
 
 class MyWrapper(EWrapper, EClient):
     def __init__(self, ticker, other='3'):
@@ -74,4 +74,3 @@ def read_data(ticker='NIO', other='3'):
     app.disconnect()
     app.wrapper.df.close.plot()
     return path
-

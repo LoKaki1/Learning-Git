@@ -140,4 +140,3 @@ def intraday_with_yahoo(ticker, other: [str, int] = '3'):
         data_dict = dict((key, [i for i in data[key]]) for key in ['Open', 'Close', 'Low', 'High'])
         file.write(str(data_dict))
     return iterate_data(data_dict, what=1)
-
