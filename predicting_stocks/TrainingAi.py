@@ -10,24 +10,24 @@ def generate_random_numbers(*param):
     return [i if i is not None else random.randint((par := PARAMS[index])[0], par[1]) for index, i in enumerate(param)]
 
 
-def generate_children(*params):
-    return [generate_random_numbers(params[0], None, None),
-            generate_random_numbers(None, params[1], None),
-            generate_random_numbers(None, None, params[2]),
-            generate_random_numbers(params[0], params[1], None),
-            generate_random_numbers(params[0], None, params[2]),
-            generate_random_numbers(None, params[1], params[2]),
-            generate_random_numbers(None, None, None),
+def generate_children(epochs, units, prediction_days,):
+    return [generate_random_numbers(epochs, None, None)
+            # generate_random_numbers(None, params[1], None),
+            # generate_random_numbers(None, None, params[2]),
+            # generate_random_numbers(params[0], params[1], None),
+            # generate_random_numbers(params[0], None, params[2]),
+            # generate_random_numbers(None, params[1], params[2]),
+            # generate_random_numbers(None, None, None),
             ]
 
 
-def ratio(params, ticker):
-    print(params)
-    child = ClassifierAi(ticker=ticker, epochs=params[0], units=params[1], prediction_days=params[2],
+def ratio(epochs, units, prediction_days, ticker):
+    print(epochs, units, prediction_days, type(epochs), type(units), type(prediction_days),)
+    child = ClassifierAi(ticker=ticker, epochs=epochs, units=units, prediction_days=prediction_days,
                          load_model_from_local=False, daily=True)
     try:
         price = float(child.test_model_and_return_accuracy_ratio()[-1])
-    except [Exception]:
+    except Exception:
         price = float(child.test_model_and_return_accuracy_ratio())
     return price
 
@@ -56,26 +56,28 @@ def main():
         counter += 1
         children_dict = {}
         for i in params:
-            rat = ratio(i, ticker)
-            children_dict[f'{rat}'] = i
+            print(i)
+            rat = ratio(i[0], i[1], i[2], ticker)
+            children_dict[rat] = i
         # children_dict = dict((ratio(i, ticker), i) for i in params)
-        children_dict[father.test_model_and_return_accuracy_ratio()] = [father.epochs,
-                                                                             father.units,
-                                                                             father.prediction_days]
-        best_child_par = children_dict[(best_ratio := str(max(children_dict.keys())))]
+        children_dict[float(father.test_model_and_return_accuracy_ratio()[-1])] = \
+            [father.epochs,
+             father.units,
+             father.prediction_days]
+        best_child_par = children_dict[(best_ratio := (max(children_dict.keys())))]
         print(best_child_par, best_ratio)
         father = ClassifierAi(ticker=ticker, epochs=best_child_par[0],
                               units=best_child_par[1],
                               prediction_days=best_child_par[2],
-                              load_model_from_local=True,
+                              load_model_from_local=False,
                               daily=True, child=str(counter))
-        params = generate_children(best_child_par)
+        params = generate_children(best_child_par[0], best_child_par[1], best_child_par[2], )
         json_object = create_json_object(ticker, best_child_par)
         Cm.write_in_json_file('../predicting_stocks/settings_for_ai/parameters_status.json', data=json_object,
                               ticker=ticker) if float(best_ratio) > 0.985 else Cm.write_in_file(
             '../predicting_stocks/settings_for_ai'
             '/garbage_parameters_status.txt',
-            data=json_object)
+            data=str(json_object))
 
 
 if __name__ == '__main__':

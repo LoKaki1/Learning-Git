@@ -101,11 +101,13 @@ def return_json_data(ticker, json_path='../predicting_stocks/settings_for_ai/par
         return None
     with open(json_path, 'r') as json_file:
         p = json.load(json_file)
+        json_file.close()
         if ticker in p:
             p = p[ticker]['settings']
             return [p['epochs'], p['units'], p['prediction_days'], p['prediction_day']]
         else:
             return [None, None, None, None]
+
 
 
 # def save_historical_data(ticker, start=START, end=END):
@@ -146,8 +148,9 @@ def get_data_from_saved_file(ticker, ):
 def read_from_file(ticker, other):
     try:
         with open(f'../Trading/Historical_data/{ticker} - {other}.txt', 'r') as file:
-            return file.read()
-
+            data = file.read()
+            file.close()
+            return data
     except FileNotFoundError:
         print('file not found')
         return None
@@ -163,4 +166,5 @@ def intraday_with_yahoo(ticker, other: [str, int] = '3'):
     with open(f'../Trading/Historical_data/{ticker} - {other}.txt', 'w') as file:
         data_dict = dict((key, [i for i in data[key]]) for key in ['Open', 'Close', 'Low', 'High'])
         file.write(str(data_dict))
+        file.close()
     return iterate_data(data_dict, what=1)
