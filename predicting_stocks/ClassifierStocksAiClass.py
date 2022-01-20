@@ -352,6 +352,10 @@ class ClassifierAi:
                         self.real_prices[i] / t)
                     for i, t in enumerate(self.predicted_prices)]) / len(self.predicted_prices)
 
+    def test_model_and_return_accuracy_ratio(self, ):
+        self.test_model()
+        return self.accuracy_ratio()
+
 
 def test(ticker, other: [str, int] = '3'):
     return yf.download(tickers=ticker, period=f'{str(other)}d', interval='1m')

@@ -8,6 +8,8 @@ from yahoofinancials import YahooFinancials
 from tensorflow.keras.models import load_model
 from Trading.data_order_something import read_data
 import yfinance as yf
+import random
+import time
 
 X_VALUES = [['open', 'low', 'high', 'close'], ['Open', 'Low', 'High', 'Close']]
 
@@ -16,6 +18,27 @@ def write_in_file(path, data):
     with open(path, 'a') as file:
         file.write(data)
         file.close()
+
+
+def str_time_prop(start, end, time_format, prop):
+    """Get a time at a proportion of a range of two formatted times.
+
+    start and end should be strings specifying times formatted in the
+    given format (strftime-style), giving an interval [start, end].
+    prop specifies how a proportion of the interval to be taken after
+    start.  The returned time will be in the specified format.
+    """
+
+    stime = time.mktime(time.strptime(start, time_format))
+    etime = time.mktime(time.strptime(end, time_format))
+
+    ptime = stime + prop * (etime - stime)
+
+    return time.strftime(time_format, time.localtime(ptime))
+
+
+def random_date(start, end, prop):
+    return str_time_prop(start, end, '%m/%d/%Y %I:%M %p', prop)
 
 
 def read_csv(path, ticker=None, other='3'):
@@ -55,9 +78,9 @@ def plot(data, pre_prices, ticker):
     plt.show()
 
 
-def write_in_json_file(path, data, ticker=None):
+def write_in_json_file(path, data: dict, ticker=None):
     with open(path, "r") as a_file:
-        data = json.dumps(ast.literal_eval(data))
+        data = json.dumps(data)
         print(data)
         json_object = json.load(a_file)
         json_object[ticker] = ast.literal_eval(data)[ticker]
