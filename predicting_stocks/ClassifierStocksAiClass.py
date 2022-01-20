@@ -43,7 +43,8 @@ class ClassifierAi:
                  test_start=TEST_START,
                  test_end=TEST_END,
                  other=3,
-                 source='IBKR'):
+                 source='IBKR',
+                 child=None):
         self.ticker = ticker
         self.epochs, self.units, self.prediction_days, self.prediction_day = self.generate_data(epochs,
                                                                                                 units,
@@ -66,6 +67,7 @@ class ClassifierAi:
         self.predicted_prices = []
         self.scaled_data = None
         self.source = source
+        self.child = child
 
     def generate_data(self, *args):
         json_data = Cm.return_json_data(self.ticker)
@@ -213,7 +215,10 @@ class ClassifierAi:
                   epochs=self.epochs, batch_size=BATCH_SIZE, verbose='auto', )
 
         if self.save_model:
-            model.save(f'saved_model/{self.ticker}_model')
+            if self.child is not None:
+                model.save(f'saved_model/{self.ticker}/{self.child}_model')
+            else:
+                model.save(f'saved_model/{self.ticker}_model')
         self.model = model
         return model
 

@@ -51,12 +51,13 @@ def iterate_data(data, what=0):
             for index, i in enumerate(data['close'] if 'close' in data.keys() else data['Close'])]
 
 
-def load_model_from_file(ticker, ):
+def load_model_from_file(ticker, child=None):
     """
     Function to load model from saved model file
     """
 
-    return load_model(path) if os.path.exists((path := f'saved_model/{ticker}_model')) else None
+    return load_model(path) if os.path.exists((path := f'saved_model/{ticker}_model')
+                                              if child is None else (path := f'saved_model/{ticker}/child')) else None
 
 
 def get_historical_data(ticker, start, end):
