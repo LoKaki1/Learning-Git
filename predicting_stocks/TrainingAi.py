@@ -11,13 +11,13 @@ def generate_random_numbers(*param):
 
 
 def generate_children(epochs, units, prediction_days,):
-    return [generate_random_numbers(epochs, None, None)
-            # generate_random_numbers(None, params[1], None),
-            # generate_random_numbers(None, None, params[2]),
-            # generate_random_numbers(params[0], params[1], None),
-            # generate_random_numbers(params[0], None, params[2]),
-            # generate_random_numbers(None, params[1], params[2]),
-            # generate_random_numbers(None, None, None),
+    return [generate_random_numbers(epochs, None, None),
+            generate_random_numbers(None, units,  None),
+            generate_random_numbers(None, None, prediction_days,),
+            generate_random_numbers(epochs, units, None),
+            generate_random_numbers(epochs, None, prediction_days,),
+            generate_random_numbers(None, units, prediction_days),
+            generate_random_numbers(None, None, None),
             ]
 
 
@@ -27,7 +27,7 @@ def ratio(epochs, units, prediction_days, ticker):
                          load_model_from_local=False, daily=True)
     try:
         price = float(child.test_model_and_return_accuracy_ratio()[-1])
-    except Exception:
+    except ValueError:
         price = float(child.test_model_and_return_accuracy_ratio())
     return price
 
@@ -77,7 +77,7 @@ def main():
                               ticker=ticker) if float(best_ratio) > 0.985 else Cm.write_in_file(
             '../predicting_stocks/settings_for_ai'
             '/garbage_parameters_status.txt',
-            data=str(json_object))
+            data=''.join(['\n', str(json_object)]))
 
 
 if __name__ == '__main__':
