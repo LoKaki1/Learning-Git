@@ -32,47 +32,53 @@ def ratio(epochs, units, prediction_days, ticker):
     return price
 
 
-def create_json_object(ticker, best_child_par):
+def create_json_object(ticker, best_child_par, __ratio__):
     return {
         ticker: {
             "settings": {
                 'epochs': best_child_par[0],
                 'units': best_child_par[1],
-                'prediction_days': best_child_par[2]
+                'prediction_days': best_child_par[2],
+                'ratio': __ratio__
+
             }
         }
     }
 
 
 def main():
-    ticker = 'NIO'
-    e, u, p = 1, 1, 7
-    params = generate_children(e, u, p, )
-    father = ClassifierAi(ticker=ticker, epochs=e, units=u, prediction_days=p, load_model_from_local=False, daily=True)
-    counter = 0
-    while True:
-        counter += 1
-        children_dict = dict((ratio(i[0], i[1], i[2], ticker), i) for i in params)
-        children_dict[(father_ratio := float(father.test_model_and_return_accuracy_ratio()[-1]))] = \
-            [father.epochs,
-             father.units,
-             father.prediction_days]
-        best_child_par = children_dict[(best_ratio := (max(children_dict.keys())))]
-        print(best_child_par, best_ratio)
-        father = ClassifierAi(ticker=ticker, epochs=best_child_par[0],
-                              units=best_child_par[1],
-                              prediction_days=best_child_par[2],
-                              load_model_from_local=False,
-                              daily=True, child=str(counter))\
-            if best_child_par != children_dict[father_ratio] else father
+    tickers = ['BSFC', 'LLNW', 'BON']
+    for ticker in tickers:
+        e, u, p = 1, 1, 7
+        params = generate_children(e, u, p, )
+        father = ClassifierAi(ticker=ticker, epochs=e, units=u, prediction_days=p,
+                              load_model_from_local=False, daily=False)
+        counter = 0
+        while True:
+            counter += 1
+            children_dict = dict((ratio(i[0], i[1], i[2], ticker), i) for i in params)
+            children_dict[(father_ratio := float(father.test_model_and_return_accuracy_ratio()[-1]))] = \
+                [father.epochs,
+                 father.units,
+                 father.prediction_days]
+            best_child_par = children_dict[(best_ratio := (max(children_dict.keys())))]
+            print(best_child_par, best_ratio)
+            father = ClassifierAi(ticker=ticker, epochs=best_child_par[0],
+                                  units=best_child_par[1],
+                                  prediction_days=best_child_par[2],
+                                  load_model_from_local=False,
+                                  daily=False, child=str(counter))\
+                if best_child_par != children_dict[father_ratio] else father
 
-        params = generate_children(best_child_par[0], best_child_par[1], best_child_par[2], )
-        json_object = create_json_object(ticker, best_child_par)
-        Cm.write_in_json_file('../predicting_stocks/settings_for_ai/parameters_status.json', data=json_object,
-                              ticker=ticker) if float(best_ratio) > 0.985 else Cm.write_in_file(
-            '../predicting_stocks/settings_for_ai'
-            '/garbage_parameters_status.txt',
-            data=''.join(['\n', str(json_object)]))
+            params = generate_children(best_child_par[0], best_child_par[1], best_child_par[2], )
+            json_object = create_json_object(ticker, best_child_par, best_ratio)
+            Cm.write_in_json_file('../predicting_stocks/settings_for_ai/parameters_status.json', data=json_object,
+                                  ticker=ticker) if float(best_ratio) > 0.985 else Cm.write_in_file(
+                '../predicting_stocks/settings_for_ai'
+                '/garbage_parameters_status.txt',
+                data=''.join(['\n', str(json_object)]))
+            if float(best_ratio) > 0.985:
+                break
 
 
 if __name__ == '__main__':
