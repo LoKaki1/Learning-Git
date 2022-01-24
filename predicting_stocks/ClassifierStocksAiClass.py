@@ -8,7 +8,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.backend import clear_session
 import Common as Cm
 from Trading.data_order_something import read_data
-import yfinance as yf
+
 
 TICKER = 'NIO'
 X_VALUES = ['open', 'low', 'high', 'close', ]
@@ -360,10 +360,6 @@ class ClassifierAi:
     def test_model_and_return_accuracy_ratio(self, ):
         self.test_model()
         return self.accuracy_ratio()
-
-
-def test(ticker, other: [str, int] = '3'):
-    return yf.download(tickers=ticker, period=f'{str(other)}d', interval='1m')
 
 
 def main():

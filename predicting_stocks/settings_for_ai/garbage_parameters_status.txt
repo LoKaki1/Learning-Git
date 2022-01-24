@@ -1024,3 +1024,12 @@ ticker=NIO, epochs=23, units=34, prediction_days=44, dense_units=0.2,     ratio=
 {'NIO': {'settings': {'epochs': 16, 'units': 94, 'prediction_days': 80}}}
 {'NIO': {'settings': {'epochs': 16, 'units': 94, 'prediction_days': 64}}}
 {'NIO': {'settings': {'epochs': 13, 'units': 94, 'prediction_days': 64}}}
+{'BSFC': {'settings': {'epochs': 12, 'units': 50, 'prediction_days': 21, 'ratio': 0.9794112146943392}}}
+{'BSFC': {'settings': {'epochs': 12, 'units': 50, 'prediction_days': 21, 'ratio': 0.9794112146943392}}}
+{'BSFC': {'settings': {'epochs': 12, 'units': 50, 'prediction_days': 21, 'ratio': 0.9794112146943392}}}
+{'BSFC': {'settings': {'epochs': 12, 'units': 50, 'prediction_days': 21, 'ratio': 0.9794112146943392}}}
+{'BSFC': {'settings': {'epochs': 12, 'units': 50, 'prediction_days': 21, 'ratio': 0.9794112146943392}}}
+{'BSFC': {'settings': {'epochs': 12, 'units': 50, 'prediction_days': 21, 'ratio': 0.9794112146943392}}}
+{'BSFC': {'settings': {'epochs': 12, 'units': 50, 'prediction_days': 21, 'ratio': 0.9794112146943392}}}
+{'BSFC': {'settings': {'epochs': 12, 'units': 50, 'prediction_days': 21, 'ratio': 0.9794112146943392}}}
+{'BSFC': {'settings': {'epochs': 12, 'units': 50, 'prediction_days': 21, 'ratio': 0.9794112146943392}}}
