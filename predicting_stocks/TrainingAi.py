@@ -49,18 +49,11 @@ def main():
     e, u, p = 1, 1, 7
     params = generate_children(e, u, p, )
     father = ClassifierAi(ticker=ticker, epochs=e, units=u, prediction_days=p, load_model_from_local=False, daily=True)
-    # father.test_model()
-    print(params)
     counter = 0
     while True:
         counter += 1
-        children_dict = {}
-        for i in params:
-            print(i)
-            rat = ratio(i[0], i[1], i[2], ticker)
-            children_dict[rat] = i
-        # children_dict = dict((ratio(i, ticker), i) for i in params)
-        children_dict[float(father.test_model_and_return_accuracy_ratio()[-1])] = \
+        children_dict = dict((ratio(i[0], i[1], i[2], ticker), i) for i in params)
+        children_dict[(father_ratio := float(father.test_model_and_return_accuracy_ratio()[-1]))] = \
             [father.epochs,
              father.units,
              father.prediction_days]
@@ -70,7 +63,9 @@ def main():
                               units=best_child_par[1],
                               prediction_days=best_child_par[2],
                               load_model_from_local=False,
-                              daily=True, child=str(counter))
+                              daily=True, child=str(counter))\
+            if best_child_par != children_dict[father_ratio] else father
+
         params = generate_children(best_child_par[0], best_child_par[1], best_child_par[2], )
         json_object = create_json_object(ticker, best_child_par)
         Cm.write_in_json_file('../predicting_stocks/settings_for_ai/parameters_status.json', data=json_object,
