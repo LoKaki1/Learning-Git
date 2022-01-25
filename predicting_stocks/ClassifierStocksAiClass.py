@@ -9,7 +9,6 @@ from tensorflow.keras.backend import clear_session
 import Common as Cm
 from Trading.data_order_something import read_data
 
-
 TICKER = 'NIO'
 X_VALUES = ['open', 'low', 'high', 'close', ]
 START = dt.datetime(2020, 4, 15).strftime('%Y-%m-%d')
@@ -75,7 +74,6 @@ class ClassifierAi:
             json_data[index] = args[index] if args[index] is not None else i
             if json_data[index] is None:
                 json_data[index] = i if i is not None else PARAMETERS[index]
-        print(json_data)
         return json_data
 
     def fit_data(self):
@@ -83,6 +81,8 @@ class ClassifierAi:
             func that sets the data to be between 0 and 1 means (40, 10) = (0.123, 0.01) something like that
             :returns the data after fitting it into numbers between 0 and 1
         """
+        if self.new_data is False and self.scaled_data is not None:
+            return self.scaled_data()
         train_data = self.get_data()
         """ Making data without lists because scaled data cant
          use lists so data before = [[1, 2, 3, ...], [2, 3, 4, ...] ...] data after = [1, 2, 3, 2, 3, 4 ...] """
@@ -266,8 +266,11 @@ class ClassifierAi:
 
         price = self.predict_data(scaled_data)
         if self.daily:
-            end_day_predicted = (dt.datetime.strptime(self.end_day, '%Y-%m-%d') +
-                                 dt.timedelta(days=self.prediction_day)).strftime('%Y-%m-%d')
+            end_day_predicted = (dt.datetime.strptime(
+                self.end_day, '%Y-%m-%d') + dt.timedelta(days=(
+                    self.prediction_day if float(
+                        dt.datetime.now().strftime(
+                            '%H')) < 11 else 0))).strftime('%Y-%m-%d')
         else:
             end_day_predicted = dt.datetime.now() + dt.timedelta(minutes=self.prediction_day)
         Cm.write_in_file('prediction.txt', ''.join(['\n', str(price[-1][-1]), ' ', str(end_day_predicted)]))
@@ -278,7 +281,6 @@ class ClassifierAi:
                           dt.timedelta(days=self.prediction_days)).strftime('%Y-%m-%d')
         self.test_start = test_data_time
         test_data = pd.DataFrame(self.get_data()).values
-        print('test data - ', test_data, end=' -> ')
         actual_data = []
         model_inputs = test_data.reshape(-1, 1)
         x_test = []
@@ -348,6 +350,8 @@ class ClassifierAi:
         """ func to graph the predicted prices vs the real prices of a stock,
             that way you can see visually how accuracy the model is :)
         """
+        if not self.predicted_prices and not self.real_prices:
+            self.test_model()
         predicted_prices = np.array(self.predicted_prices) if self.predicted_prices is list else self.predicted_prices
         real_prices = np.array(self.real_prices) if self.real_prices is list else self.real_prices
         Cm.plot(predicted_prices, real_prices, self.ticker)
@@ -363,9 +367,13 @@ class ClassifierAi:
 
 
 def main():
-    my_man = ClassifierAi('NIO', daily=False, load_data_from_local=True,
-                          load_model_from_local=False, prediction_days=20, prediction_day=10, other=2)
-    my_man.predict_stock_price_at_specific_day()
+    ticker = 'NIO'
+    my_man = ClassifierAi(ticker, daily=False, load_data_from_local=False,
+                          load_model_from_local=False, prediction_days=10, prediction_day=10, other=3)
+    p = my_man.predict_stock_price_at_specific_day()
+    print(p)
+    print(my_man.test_model_and_return_accuracy_ratio())
+    my_man.plot_two_graphs()
 
 
 if __name__ == '__main__':

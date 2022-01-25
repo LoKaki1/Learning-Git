@@ -47,12 +47,12 @@ def create_json_object(ticker, best_child_par, __ratio__):
 
 
 def main():
-    tickers = ['BSFC', 'LLNW', 'BON']
+    tickers = ['NIO', 'XPEV', 'LI', 'TSLA']
     for ticker in tickers:
         e, u, p = 12, 50, 21
         params = generate_children(e, u, p, )
         father = ClassifierAi(ticker=ticker, epochs=e, units=u, prediction_days=p,
-                              load_model_from_local=False, daily=False, source='yahoo')
+                              load_model_from_local=False, new_data=False, daily=True, source='yahoo')
         counter = 0
         while True:
             counter += 1
@@ -67,8 +67,8 @@ def main():
                                   units=best_child_par[1],
                                   prediction_days=best_child_par[2],
                                   load_model_from_local=False,
-                                  daily=False, child=str(counter),
-                                  source='yahoo')\
+                                  daily=True, child=str(counter),
+                                  source='IBKR')\
                 if best_child_par != children_dict[father_ratio] else father
 
             params = generate_children(best_child_par[0], best_child_par[1], best_child_par[2], )
