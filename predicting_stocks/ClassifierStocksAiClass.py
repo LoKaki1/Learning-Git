@@ -82,8 +82,10 @@ class ClassifierAi:
             :returns the data after fitting it into numbers between 0 and 1
         """
         if self.new_data is False and self.scaled_data is not None:
+            print(self.scaled_data())
             return self.scaled_data()
         train_data = self.get_data()
+        print(train_data)
         """ Making data without lists because scaled data cant
          use lists so data before = [[1, 2, 3, ...], [2, 3, 4, ...] ...] data after = [1, 2, 3, 2, 3, 4 ...] """
 
@@ -94,6 +96,7 @@ class ClassifierAi:
         self.scalar = MinMaxScaler(feature_range=(0, 1))
         """ Fits x values of data (now it makes the real values ) """
         self.scaled_data = self.scalar.fit_transform(data)
+        print(self.scaled_data)
         return self.scaled_data
 
     def _get_data_from_interactive(self):
@@ -110,7 +113,7 @@ class ClassifierAi:
 
         elif self.load_data_from_local:
             "Means it's not daily but also load from local (no way to get daily from local, meanwhile)"
-            # source to choose whether you want ibkr or yahoo, ibkr contains premarket, yahoo does not
+            # source to choose whether you want ibkr or yahoo, ibkr contains premarket, Yahoo does not
             if self.source == 'IBKR':
                 return self._get_data_from_interactive()
             try:
@@ -167,6 +170,7 @@ class ClassifierAi:
         if self.load_model_from_local:
             return scaled_data, None, None
         x_train, y_train = self.prepare_data(scaled_data=scaled_data)
+        print(scaled_data)
         return scaled_data, x_train, y_train
 
     def preparation_for_machine(self):
@@ -189,7 +193,7 @@ class ClassifierAi:
         clear_session()
 
         """ Building The Model """
-        if self.load_model_from_local and (model := Cm.load_model_from_file(self.ticker)) is not None:
+        if self.load_model_from_local and (model := Cm.load_model_from_file(self)) is not None:
             model.summary()
             return model
 
@@ -215,10 +219,11 @@ class ClassifierAi:
                   epochs=self.epochs, batch_size=BATCH_SIZE, verbose='auto', )
 
         if self.save_model:
-            if self.child is not None:
-                model.save(f'saved_model/{self.ticker}/{self.child}_model')
-            else:
-                model.save(f'saved_model/{self.ticker}_model')
+            model.save(f'saved_model/{self.ticker}_model/'
+                       f'{self.epochs}'
+                       f'-{self.units}'
+                       f'-{self.prediction_days}'
+                       f'-{self.prediction_day}')
         self.model = model
         return model
 
@@ -350,7 +355,7 @@ class ClassifierAi:
         """ func to graph the predicted prices vs the real prices of a stock,
             that way you can see visually how accuracy the model is :)
         """
-        if not self.predicted_prices and not self.real_prices:
+        if self.predicted_prices is None and self.real_prices is None:
             self.test_model()
         predicted_prices = np.array(self.predicted_prices) if self.predicted_prices is list else self.predicted_prices
         real_prices = np.array(self.real_prices) if self.real_prices is list else self.real_prices
@@ -369,10 +374,8 @@ class ClassifierAi:
 def main():
     ticker = 'NIO'
     my_man = ClassifierAi(ticker, daily=False, load_data_from_local=False,
-                          load_model_from_local=False, prediction_days=10, prediction_day=10, other=3)
-    p = my_man.predict_stock_price_at_specific_day()
-    print(p)
-    print(my_man.test_model_and_return_accuracy_ratio())
+                          load_model_from_local=True, prediction_days=10, prediction_day=10, other=3)
+    print(my_man.test_model())
     my_man.plot_two_graphs()
 
 
