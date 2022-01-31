@@ -167,7 +167,7 @@ class ClassifierAi:
 
     def generate_fit_and_prepare_data(self):
         scaled_data = self.fit_data()
-        if self.load_model_from_local:
+        if self.load_model_from_local and (model := Cm.load_model_from_file(self)) is not None:
             return scaled_data, None, None
         x_train, y_train = self.prepare_data(scaled_data=scaled_data)
         print(scaled_data)
@@ -372,8 +372,8 @@ class ClassifierAi:
 
 
 def main():
-    ticker = 'NIO'
-    my_man = ClassifierAi(ticker, daily=False, load_data_from_local=False,
+    ticker = 'TSLA'
+    my_man = ClassifierAi(ticker, daily=True, load_data_from_local=False,
                           load_model_from_local=True, prediction_days=10, prediction_day=10, other=3)
     print(my_man.test_model())
     my_man.plot_two_graphs()

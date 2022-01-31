@@ -47,9 +47,18 @@ def read_csv(path, ticker=None, other='3'):
 
 
 def iterate_data(data, what=0):
-    return [[float(data[key][index])
-             for key in X_VALUES[what] if re.match(r'^-?\d+(?:\.\d+)$', data[key][index]) is not None]
+    return [[float(p)
+             for key in X_VALUES[what] if try_except(TypeError, float, (p := data[key][index])) is not None]
             for index, i in enumerate(data['close'] if 'close' in data.keys() else data['Close'])]
+
+
+def try_except(catch_except, func, *args):
+    try:
+        func(args[-1])
+        return True
+    except catch_except:
+        return False
+
 
 
 def load_model_from_file(self):
