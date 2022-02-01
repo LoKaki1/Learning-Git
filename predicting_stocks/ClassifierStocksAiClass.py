@@ -6,6 +6,7 @@ from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.layers import Dense, Dropout, LSTM
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.backend import clear_session
+from sklearn.exceptions import  NotFittedError
 import Common as Cm
 from Trading.data_order_something import read_data
 
@@ -82,10 +83,8 @@ class ClassifierAi:
             :returns the data after fitting it into numbers between 0 and 1
         """
         if self.new_data is False and self.scaled_data is not None:
-            print(self.scaled_data())
             return self.scaled_data()
         train_data = self.get_data()
-        print(train_data)
         """ Making data without lists because scaled data cant
          use lists so data before = [[1, 2, 3, ...], [2, 3, 4, ...] ...] data after = [1, 2, 3, 2, 3, 4 ...] """
 
@@ -95,8 +94,9 @@ class ClassifierAi:
         "Reshape so it matches with scalar api"
         self.scalar = MinMaxScaler(feature_range=(0, 1))
         """ Fits x values of data (now it makes the real values ) """
+
         self.scaled_data = self.scalar.fit_transform(data)
-        print(self.scaled_data)
+        print('I fit data :)')
         return self.scaled_data
 
     def _get_data_from_interactive(self):
@@ -136,7 +136,7 @@ class ClassifierAi:
         price """
         x_train = []
         y_train = []
-        print(self.prediction_days, self.prediction_day)
+        print('prepare data :)..')
         delta = len(X_VALUES) * self.prediction_days
         length_const = len(X_VALUES)
         """ Means to start counting from prediction_days index 'til the end """
@@ -167,22 +167,20 @@ class ClassifierAi:
 
     def generate_fit_and_prepare_data(self):
         scaled_data = self.fit_data()
-        if self.load_model_from_local and (model := Cm.load_model_from_file(self)) is not None:
+        if self.load_model_from_local and Cm.load_model_from_file(self) is not None:
             return scaled_data, None, None
         x_train, y_train = self.prepare_data(scaled_data=scaled_data)
-        print(scaled_data)
         return scaled_data, x_train, y_train
 
     def preparation_for_machine(self):
-        if self.model_and_its_args is not None:
-            print("model is not None")
+        if self.load_model_from_local and Cm.load_model_from_file(self)\
+                is not None and self.model_and_its_args is not None:
             return self.model_and_its_args
 
-        scaled_data, x_train, y_train = self.generate_fit_and_prepare_data()
+        self.scaled_data, x_train, y_train = self.generate_fit_and_prepare_data()
 
         self.model = model = self.build_model(x_train, y_train, )
-
-        return model, scaled_data
+        return model, self.scaled_data
 
     def build_model(self,
                     x_train,
@@ -193,7 +191,9 @@ class ClassifierAi:
         clear_session()
 
         """ Building The Model """
-        if self.load_model_from_local and (model := Cm.load_model_from_file(self)) is not None:
+        if self.load_model_from_local and (model := Cm.load_model_from_file(self))\
+                is not None:
+            print('loading model from file..')
             model.summary()
             return model
 
@@ -275,7 +275,7 @@ class ClassifierAi:
                 self.end_day, '%Y-%m-%d') + dt.timedelta(days=(
                     self.prediction_day if float(
                         dt.datetime.now().strftime(
-                            '%H')) < 11 else 0))).strftime('%Y-%m-%d')
+                            '%H')) < 11 else self.prediction_day - 1))).strftime('%Y-%m-%d')
         else:
             end_day_predicted = dt.datetime.now() + dt.timedelta(minutes=self.prediction_day)
         Cm.write_in_file('prediction.txt', ''.join(['\n', str(price[-1][-1]), ' ', str(end_day_predicted)]))
@@ -291,7 +291,6 @@ class ClassifierAi:
         x_test = []
         length = len(X_VALUES)
         delta = length * self.prediction_days
-
         model_inputs = self.scalar.transform(model_inputs)
 
         for i in range(delta, len(model_inputs) - ((self.prediction_day - 1) * length), length):
@@ -311,14 +310,11 @@ class ClassifierAi:
         predicted_prices = self.model.predict(x_test)
         predicted_prices = self.scalar.inverse_transform(predicted_prices)
         """ Check len of data is same in both of them """
-        print(len(predicted_prices), len(predicted_prices[-1]), len(actual_data))
-        pt = []
-        for i in predicted_prices:
-            pt.append(i[-1])
+        if len(predicted_prices) == len(actual_data):
+            print('test data is cool :)')
 
-        pt = np.array(pt)
-        self.predicted_prices, self.real_prices = pt, actual_data
-        return pt, actual_data
+        self.predicted_prices, self.real_prices = np.array([i[-1] for i in predicted_prices]), actual_data
+        return self.predicted_prices, self.real_prices
 
     def test_model(self):
         """
@@ -355,7 +351,7 @@ class ClassifierAi:
         """ func to graph the predicted prices vs the real prices of a stock,
             that way you can see visually how accuracy the model is :)
         """
-        if self.predicted_prices is None and self.real_prices is None:
+        if self.predicted_prices == [] or self.real_prices == []:
             self.test_model()
         predicted_prices = np.array(self.predicted_prices) if self.predicted_prices is list else self.predicted_prices
         real_prices = np.array(self.real_prices) if self.real_prices is list else self.real_prices
@@ -375,7 +371,8 @@ def main():
     ticker = 'TSLA'
     my_man = ClassifierAi(ticker, daily=True, load_data_from_local=False,
                           load_model_from_local=True, prediction_days=10, prediction_day=10, other=3)
-    print(my_man.test_model())
+    my_man.predict_stock_price_at_specific_day()
+    # print(my_man.test_model())
     my_man.plot_two_graphs()
 
 

@@ -98,7 +98,6 @@ def plot(data, pre_prices, ticker):
 def write_in_json_file(path, data: dict, ticker=None):
     with open(path, "r") as a_file:
         data = json.dumps(data)
-        print(data)
         json_object = json.load(a_file)
         json_object[ticker] = ast.literal_eval(data)[ticker]
         a_file = open(path, "w")
@@ -145,7 +144,6 @@ def get_data_from_saved_file(ticker, ):
 
 
 def get_data_from_file_or_yahoo(ticker, other):
-    print(other)
     return iterate_data(ast.literal_eval(data), what=1) if (data := read_from_file(ticker)) is not None else \
         intraday_with_yahoo(ticker)
 
