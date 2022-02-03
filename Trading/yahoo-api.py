@@ -26,7 +26,7 @@ class LiveData:
     def get_live_price(self):
         try:
             price = self.chrome.find_element(by='xpath', value=self.pre_price_xpath)
-        except common.exceptions.ElementNotVisibleException:
+        except common.exceptions.NoSuchElementException:
             price = self.chrome.find_element(by='xpath', value=self.price_xpath)
         return price.text
 

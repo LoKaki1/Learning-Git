@@ -1,12 +1,10 @@
 import numpy as np
 import pandas as pd
 import datetime as dt
-
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.layers import Dense, Dropout, LSTM
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.backend import clear_session
-from sklearn.exceptions import  NotFittedError
 import Common as Cm
 from Trading.data_order_something import read_data
 
@@ -43,8 +41,7 @@ class ClassifierAi:
                  test_start=TEST_START,
                  test_end=TEST_END,
                  other=3,
-                 source='IBKR',
-                 child=None):
+                 source='IBKR',):
         self.ticker = ticker
         self.epochs, self.units, self.prediction_days, self.prediction_day = self.generate_data(epochs,
                                                                                                 units,
@@ -67,7 +64,6 @@ class ClassifierAi:
         self.predicted_prices = []
         self.scaled_data = None
         self.source = source
-        self.child = child
 
     def generate_data(self, *args):
         json_data = Cm.return_json_data(self.ticker)
