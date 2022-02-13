@@ -378,7 +378,7 @@ class ClassifierAi:
 def main():
     ticker = 'NIO'
     my_man = ClassifierAi(ticker, daily=True, load_data_from_local=False,
-                          load_model_from_local=False, prediction_days=10, prediction_day=10, other=3)
+                          load_model_from_local=False, prediction_days=10, prediction_day=1, other=3)
     my_man.predict_stock_price_at_specific_day()
     # print(my_man.test_model())
     my_man.plot_two_graphs()

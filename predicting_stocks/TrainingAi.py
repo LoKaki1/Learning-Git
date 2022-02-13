@@ -67,7 +67,7 @@ def main():
                                   units=best_child_par[1],
                                   prediction_days=best_child_par[2],
                                   load_model_from_local=False,
-                                  daily=True, child=str(counter),
+                                  daily=True,
                                   source='IBKR')\
                 if best_child_par != children_dict[father_ratio] else father
 
