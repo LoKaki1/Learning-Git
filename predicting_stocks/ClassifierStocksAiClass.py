@@ -2,11 +2,12 @@ import numpy as np
 import pandas as pd
 import datetime as dt
 from sklearn.preprocessing import MinMaxScaler
-from tensorflow.keras.layers import Dense, Dropout, LSTM
+from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.backend import clear_session
 import Common as Cm
 from Trading.data_order_something import read_data
+import tensorflow as tf
 
 TICKER = 'NIO'
 X_VALUES = ['open', 'low', 'high', 'close', ]
@@ -42,6 +43,12 @@ class ClassifierAi:
                  test_end=TEST_END,
                  other=3,
                  source='IBKR',):
+        #
+        # physical_devices = tf.config.experimental.list_physical_devices('GPU')
+        # physical_devices_cpu = tf.config.experimental.list_physical_devices('CPU')
+        # print(physical_devices)
+        # tf.config.experimental.set_memory_growth(physical_devices[0] if len(physical_devices) > 0
+        #                                          else physical_devices_cpu[0], True)
         self.ticker = ticker
         self.epochs, self.units, self.prediction_days, self.prediction_day = self.generate_data(epochs,
                                                                                                 units,
@@ -193,18 +200,21 @@ class ClassifierAi:
             model.summary()
             return model
 
-        model = Sequential()
-        model.add(LSTM(units=self.units, return_sequences=True, input_shape=(x_train.shape[1], 1)))
-        model.add(Dropout(DENSE_UNITS))
-        model.add(LSTM(units=self.units, return_sequences=True))
-        model.add(Dropout(DENSE_UNITS))
-        model.add(LSTM(units=self.units))
-        model.add(Dropout(DENSE_UNITS))
+        model = Sequential([
+            Dense(units=self.units, activation='relu', input_shape=(x_train.shape[1], 1)),
+            Dense(units=self.units // 2, activation='relu'),
+            Dense(units=1)
+        ])
+        # model.add(LSTM(units=self.units, return_sequences=True, input_shape=(x_train.shape[1], 1)))
+        # model.add(Dropout(DENSE_UNITS))
+        # model.add(LSTM(units=self.units, return_sequences=True))
+        # model.add(Dropout(DENSE_UNITS))
+        # model.add(LSTM(units=self.units))
+        # model.add(Dropout(DENSE_UNITS))
 
         """ Returns only one value """
-        model.add(Dense(units=1))
 
-        model.compile(optimizer='adam', loss='mean_squared_error')
+        model.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
         """ Fitting x_train to y_train, that makes
          a function that has x values and y values 
           example:  
@@ -212,7 +222,7 @@ class ClassifierAi:
                 y_train = (1) ...* all_data - create a func that x[n] = y[n]    """
         model.summary()
         model.fit(x_train, y_train,
-                  epochs=self.epochs, batch_size=BATCH_SIZE, verbose='auto', )
+                  epochs=self.epochs, batch_size=BATCH_SIZE, shuffle=False, verbose='auto', )
 
         if self.save_model:
             model.save(f'saved_model/{self.ticker}_model/'
@@ -244,6 +254,10 @@ class ClassifierAi:
         except ValueError:
             raise ValueError("One of the parameters change please delete the last model or change the flag that won't "
                              "take the last model")
+        print(prediction[-1])
+        prediction = prediction[-1]
+        p = np.array([i[-1] for i in prediction]).reshape(-1, 1)
+        print(p)
         prediction = self.scalar.inverse_transform(prediction)
         return prediction
 
@@ -364,7 +378,7 @@ class ClassifierAi:
 
 
 def main():
-    ticker = 'TSLA'
+    ticker = 'NIO'
     my_man = ClassifierAi(ticker, daily=True, load_data_from_local=False,
                           load_model_from_local=True, prediction_days=10, prediction_day=10, other=3)
     my_man.predict_stock_price_at_specific_day()
