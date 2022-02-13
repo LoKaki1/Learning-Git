@@ -20,7 +20,7 @@ UNITS = 50
 PREDICTION_DAY = 1
 DENSE_UNITS = 0.2
 EPOCHS = 12
-BATCH_SIZE = 64
+BATCH_SIZE = 32
 PARAMETERS = [EPOCHS, UNITS, PREDICTION_DAYS, PREDICTION_DAY]
 
 
@@ -203,7 +203,7 @@ class ClassifierAi:
         model = Sequential([
             Dense(units=self.units, activation='relu', input_shape=(x_train.shape[1], 1)),
             Dense(units=self.units // 2, activation='relu'),
-            Dense(units=1)
+            Dense(units=1, activation='linear')
         ])
         # model.add(LSTM(units=self.units, return_sequences=True, input_shape=(x_train.shape[1], 1)))
         # model.add(Dropout(DENSE_UNITS))
@@ -222,7 +222,7 @@ class ClassifierAi:
                 y_train = (1) ...* all_data - create a func that x[n] = y[n]    """
         model.summary()
         model.fit(x_train, y_train,
-                  epochs=self.epochs, batch_size=BATCH_SIZE, shuffle=False, verbose='auto', )
+                  epochs=30, batch_size=BATCH_SIZE, shuffle=False, verbose='auto', )
 
         if self.save_model:
             model.save(f'saved_model/{self.ticker}_model/'
@@ -254,10 +254,7 @@ class ClassifierAi:
         except ValueError:
             raise ValueError("One of the parameters change please delete the last model or change the flag that won't "
                              "take the last model")
-        print(prediction[-1])
         prediction = prediction[-1]
-        p = np.array([i[-1] for i in prediction]).reshape(-1, 1)
-        print(p)
         prediction = self.scalar.inverse_transform(prediction)
         return prediction
 
@@ -318,7 +315,8 @@ class ClassifierAi:
         actual_data = np.array(actual_data).reshape(-1, 1)
         actual_data = self.scalar.inverse_transform(actual_data)
         predicted_prices = self.model.predict(x_test)
-        predicted_prices = self.scalar.inverse_transform(predicted_prices)
+        predicted_prices = [t for t in [self.scalar.inverse_transform(predicted_prices[i].reshape(-1, 1)) for i, _ in enumerate(predicted_prices)]]
+        # predicted_prices = self.scalar.inverse_transform(predicted_prices[-1].reshape(-1, 1))
         """ Check len of data is same in both of them """
         if len(predicted_prices) == len(actual_data):
             print('test data is cool :)')
@@ -380,7 +378,7 @@ class ClassifierAi:
 def main():
     ticker = 'NIO'
     my_man = ClassifierAi(ticker, daily=True, load_data_from_local=False,
-                          load_model_from_local=True, prediction_days=10, prediction_day=10, other=3)
+                          load_model_from_local=False, prediction_days=10, prediction_day=10, other=3)
     my_man.predict_stock_price_at_specific_day()
     # print(my_man.test_model())
     my_man.plot_two_graphs()
