@@ -196,13 +196,18 @@ class ClassifierAi:
             print('loading model from file..')
             model.summary()
             return model
+        """ Last model was like this  (took more time but did the job not perfect)"""
 
-    # model.add(LSTM(units=units, return_sequences=True, input_shape=(x_train.shape[1], 1)))
-    # model.add(Dropout(DENSE_UNITS))
-    # model.add(LSTM(units=units, return_sequences=True))
-    # model.add(Dropout(DENSE_UNITS))
-    # model.add(LSTM(units=units))
-    # model.add(Dropout(DENSE_UNITS))
+        # model.add(LSTM(units=units, return_sequences=True, input_shape=(x_train.shape[1], 1)))
+
+        """Add layer with dropout that has dense_units with 0.2"""
+        # model.add(Dropout(DENSE_UNITS))
+        """ Add LSTM layer that is a short cut for layer short term memorey which contains the data in the stm :) """
+        # model.add(LSTM(units=units, return_sequences=True))
+        # model.add(Dropout(DENSE_UNITS))
+        # model.add(LSTM(units=units))
+        # model.add(Dropout(DENSE_UNITS))
+
         # Create a blank model with 4 layers that each contains number of units which is the the neurons of each layer
         model = Sequential([
             Dense(units=self.units, activation='relu', input_shape=(x_train.shape[1], 1)),
@@ -211,7 +216,6 @@ class ClassifierAi:
             Dropout(DENSE_UNITS),
             Dense(units=1, activation='linear')
         ])
-
         """ Returns only one value """
 
         model.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
@@ -386,7 +390,7 @@ class ClassifierAi:
 
 
 def main():
-    ticker = 'NIO'
+    ticker = 'ES=F'
     my_man = ClassifierAi(ticker, daily=False, source='yahoo', load_data_from_local=False,
                           load_model_from_local=False, prediction_days=10, prediction_day=1, other=3)
     my_man.predict_stock_price_at_specific_day()
