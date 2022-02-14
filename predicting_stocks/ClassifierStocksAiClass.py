@@ -7,7 +7,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.backend import clear_session
 import Common as Cm
 from Trading.data_order_something import read_data
-import tensorflow as tf
+
 
 TICKER = 'NIO'
 X_VALUES = ['open', 'low', 'high', 'close', ]
@@ -43,12 +43,7 @@ class ClassifierAi:
                  test_end=TEST_END,
                  other=3,
                  source='IBKR',):
-        #
-        # physical_devices = tf.config.experimental.list_physical_devices('GPU')
-        # physical_devices_cpu = tf.config.experimental.list_physical_devices('CPU')
-        # print(physical_devices)
-        # tf.config.experimental.set_memory_growth(physical_devices[0] if len(physical_devices) > 0
-        #                                          else physical_devices_cpu[0], True)
+
         self.ticker = ticker
         self.epochs, self.units, self.prediction_days, self.prediction_day = self.generate_data(epochs,
                                                                                                 units,
@@ -176,10 +171,9 @@ class ClassifierAi:
         return scaled_data, x_train, y_train
 
     def preparation_for_machine(self):
-        if self.load_model_from_local and Cm.load_model_from_file(self)\
-                is not None and self.model_and_its_args is not None:
+        if (self.load_model_from_local and Cm.load_model_from_file(self)
+                is not None and self.model_and_its_args is not None) or self.model_and_its_args is not None:
             return self.model_and_its_args
-
         self.scaled_data, x_train, y_train = self.generate_fit_and_prepare_data()
 
         self.model = model = self.build_model(x_train, y_train, )
@@ -200,17 +194,13 @@ class ClassifierAi:
             model.summary()
             return model
 
+        # Create a blank model with 4 layers that each contains number of units which is the the neurons of each layer
         model = Sequential([
             Dense(units=self.units, activation='relu', input_shape=(x_train.shape[1], 1)),
             Dense(units=self.units // 2, activation='relu'),
+            Dense(units=self.units // 4, activation='relu'),
             Dense(units=1, activation='linear')
         ])
-        # model.add(LSTM(units=self.units, return_sequences=True, input_shape=(x_train.shape[1], 1)))
-        # model.add(Dropout(DENSE_UNITS))
-        # model.add(LSTM(units=self.units, return_sequences=True))
-        # model.add(Dropout(DENSE_UNITS))
-        # model.add(LSTM(units=self.units))
-        # model.add(Dropout(DENSE_UNITS))
 
         """ Returns only one value """
 
@@ -311,15 +301,21 @@ class ClassifierAi:
         x_test, actual_data = self.return_test_data()
 
         x_test = np.array(x_test)
+        print(x_test)
         x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
         actual_data = np.array(actual_data).reshape(-1, 1)
         actual_data = self.scalar.inverse_transform(actual_data)
         predicted_prices = self.model.predict(x_test)
-        predicted_prices = [t for t in [self.scalar.inverse_transform(predicted_prices[i].reshape(-1, 1)) for i, _ in enumerate(predicted_prices)]]
-        # predicted_prices = self.scalar.inverse_transform(predicted_prices[-1].reshape(-1, 1))
+        # print(predicted_prices)
+        predicted_prices = [t for t in [self.scalar.inverse_transform(
+            predicted_prices[i].reshape(
+                -1, 1)) for i, _ in enumerate(
+            predicted_prices)]]
+
         """ Check len of data is same in both of them """
         if len(predicted_prices) == len(actual_data):
-            print('test data is cool :)')
+            print_tf = print
+            print_tf('test data is cool :)')
 
         self.predicted_prices, self.real_prices = np.array([i[-1] for i in predicted_prices]), actual_data
         return self.predicted_prices, self.real_prices
@@ -359,16 +355,21 @@ class ClassifierAi:
         """ func to graph the predicted prices vs the real prices of a stock,
             that way you can see visually how accuracy the model is :)
         """
-        if self.predicted_prices == [] or self.real_prices == []:
+        if len(self.predicted_prices) or len(self.real_prices):
             self.test_model()
+        # print(self.predicted_prices, self.real_prices)
         predicted_prices = np.array(self.predicted_prices) if self.predicted_prices is list else self.predicted_prices
         real_prices = np.array(self.real_prices) if self.real_prices is list else self.real_prices
         Cm.plot(predicted_prices, real_prices, self.ticker)
 
-    def accuracy_ratio(self):
-        return sum([min(t / self.real_prices[i],
-                        self.real_prices[i] / t)
-                    for i, t in enumerate(self.predicted_prices)]) / len(self.predicted_prices)
+    def accuracy_ratio(self, ):
+        try:
+            return sum([min(t / self.real_prices[i],
+                            self.real_prices[i] / t)
+                        for i, t in enumerate(self.predicted_prices)]) / len(self.predicted_prices)
+        except ZeroDivisionError:
+            raise ValueError("Not using the accuracy_ratio correctly run test_model before or run "
+                             "test_model_and_return_accuracy_ratio() instead")
 
     def test_model_and_return_accuracy_ratio(self, ):
         self.test_model()
@@ -380,8 +381,9 @@ def main():
     my_man = ClassifierAi(ticker, daily=True, load_data_from_local=False,
                           load_model_from_local=False, prediction_days=10, prediction_day=1, other=3)
     my_man.predict_stock_price_at_specific_day()
-    # print(my_man.test_model())
+    my_man.test_model()
     my_man.plot_two_graphs()
+    print(my_man.accuracy_ratio())
 
 
 if __name__ == '__main__':
