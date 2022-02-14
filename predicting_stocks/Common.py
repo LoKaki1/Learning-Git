@@ -48,7 +48,7 @@ def read_csv(path, ticker=None, other='3'):
 
 def iterate_data(data, what=0):
     return [[float(p)
-             for key in X_VALUES[what] if re.match('^[0-9/.]*$',  (p := data[key][index]) is not None)]
+             for key in X_VALUES[what] if re.match('^[0-9/.]*$',  str(p := data[key][index])) is not None]
             for index, i in enumerate(data['close'] if 'close' in data.keys() else data['Close'])]
 
 

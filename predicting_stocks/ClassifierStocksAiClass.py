@@ -1,8 +1,10 @@
 import numpy as np
 import pandas as pd
 import datetime as dt
+
+
 from sklearn.preprocessing import MinMaxScaler
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dense, LSTM, Dropout
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.backend import clear_session
 import Common as Cm
@@ -125,7 +127,8 @@ class ClassifierAi:
                 return self._get_data_from_interactive()
             try:
                 return Cm.intraday_with_yahoo(self.ticker, self.other)
-            except [Exception]:
+            except Exception as e:
+                print(e.args)
                 read_data(self.ticker, self.other)
                 return self._get_data_from_interactive()
 
@@ -204,7 +207,8 @@ class ClassifierAi:
         model = Sequential([
             Dense(units=self.units, activation='relu', input_shape=(x_train.shape[1], 1)),
             Dense(units=self.units // 2, activation='relu'),
-            Dense(units=self.units // 4, activation='relu'),
+            LSTM(units=self.units // 4, ),
+            Dropout(DENSE_UNITS),
             Dense(units=1, activation='linear')
         ])
 
@@ -250,7 +254,6 @@ class ClassifierAi:
         except ValueError:
             raise ValueError("One of the parameters change please delete the last model or change the flag that won't "
                              "take the last model")
-        prediction = prediction[-1]
         prediction = self.scalar.inverse_transform(prediction)
         return prediction
 
@@ -312,7 +315,7 @@ class ClassifierAi:
         actual_data = np.array(actual_data).reshape(-1, 1)
         actual_data = self.scalar.inverse_transform(actual_data)
         predicted_prices = self.model.predict(x_test)
-        # print(predicted_prices)
+
         predicted_prices = [t for t in [self.scalar.inverse_transform(
             predicted_prices[i].reshape(
                 -1, 1)) for i, _ in enumerate(
@@ -384,7 +387,7 @@ class ClassifierAi:
 
 def main():
     ticker = 'NIO'
-    my_man = ClassifierAi(ticker, daily=True, load_data_from_local=False,
+    my_man = ClassifierAi(ticker, daily=False, source='yahoo', load_data_from_local=False,
                           load_model_from_local=False, prediction_days=10, prediction_day=1, other=3)
     my_man.predict_stock_price_at_specific_day()
     my_man.test_model()

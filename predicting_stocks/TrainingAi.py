@@ -53,9 +53,7 @@ def main():
         params = generate_children(e, u, p, )
         father = ClassifierAi(ticker=ticker, epochs=e, units=u, prediction_days=p,
                               load_model_from_local=False, new_data=False, daily=True, source='yahoo')
-        counter = 0
         while True:
-            counter += 1
             children_dict = dict((ratio(i[0], i[1], i[2], ticker), i) for i in params)
             children_dict[(father_ratio := float(father.test_model_and_return_accuracy_ratio()[-1]))] = \
                 [father.epochs,
