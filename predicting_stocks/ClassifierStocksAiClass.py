@@ -115,7 +115,7 @@ class ClassifierAi:
             if self.source == 'IBKR':
                 return self._get_data_from_interactive()
             try:
-                return Cm.get_data_from_file_or_yahoo(self.ticker, self.other)
+                return Cm.get_data_from_file_or_yahoo(self.ticker)
             except SyntaxError:
                 return self._get_data_from_interactive()
 
@@ -194,6 +194,12 @@ class ClassifierAi:
             model.summary()
             return model
 
+    # model.add(LSTM(units=units, return_sequences=True, input_shape=(x_train.shape[1], 1)))
+    # model.add(Dropout(DENSE_UNITS))
+    # model.add(LSTM(units=units, return_sequences=True))
+    # model.add(Dropout(DENSE_UNITS))
+    # model.add(LSTM(units=units))
+    # model.add(Dropout(DENSE_UNITS))
         # Create a blank model with 4 layers that each contains number of units which is the the neurons of each layer
         model = Sequential([
             Dense(units=self.units, activation='relu', input_shape=(x_train.shape[1], 1)),

@@ -48,7 +48,7 @@ def read_csv(path, ticker=None, other='3'):
 
 def iterate_data(data, what=0):
     return [[float(p)
-             for key in X_VALUES[what] if try_except(TypeError, float, (p := data[key][index])) is not None]
+             for key in X_VALUES[what] if re.match('^[0-9/.]*$',  (p := data[key][index]) is not None)]
             for index, i in enumerate(data['close'] if 'close' in data.keys() else data['Close'])]
 
 
@@ -58,7 +58,6 @@ def try_except(catch_except, func, *args):
         return True
     except catch_except:
         return False
-
 
 
 def load_model_from_file(self):
@@ -143,7 +142,7 @@ def get_data_from_saved_file(ticker, ):
     return ast.literal_eval(data)
 
 
-def get_data_from_file_or_yahoo(ticker, other):
+def get_data_from_file_or_yahoo(ticker):
     return iterate_data(ast.literal_eval(data), what=1) if (data := read_from_file(ticker)) is not None else \
         intraday_with_yahoo(ticker)
 
