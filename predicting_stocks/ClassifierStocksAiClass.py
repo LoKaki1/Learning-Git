@@ -71,10 +71,12 @@ class ClassifierAi:
 
     def generate_data(self, *args):
         json_data = Cm.return_json_data(self.ticker)
+        print(args)
         for index, i in enumerate(json_data):
             json_data[index] = args[index] if args[index] is not None else i
             if json_data[index] is None:
                 json_data[index] = i if i is not None else PARAMETERS[index]
+        print(json_data)
         return json_data
 
     def fit_data(self):
@@ -226,7 +228,7 @@ class ClassifierAi:
                 y_train = (1) ...* all_data - create a func that x[n] = y[n]    """
         model.summary()
         model.fit(x_train, y_train,
-                  epochs=30, batch_size=BATCH_SIZE, shuffle=False, verbose='auto', )
+                  epochs=self.epochs, batch_size=BATCH_SIZE, shuffle=False, verbose='auto', )
 
         if self.save_model:
             model.save(f'saved_model/{self.ticker}_model/'
@@ -390,9 +392,9 @@ class ClassifierAi:
 
 
 def main():
-    ticker = 'ES=F'
-    my_man = ClassifierAi(ticker, daily=False, source='yahoo', load_data_from_local=False,
-                          load_model_from_local=False, prediction_days=10, prediction_day=1, other=3)
+    ticker = 'NIO'
+    my_man = ClassifierAi(ticker, daily=True, source='yahoo', load_data_from_local=False,
+                          load_model_from_local=False, epochs=19, units=111, prediction_days=84)
     my_man.predict_stock_price_at_specific_day()
     my_man.test_model()
     my_man.plot_two_graphs()
