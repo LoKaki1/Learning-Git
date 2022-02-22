@@ -7,7 +7,7 @@ from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.layers import Dense, LSTM, Dropout
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.backend import clear_session
-import Common as Cm
+import predicting_stocks.Common as Cm
 from Trading.data_order_something import read_data
 
 
@@ -394,7 +394,7 @@ class ClassifierAi:
 def main():
     ticker = 'NIO'
     my_man = ClassifierAi(ticker, daily=True, source='yahoo', load_data_from_local=False,
-                          load_model_from_local=False, epochs=19, units=111, prediction_days=84)
+                          load_model_from_local=False, epochs=19, units=111, prediction_days=84, prediction_day=1)
     my_man.predict_stock_price_at_specific_day()
     my_man.test_model()
     my_man.plot_two_graphs()
