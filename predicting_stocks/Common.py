@@ -1,6 +1,7 @@
 import json
 import os
 
+import datetime as dt
 import matplotlib.pyplot as plt
 import ast
 import pandas as pd
@@ -95,12 +96,12 @@ def plot(data, pre_prices, ticker):
 
 
 def write_in_json_file(path, data: dict, ticker=None):
-    with open(path, "r") as a_file:
+    with open(path, 'r') as read_file:
         data = json.dumps(data)
-        json_object = json.load(a_file)
+        json_object = json.load(read_file)
         json_object[ticker] = ast.literal_eval(data)[ticker]
-        a_file = open(path, "w")
-        json.dump(json_object, a_file)
+        with open(path, 'w') as write_file:
+            json.dump(json_object, write_file)
 
 
 def return_json_data(ticker, json_path='../predicting_stocks/settings_for_ai/parameters_status.json'):
@@ -154,3 +155,11 @@ def intraday_with_yahoo(ticker, other: [str, int] = '3'):
         file.write(str(data_dict))
         file.close()
     return iterate_data(data_dict, what=1)
+
+
+def open_json_file(path):
+    with open(path, 'r') as file:
+        return json.loads(file.read())
+
+
+print(dt.datetime.now().strftime('%d-%b-%Y'))

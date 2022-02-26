@@ -204,13 +204,13 @@ class ClassifierAi:
 
         """Add layer with dropout that has dense_units with 0.2"""
         # model.add(Dropout(DENSE_UNITS))
-        """ Add LSTM layer that is a short cut for layer short term memorey which contains the data in the stm :) """
+        """ Add LSTM layer that is a short cut for layer short term memory which contains the data in the stm :) """
         # model.add(LSTM(units=units, return_sequences=True))
         # model.add(Dropout(DENSE_UNITS))
         # model.add(LSTM(units=units))
         # model.add(Dropout(DENSE_UNITS))
 
-        # Create a blank model with 4 layers that each contains number of units which is the the neurons of each layer
+        # Create a blank model with 4 layers that each contains number of units which is the neurons of each layer
         model = Sequential([
             Dense(units=self.units, activation='relu', input_shape=(x_train.shape[1], 1)),
             Dense(units=self.units // 2, activation='relu'),
@@ -389,6 +389,12 @@ class ClassifierAi:
     def test_model_and_return_accuracy_ratio(self, ):
         self.test_model()
         return self.accuracy_ratio()
+
+    def get_settings(self):
+        return {'epochs': self.epochs,
+                'units': self.units,
+                'prediction_days': self.prediction_days,
+                'prediction_day': self.prediction_day}
 
 
 def main():
