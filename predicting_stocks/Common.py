@@ -49,7 +49,7 @@ def read_csv(path, ticker=None, other='3'):
 
 def iterate_data(data, what=0):
     return [[float(p)
-             for key in X_VALUES[what] if re.match('^[0-9/.]*$',  str(p := data[key][index])) is not None]
+             for key in X_VALUES[what] if re.match('^[0-9/.]*$', str(p := data[key][index])) is not None]
             for index, i in enumerate(data['close'] if 'close' in data.keys() else data['Close'])]
 
 
@@ -77,12 +77,16 @@ def load_model_from_file(self):
 
 
 def get_historical_data(ticker, start, end):
-    return (pd.DataFrame(
+    data = (pd.DataFrame(
         YahooFinancials(ticker).get_historical_price_data(
             start_date=start,
             end_date=end,
             time_interval='daily')[
-            ticker]['prices']).drop('date', axis=1).set_index('formatted_date'))
+            ticker]['prices']).drop('date', axis=1)
+            .set_index('formatted_date'))
+
+    print(data['close'][-1])
+    return data
 
 
 def plot(data, pre_prices, ticker):
@@ -162,4 +166,40 @@ def open_json_file(path):
         return json.loads(file.read())
 
 
-print(dt.datetime.now().strftime('%d-%b-%Y'))
+def handle_with_time(ticker, json_object):
+    today_str = dt.datetime.now().strftime('%d-%b-%Y')
+    ticker_last_date = json_object
+    if ticker not in ticker_last_date:
+        return today_str
+    ticker_last_date = ticker_last_date[ticker]
+    return today_str if dt.datetime.strptime(
+        ticker_last_date[
+            'date'], '%d-%b-%Y') < dt.datetime.strptime(today_str, '%d-%b-%Y') else float(ticker_last_date['price'])
+
+
+def get_last_id(json_object):
+    return len(json_object) + 1
+
+
+def save_in_data_base(ticker, price, settings, date, _id):
+    data = {
+        ticker: {
+            "id": _id,
+            "price": price,
+            "settings": settings,
+            "date": date,
+            "current_price": (t := str(get_last_price(ticker)))[0:6 if len(t) >= 6 else -1]
+        }
+    }
+    write_in_json_file('database.json', data, ticker)
+
+
+def get_last_price(ticker):
+    return get_historical_data(ticker, (t := (dt.datetime.now()) - dt.timedelta(days=1)).strftime('%Y-%m-%d'),
+                               dt.datetime.now().strftime('%Y-%m-%d'),)['close'][-1]
+
+
+def open_json(path):
+    with open(path, 'r') as file:
+        json_data = json.loads(file.read())
+    return json_data

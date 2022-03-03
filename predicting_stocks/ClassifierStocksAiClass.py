@@ -2,14 +2,13 @@ import numpy as np
 import pandas as pd
 import datetime as dt
 
-
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.layers import Dense, LSTM, Dropout
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.backend import clear_session
 import predicting_stocks.Common as Cm
 from Trading.data_order_something import read_data
-
+import re
 
 TICKER = 'NIO'
 X_VALUES = ['open', 'low', 'high', 'close', ]
@@ -44,7 +43,7 @@ class ClassifierAi:
                  test_start=TEST_START,
                  test_end=TEST_END,
                  other=3,
-                 source='IBKR',):
+                 source='IBKR', ):
 
         self.ticker = ticker
         self.epochs, self.units, self.prediction_days, self.prediction_day = self.generate_data(epochs,
@@ -71,12 +70,11 @@ class ClassifierAi:
 
     def generate_data(self, *args):
         json_data = Cm.return_json_data(self.ticker)
-        print(args)
         for index, i in enumerate(json_data):
-            json_data[index] = args[index] if args[index] is not None else i
+            if args[index] is not None:
+                json_data[index] = int(args[index]) if re.match(r'^\d+$', args[index]) is not None else i
             if json_data[index] is None:
                 json_data[index] = i if i is not None else PARAMETERS[index]
-        print(json_data)
         return json_data
 
     def fit_data(self):
@@ -176,8 +174,8 @@ class ClassifierAi:
         return scaled_data, x_train, y_train
 
     def preparation_for_machine(self):
-        if (self.load_model_from_local and Cm.load_model_from_file(self)
-                is not None and self.model_and_its_args is not None) or self.model_and_its_args is not None:
+        if self.load_model_from_local and Cm.load_model_from_file(self) \
+                is not None and self.model_and_its_args is not None:
             return self.model_and_its_args
         self.scaled_data, x_train, y_train = self.generate_fit_and_prepare_data()
 
@@ -193,7 +191,7 @@ class ClassifierAi:
         clear_session()
 
         """ Building The Model """
-        if self.load_model_from_local and (model := Cm.load_model_from_file(self))\
+        if self.load_model_from_local and (model := Cm.load_model_from_file(self)) \
                 is not None:
             print('loading model from file..')
             model.summary()
@@ -398,13 +396,14 @@ class ClassifierAi:
 
 
 def main():
-    ticker = 'NIO'
-    my_man = ClassifierAi(ticker, daily=True, source='yahoo', load_data_from_local=False,
-                          load_model_from_local=False, epochs=19, units=111, prediction_days=84, prediction_day=1)
-    my_man.predict_stock_price_at_specific_day()
-    my_man.test_model()
-    my_man.plot_two_graphs()
-    print(my_man.accuracy_ratio())
+    pass
+    # ticker = 'NIO'
+    # my_man = ClassifierAi(ticker, daily=True, source='yahoo', load_data_from_local=False,
+    #                       load_model_from_local=False, epochs=19, units=111, prediction_days=84, prediction_day=1)
+    # my_man.predict_stock_price_at_specific_day()
+    # my_man.test_model()
+    # my_man.plot_two_graphs()
+    # print(my_man.accuracy_ratio())
 
 
 if __name__ == '__main__':
