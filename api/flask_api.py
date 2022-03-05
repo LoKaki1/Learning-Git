@@ -46,7 +46,21 @@ def predict_stock():
                              stock_object.get_settings(),
                              today,
                              Cm.get_last_id(json_object))
-    return Cm.open_json('../api/database.json')[ticker]
+    return _create_watchlist()
+
+
+@app.route('/watchlist', methods=['GET'])
+def watchlist():
+    return _create_watchlist()
+
+
+def _create_watchlist():
+    data = Cm.open_json('../api/database.json')
+    recreate_data = []
+    for i in data:
+        data[i]['ticker'] = i
+        recreate_data.append(data[i])
+    return json.dumps(recreate_data)
 
 
 @app.route('/current', methods=['POST'])
