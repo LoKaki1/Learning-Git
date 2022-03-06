@@ -203,3 +203,10 @@ def open_json(path):
     with open(path, 'r') as file:
         json_data = json.loads(file.read())
     return json_data
+
+
+def generate_dates_between_dates(start, end):
+    return pd.date_range(start, end, freq='d')
+
+
+# print([date for date in generate_dates_between_dates(dt.datetime(year=2022, month=1, day=1).strftime('%Y-%m-%d'), dt.datetime.now().strftime('%Y-%m-%d'))])

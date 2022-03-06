@@ -1,5 +1,7 @@
+
+import datetime as dt
 from flask import Flask, request
-from predicting_stocks.ClassifierStocksAiClass import ClassifierAi
+from predicting_stocks.ClassifierStocksAiClass import ClassifierAi, START, END
 import predicting_stocks.Common as Cm
 from flask_cors import CORS
 import json
@@ -63,9 +65,19 @@ def _create_watchlist():
     return json.dumps(recreate_data)
 
 
-@app.route('/current', methods=['POST'])
+@app.route('/prices', methods=['POST'])
 def current_price():
-    pass
+    ticker = dict(request.get_json()).get('ticker')
+    data = Cm.get_historical_data(ticker, start := dt.datetime(year=2022, month=1, day=1).strftime('%Y-%m-%d'), END)
+    data = Cm.iterate_data(data)
+    dates = Cm.generate_dates_between_dates(start, END)
+    data = [{'x': date.strftime(
+        '%Y-%m-%d'), 'y': [
+        float(str(
+            price)[0: 5])
+        for price in prices]}
+        for date, prices in zip(dates, data)]
+    return json.dumps(data)
 
 
 if __name__ == '__main__':
