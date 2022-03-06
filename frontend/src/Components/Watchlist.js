@@ -1,4 +1,7 @@
 import { DataGrid } from '@mui/x-data-grid'
+import StocksCharts from './StocksCharts';
+import axios from 'axios';
+import { useState } from 'react';
 
 const columns = [
     { field: "ticker", headerName: "Ticker", renderCell: (cellValues) => {
@@ -43,7 +46,24 @@ const columns = [
 
 export default function Watchlist(props){
     const rows = props.rowsProp
-
+    
+    const [data, setData] = useState([])
+    const graphStatic = <StocksCharts data={data}/>
+    const [graph, setGraph] = useState(false, [])
+    const getHistroicalData = (ticker) => {
+      axios.post('http://127.0.0.1:5000/prices', {
+        "ticker": ticker
+      }).then((response) => {
+        console.log(response)
+        setData(() => {
+          return [{
+            'data': response.data
+          }]
+        })
+      }, (error) => {
+        console.log(error)
+      })
+    }
     return (
         <div className='data-grid'>
             <DataGrid
@@ -52,12 +72,14 @@ export default function Watchlist(props){
              onCellClick={
                  (params, t) => {
                      if (!t.ctrlKey){
-                         console.log(params.row.ticker)
-                         // Here display wha2t you want about the function using whatever shit you want (graph, data, kill me, and more :))
+                        console.log(params.row.ticker)
+                        getHistroicalData(params.row.ticker)
+                        setGraph(true)
                      }
                  }
-                
              }/>
+             {graph ? graphStatic: <div/>}
+             
         </div>
     )
 }

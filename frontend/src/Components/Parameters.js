@@ -4,15 +4,26 @@ import './components.css'
 
 export default function ParametersInput(props) {
     const [load, setLoad] = useState(false, [])  
+    useEffect(() => {
+      axios.get('http://127.0.0.1:5000/watchlist').
+      then((response) => {
+        props.setAll(response.data)
+      }, (error) =>{
+        console.log(error)
+      })
+    })
     const loader = <div className='loader'/>
     const handleChange = (e, key) => {
       console.log(key)
+      const input = e.target;
       props.setActive((oldBenny) => {
         return { 
         ...oldBenny,  
-        [`${key}`]: e.target.value
+        [`${key}`]: input.value.toUpperCase()
       }
+      
       })
+      console.log(input.value.toUpperCase())
         
     }
     const predictStock = () => {
@@ -25,11 +36,7 @@ export default function ParametersInput(props) {
         }, (error) => {
           console.log(error);
         })
-        
-        
-
     }
-  
     return (
     <>
         <div className='divs'>

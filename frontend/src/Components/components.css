@@ -58,9 +58,9 @@ body{
 }
 
 .data-grid{
-  height: 350px;
+  height: 550px;
   position: relative;
-  width: 35%;
+  width: 25%;
   padding: auto;
   top: 10px; 
   background-color: rgb(255, 255, 255);
@@ -81,4 +81,11 @@ body{
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.graph {
+  position: absolute;
+  left: 120%;
+  top: 25px;
+  
 }
