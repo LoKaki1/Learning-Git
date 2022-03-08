@@ -3,9 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="b962c0b9-a62b-4729-b452-19fb96a5cca0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Trading/Historical_data/NIO.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Trading/Historical_data/NIO.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/database.json" beforeDir="false" afterPath="$PROJECT_DIR$/api/database.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/flask_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/flask_api.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/prediction.txt" beforeDir="false" afterPath="$PROJECT_DIR$/api/prediction.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/predicting_stocks/Common.py" beforeDir="false" afterPath="$PROJECT_DIR$/predicting_stocks/Common.py" afterDir="false" />
     </list>
@@ -17,7 +15,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="adding-frontend" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -35,7 +33,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
   </component>
-  <component name="RunManager" selected="Python.Common">
+  <component name="RunManager" selected="Python.flask_api">
     <configuration name="Common" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Learning-What" />
       <option name="INTERPRETER_OPTIONS" value="" />

@@ -195,7 +195,7 @@ def save_in_data_base(ticker, price, settings, date, _id):
 
 
 def get_last_price(ticker):
-    return get_historical_data(ticker, (t := (dt.datetime.now()) - dt.timedelta(days=1)).strftime('%Y-%m-%d'),
+    return get_historical_data(ticker, (t := (dt.datetime.now()) - dt.timedelta(days=2)).strftime('%Y-%m-%d'),
                                dt.datetime.now().strftime('%Y-%m-%d'),)['close'][-1]
 
 
