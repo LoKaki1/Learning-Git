@@ -9,7 +9,7 @@ export default function App() {
     return (
     <>
       <ParametersInput active={benny}  all={brendon} setAll={setBrendon} setActive={setBenny}/>
-      <Watchlist rowsProp={brendon}/>
+      <Watchlist rowsProp={brendon} active={benny} setAll={setBrendon}/>
     </>
     )
   

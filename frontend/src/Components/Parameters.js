@@ -11,7 +11,7 @@ export default function ParametersInput(props) {
       }, (error) =>{
         console.log(error)
       })
-    })
+    }, [])
     const loader = <div className='loader'/>
     const handleChange = (e, key) => {
       console.log(key)
@@ -26,12 +26,12 @@ export default function ParametersInput(props) {
       console.log(input.value.toUpperCase())
         
     }
-    const predictStock = () => {
+    const predictStock = (active=props.active, setAll=props.setAll) => {
         setLoad(true)
-        axios.post('http://127.0.0.1:5000/predict', props.active || {"ticker": 'NIO'})
+        axios.post('http://127.0.0.1:5000/predict', active || {"ticker": 'NIO'})
         .then((response) => {
           console.log(response)
-          props.setAll(response.data)
+          setAll(response.data)
           setLoad(false)
         }, (error) => {
           console.log(error);
@@ -41,7 +41,7 @@ export default function ParametersInput(props) {
     <>
         <div className='divs'>
         <div>
-                <button className='submit'onClick={() => predictStock()}>
+                <button className='submit'onClick={() => predictStock(props.active, props.setAll)}>
                     Predict 🚀   
                 </button>
                 
@@ -54,10 +54,10 @@ export default function ParametersInput(props) {
  
         </div>
         
-        {/* <input type="text"  onChange={(e) => handleChange(e, 'epochs')} placeholder='Enter epochs..'/> 
-            <input type="text"  onChange={(e) => handleChange(e, 'units')} placeholder='Enter units..'/> 
-            <input type="text"  onChange={(e) => handleChange(e, 'prediction_days')} placeholder='Enter prediction days..'/> 
-            <input type="text"  onChange={(e) => handleChange(e, 'predicition_day')} placeholder='Enter prediction day..'/>  */}
+            <input className='parameters' type="text"  onChange={(e) => handleChange(e, 'epochs')} placeholder='Enter epochs..'/>  
+            <input className='parameters' style={{top: '150px'}} type="text"  onChange={(e) => handleChange(e, 'units')} placeholder='Enter units..'/> 
+            <input className='parameters' style={{top: '200px'}} type="text"  onChange={(e) => handleChange(e, 'prediction_days')} placeholder='Enter prediction days..'/> 
+            <input className='parameters' style={{top: '250px'}} type="text"  onChange={(e) => handleChange(e, 'predicition_day')} placeholder='Enter prediction day..'/> 
     </>
     )
 }

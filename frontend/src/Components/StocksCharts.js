@@ -1,14 +1,26 @@
+
 import Chart from 'react-apexcharts'
+
 
 export default function StocksCharts(props){
 
     const options =  {
         chart: {
           type: 'candlestick',
-
-          width: '120%',
-          foreColor: '#00',
-          background: 'transpent'
+          foreColor: '#fff',
+          background: 'rgb(34, 64, 78)',
+          borderRadius: '100px',
+        },
+        plotOptions: {
+          candlestick: {
+            colors: {
+              upward: 'rgba(25, 224, 158, 1)',
+              downward: 'rgba(216, 80, 80, 1)'
+            },
+            wick: {
+              useFillColor: true
+            }
+          }
         },
         title: {
           text: 'CandleStick Chart',
@@ -25,7 +37,9 @@ export default function StocksCharts(props){
     }
 
     return (
-        <Chart className='graph'options={options} series={props.data} type="candlestick" width={500} height={320} />
+      <>
+        <Chart className='graph'  options={options} series={props.data} type="candlestick"  width={520} height={550} />
+      </>
     )
       
 }

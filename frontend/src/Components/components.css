@@ -1,6 +1,6 @@
 body{
-  background: rgb(54,217,182);
-  background: linear-gradient(90deg, rgb(54, 177, 150) 0%, rgb(87, 214, 187) 43%, rgb(69, 180, 174) 100%);
+  background: rgb(34, 64, 78);
+  /* background: linear-gradient(90deg, rgb(54, 177, 150) 0%, rgb(87, 214, 187) 43%, rgb(69, 180, 174) 100%); */
 }
 
 .searchbar {
@@ -58,13 +58,15 @@ body{
 }
 
 .data-grid{
-  height: 550px;
+  height: 750px;
   position: relative;
   width: 25%;
   padding: auto;
   top: 10px; 
-  background-color: rgb(255, 255, 255);
+  background-color: rgb(34, 64, 78);
+  box-shadow: 4px 3px 6px -1px rgba(0,0,0,0.83);
 }
+
 
 .loader {
   border: 16px solid #f3f3f3; /* Light grey */
@@ -72,8 +74,8 @@ body{
   border-radius: 50%;
   width: 20px;
   height: 20px;
-  left: 270px;
-  bottom: 6px;
+  left: 360px;
+  bottom: 0px;
   position: absolute;
   animation: spin 2s linear infinite;
 }
@@ -87,5 +89,24 @@ body{
   position: absolute;
   left: 120%;
   top: 25px;
+  box-shadow: 4px 3px 6px -1px rgba(0,0,0,0.83)
   
 }
+
+.parameters{
+  position: absolute;
+  left: 1500px;
+  top: 100px;
+  width: 200px;
+  height: 30px;
+  border-radius: 30px;
+  border:#fff;
+}
+
+.parameters:hover{
+  box-shadow: 1px 1px 8px 1px #979595;
+}
+.parameters:focus{
+  box-shadow: 1px 1px 8px 1px #979595;
+}
+
