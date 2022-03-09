@@ -166,19 +166,23 @@ def open_json_file(path):
         return json.loads(file.read())
 
 
-def handle_with_time(ticker, json_object):
-    today_str = dt.datetime.now().strftime('%d-%b-%Y')
-    ticker_last_date = json_object
-    if ticker not in ticker_last_date:
+def handle_with_time(ticker, json_object, ):
+    today_str = dt.datetime.now().strftime('%Y-%m-%d')
+    today = dt.datetime.strptime(today_str, '%Y-%m-%d')
+    if ticker not in json_object:
         return today_str
-    ticker_last_date = ticker_last_date[ticker]
-    return today_str if dt.datetime.strptime(
-        ticker_last_date[
-            'date'], '%d-%b-%Y') < dt.datetime.strptime(today_str, '%d-%b-%Y') else float(ticker_last_date['price'])
+    ticker_date = dt.datetime.strptime(json_object[ticker]['date'], '%Y-%m-%d')
+    print(ticker_date, today)
+    return today_str if today > ticker_date else float(json_object[ticker]['price'])
+
+
+def _get_id_list(json_object):
+    return [json_object[ticker]['id'] for ticker in json_object]
 
 
 def get_last_id(json_object):
-    return len(json_object) + 1
+    id_list = _get_id_list(json_object)
+    return id_list[-1] + 1 if len(id_list) else 1
 
 
 def save_in_data_base(ticker, price, settings, date, _id):
@@ -196,7 +200,7 @@ def save_in_data_base(ticker, price, settings, date, _id):
 
 def get_last_price(ticker):
     return get_historical_data(ticker, (t := (dt.datetime.now()) - dt.timedelta(days=2)).strftime('%Y-%m-%d'),
-                               dt.datetime.now().strftime('%Y-%m-%d'),)['close'][-1]
+                               dt.datetime.now().strftime('%Y-%m-%d'), )['close'][-1]
 
 
 def open_json(path):
@@ -209,4 +213,4 @@ def generate_dates_between_dates(start, end):
     return pd.date_range(start, end, freq='d')
 
 
-# print([date for date in generate_dates_between_dates(dt.datetime(year=2022, month=1, day=1).strftime('%Y-%m-%d'), dt.datetime.now().strftime('%Y-%m-%d'))])
+print(handle_with_time('NIO', open_json('../api/database.json')))
