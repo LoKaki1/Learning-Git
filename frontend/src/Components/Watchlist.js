@@ -3,6 +3,7 @@ import StocksCharts from './StocksCharts';
 import axios from 'axios';
 import { useState } from 'react';
 import Parameters from './Parameters.js'
+import Draggable from 'react-draggable'
 
 
 
@@ -68,6 +69,7 @@ export default function Watchlist(props){
     }
 
     return (
+
         <div className='data-grid'>
             <DataGrid
             columns={columns}
@@ -96,5 +98,6 @@ export default function Watchlist(props){
              {graph ? graphStatic: <div/>}
              
         </div>
+
     )
 }

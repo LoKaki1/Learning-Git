@@ -94,9 +94,6 @@ body{
 }
 
 .parameters{
-  position: absolute;
-  left: 1500px;
-  top: 100px;
   width: 200px;
   height: 30px;
   border-radius: 30px;
@@ -104,9 +101,11 @@ body{
 }
 
 .parameters:hover{
-  box-shadow: 1px 1px 8px 1px #979595;
+  box-shadow: 1px 1px 8px 1px #020202;
 }
 .parameters:focus{
-  box-shadow: 1px 1px 8px 1px #979595;
+  box-shadow: 1px 1px 8px 1px #000000;
 }
+
+
 
