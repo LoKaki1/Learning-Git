@@ -43,7 +43,8 @@ class ClassifierAi:
                  test_start=TEST_START,
                  test_end=TEST_END,
                  other=3,
-                 source='IBKR', ):
+                 source='IBKR',
+                 model_building_blocks=None):
 
         self.ticker = ticker
         self.epochs, self.units, self.prediction_days, self.prediction_day = self.generate_data(epochs,
@@ -67,12 +68,16 @@ class ClassifierAi:
         self.predicted_prices = []
         self.scaled_data = None
         self.source = source
+        self.model_building_blocks = model_building_blocks
+        self.x_train = []
+        print(model_building_blocks)
 
     def generate_data(self, *args):
         json_data = Cm.return_json_data(self.ticker)
+        print(args)
         for index, i in enumerate(json_data):
             if args[index] is not None:
-                json_data[index] = int(args[index]) if re.match(r'^\d+$', args[index]) is not None else i
+                json_data[index] = int(args[index]) if re.match(r'^\d+$', str(args[index])) is not None else i
             if json_data[index] is None:
                 json_data[index] = i if i is not None else PARAMETERS[index]
         return json_data
@@ -163,7 +168,8 @@ class ClassifierAi:
         """  x_train.shape[0] = the length of the array, x_train.shape[1] =  prediction days 
          means to create a shape with length of x_train.len and width of prediction days on one dimension
         """
-        x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
+        self.x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
+        self.x_train = x_train
         return x_train, y_train
 
     def generate_fit_and_prepare_data(self):
@@ -197,33 +203,69 @@ class ClassifierAi:
             model.summary()
             return model
         """ Last model was like this  (took more time but did the job not perfect)"""
-
-        # model.add(LSTM(units=units, return_sequences=True, input_shape=(x_train.shape[1], 1)))
-
         """Add layer with dropout that has dense_units with 0.2"""
-        # model.add(Dropout(DENSE_UNITS))
         """ Add LSTM layer that is a short cut for layer short term memory which contains the data in the stm :) """
-        # model.add(LSTM(units=units, return_sequences=True))
-        # model.add(Dropout(DENSE_UNITS))
-        # model.add(LSTM(units=units))
-        # model.add(Dropout(DENSE_UNITS))
-
         # Create a blank model with 4 layers that each contains number of units which is the neurons of each layer
-        model = Sequential([
-            Dense(units=self.units, activation='relu', input_shape=(x_train.shape[1], 1)),
-            Dense(units=self.units // 2, activation='relu'),
-            LSTM(units=self.units // 4, ),
-            Dropout(DENSE_UNITS),
-            Dense(units=1, activation='linear')
-        ])
-        """ Returns only one value """
+        if self.model_building_blocks is None:
+            model = Sequential([
+                Dense(units=self.units, activation='relu', input_shape=(x_train.shape[1], 1)),
+                Dense(units=self.units // 2, activation='relu'),
+                LSTM(units=self.units // 4, ),
+                Dropout(DENSE_UNITS),
+                Dense(units=1, activation='linear')
+            ])
+            """ Returns only one value """
 
-        model.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
-        """ Fitting x_train to y_train, that makes
-         a function that has x values and y values 
-          example:  
-                x_train =  (23, 24, 25, 26, 123123 ... * (prediction_days)) * all_data
-                y_train = (1) ...* all_data - create a func that x[n] = y[n]    """
+            model.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
+            """ Fitting x_train to y_train, that makes
+             a function that has x values and y values 
+              example:  
+                    x_train =  (23, 24, 25, 26, 123123 ... * (prediction_days)) * all_data
+                    y_train = (1) ...* all_data - create a func that x[n] = y[n] for n in index   """
+        else:
+            """
+            model_building_blocks =  
+                                    
+            """
+            layer_dict = {'Dense': Dense, 'LSTM': LSTM, 'Dropout': Dropout}
+            # print([layer_dict[(layer := i)] for index, i in enumerate(self.model_building_blocks['layers'])])
+            # model_list = []
+            # for index, layer in enumerate(self.model_building_blocks['layers']):
+            #     if layer == 'Dense':
+            #         weights = Dense(units=(layer_data := self.model_building_blocks['layers'][layer])['units'],
+            #                         activation=layer_data['activation'],
+            #                         input_shape=(x_train.shape[1],
+            #                                      1) if index == 0 else None, )
+            #
+            #     elif layer == 'LSTM':
+            #         weights = LSTM(units=(layer_data := self.model_building_blocks['layers'][layer])['units'],
+            #                        activation=layer_data['activation'],
+            #                        input_shape=(x_train.shape[1],
+            #                                     1) if index == 0 else None, )
+            #     elif layer == 'Dropout':
+            #         weights = Dropout(units=(layer_data := self.model_building_blocks['layers'][layer])['units'],
+            #                            activation=layer_data['activation'],
+            #                            input_shape=(x_train.shape[1],
+            #                                         1) if index == 0 else None,
+            #                           )
+            #     else:
+            #         weights = NOon
+            #     model_list.append(weights)
+
+            model = Sequential([
+
+                layer_dict[layer if layer != 'Dropout' else 'Dense'](
+                    units=(layer_data := self.model_building_blocks['layers'][layer])['units'],
+                    activation=layer_data['activation'],
+                    input_shape=(x_train.shape[1],
+                                 1) if index == 0 else None, ) if layer != 'Dropout' or index == 0 else
+                layer_dict[layer](self.model_building_blocks['layers'][layer]['units'],
+                                  )
+                for index, layer in enumerate(self.model_building_blocks['layers'])
+            ])
+            model.compile(optimizer=(co := self.model_building_blocks['compiler'])['optimizer'],
+                          loss=co['loss'],
+                          metrics=co['metrics'])
         model.summary()
         model.fit(x_train, y_train,
                   epochs=self.epochs, batch_size=BATCH_SIZE, shuffle=False, verbose='auto', )
@@ -283,9 +325,9 @@ class ClassifierAi:
         if self.daily:
             end_day_predicted = (dt.datetime.strptime(
                 self.end_day, '%Y-%m-%d') + dt.timedelta(days=(
-                    self.prediction_day if float(
-                        dt.datetime.now().strftime(
-                            '%H')) < 11 else self.prediction_day - 1))).strftime('%Y-%m-%d')
+                self.prediction_day if float(
+                    dt.datetime.now().strftime(
+                        '%H')) < 11 else self.prediction_day - 1))).strftime('%Y-%m-%d')
         else:
             end_day_predicted = dt.datetime.now() + dt.timedelta(minutes=self.prediction_day)
         Cm.write_in_file('prediction.txt', ''.join(['\n', str(price[-1][-1]), ' ', str(end_day_predicted)]))

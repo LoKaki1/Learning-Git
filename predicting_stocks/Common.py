@@ -211,6 +211,3 @@ def open_json(path):
 
 def generate_dates_between_dates(start, end):
     return pd.date_range(start, end, freq='d')
-
-
-print(handle_with_time('NIO', open_json('../api/database.json')))
