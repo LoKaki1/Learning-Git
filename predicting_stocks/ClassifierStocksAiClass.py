@@ -25,6 +25,15 @@ BATCH_SIZE = 32
 PARAMETERS = [EPOCHS, UNITS, PREDICTION_DAYS, PREDICTION_DAY]
 
 
+def _handle_first_layer(layer, units, activation, input_shape: tuple, index):
+    return layer(units=units,
+                 activation=activation,
+                 input_shape=input_shape) if index == 0 else \
+        layer(units=units,
+              activation=activation,
+              )
+
+
 class ClassifierAi:
 
     def __init__(self, ticker,
@@ -70,11 +79,11 @@ class ClassifierAi:
         self.source = source
         self.model_building_blocks = model_building_blocks
         self.x_train = []
+        self.ratio = None
         print(model_building_blocks)
 
     def generate_data(self, *args):
         json_data = Cm.return_json_data(self.ticker)
-        print(args)
         for index, i in enumerate(json_data):
             if args[index] is not None:
                 json_data[index] = int(args[index]) if re.match(r'^\d+$', str(args[index])) is not None else i
@@ -228,44 +237,30 @@ class ClassifierAi:
                                     
             """
             layer_dict = {'Dense': Dense, 'LSTM': LSTM, 'Dropout': Dropout}
-            # print([layer_dict[(layer := i)] for index, i in enumerate(self.model_building_blocks['layers'])])
-            # model_list = []
-            # for index, layer in enumerate(self.model_building_blocks['layers']):
-            #     if layer == 'Dense':
-            #         weights = Dense(units=(layer_data := self.model_building_blocks['layers'][layer])['units'],
-            #                         activation=layer_data['activation'],
-            #                         input_shape=(x_train.shape[1],
-            #                                      1) if index == 0 else None, )
-            #
-            #     elif layer == 'LSTM':
-            #         weights = LSTM(units=(layer_data := self.model_building_blocks['layers'][layer])['units'],
-            #                        activation=layer_data['activation'],
-            #                        input_shape=(x_train.shape[1],
-            #                                     1) if index == 0 else None, )
-            #     elif layer == 'Dropout':
-            #         weights = Dropout(units=(layer_data := self.model_building_blocks['layers'][layer])['units'],
-            #                            activation=layer_data['activation'],
-            #                            input_shape=(x_train.shape[1],
-            #                                         1) if index == 0 else None,
-            #                           )
-            #     else:
-            #         weights = NOon
-            #     model_list.append(weights)
+            model_list = []
+            for index, layer in enumerate(self.model_building_blocks['layers']):
+                layer_data = self.model_building_blocks['layers'][index]
+                layer_t = list(layer_data.keys())[0]
+                layer_data = self.model_building_blocks['layers'][index][layer_t]
+                if not index or layer_t == 'Dense':
+                    weights = _handle_first_layer(
+                        layer=layer_dict['Dense'],
+                        units=layer_data['units'],
+                        activation=layer_data['activation'],
+                        input_shape=(x_train.shape[1], 1),
+                        index=index)
+                elif layer_t == 'LSTM':
+                    weights = LSTM(units=layer_data['units'], return_sequences=True)
+                else:
+                    weights = Dropout(rate=layer_data['units'])
 
-            model = Sequential([
-
-                layer_dict[layer if layer != 'Dropout' else 'Dense'](
-                    units=(layer_data := self.model_building_blocks['layers'][layer])['units'],
-                    activation=layer_data['activation'],
-                    input_shape=(x_train.shape[1],
-                                 1) if index == 0 else None, ) if layer != 'Dropout' or index == 0 else
-                layer_dict[layer](self.model_building_blocks['layers'][layer]['units'],
-                                  )
-                for index, layer in enumerate(self.model_building_blocks['layers'])
-            ])
+                model_list.append(weights)
+            model = Sequential(model_list)
             model.compile(optimizer=(co := self.model_building_blocks['compiler'])['optimizer'],
                           loss=co['loss'],
-                          metrics=co['metrics'])
+                          )
+            model.add(Dense(units=1))
+
         model.summary()
         model.fit(x_train, y_train,
                   epochs=self.epochs, batch_size=BATCH_SIZE, shuffle=False, verbose='auto', )
@@ -412,21 +407,24 @@ class ClassifierAi:
         """
         if len(self.predicted_prices) or len(self.real_prices):
             self.test_model()
-        # print(self.predicted_prices, self.real_prices)
         predicted_prices = np.array(self.predicted_prices) if self.predicted_prices is list else self.predicted_prices
         real_prices = np.array(self.real_prices) if self.real_prices is list else self.real_prices
         Cm.plot(predicted_prices, real_prices, self.ticker)
 
     def accuracy_ratio(self, ):
         try:
-            return sum([min(t / self.real_prices[i],
-                            self.real_prices[i] / t)
-                        for i, t in enumerate(self.predicted_prices)]) / len(self.predicted_prices)
+            self.ratio = sum([min(t / self.real_prices[i],
+                                  self.real_prices[i] / t)
+                              for i, t in enumerate(self.predicted_prices)]) / len(self.predicted_prices)\
+                if self.ratio is None else self.ratio
+            return self.ratio
         except ZeroDivisionError:
             raise ValueError("Not using the accuracy_ratio correctly run test_model before or run "
                              "test_model_and_return_accuracy_ratio() instead")
 
     def test_model_and_return_accuracy_ratio(self, ):
+        if self.ratio is not None:
+            return self.ratio
         self.test_model()
         return self.accuracy_ratio()
 
@@ -439,13 +437,6 @@ class ClassifierAi:
 
 def main():
     pass
-    # ticker = 'NIO'
-    # my_man = ClassifierAi(ticker, daily=True, source='yahoo', load_data_from_local=False,
-    #                       load_model_from_local=False, epochs=19, units=111, prediction_days=84, prediction_day=1)
-    # my_man.predict_stock_price_at_specific_day()
-    # my_man.test_model()
-    # my_man.plot_two_graphs()
-    # print(my_man.accuracy_ratio())
 
 
 if __name__ == '__main__':

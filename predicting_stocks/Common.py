@@ -19,7 +19,6 @@ X_VALUES = [['open', 'low', 'high', 'close'], ['Open', 'Low', 'High', 'Close']]
 def write_in_file(path, data):
     with open(path, 'a') as file:
         file.write(data)
-        file.close()
 
 
 def str_time_prop(start, end, time_format, prop):
@@ -114,18 +113,17 @@ def return_json_data(ticker, json_path='../predicting_stocks/settings_for_ai/par
             print(json_path)
     except FileNotFoundError:
         print('did not find file', json_path, sep=', ')
-        return [None, None, None, None]
+        return [None for _ in range(4)]
 
     if not json_path:
         return None
     with open(json_path, 'r') as json_file:
         p = json.load(json_file)
-        json_file.close()
         if ticker in p:
             p = p[ticker]['settings']
             return [p['epochs'], p['units'], p['prediction_days'], p['prediction_day']]
         else:
-            return [None, None, None, None]
+            return [None for _ in range(4)]
 
 
 def check_data(x_train, y_train, constant=1):
@@ -142,9 +140,9 @@ def get_data_from_saved_file(ticker, ):
 
     Format - ticker name.txt in Data directory, otherwise it will not find the data
     """
-    file = open(f'./Data/{ticker}.txt', 'r')
-    data = file.read()
-    return ast.literal_eval(data)
+    with open(f'./Data/{ticker}.txt', 'r') as file:
+        data = file.read()
+        return ast.literal_eval(data)
 
 
 def get_data_from_file_or_yahoo(ticker):
@@ -157,7 +155,6 @@ def intraday_with_yahoo(ticker, other: [str, int] = '3'):
     with open(f'../Trading/Historical_data/{ticker}.txt', 'w') as file:
         data_dict = dict((key, [i for i in data[key]]) for key in ['Open', 'Close', 'Low', 'High'])
         file.write(str(data_dict))
-        file.close()
     return iterate_data(data_dict, what=1)
 
 
@@ -209,5 +206,18 @@ def open_json(path):
     return json_data
 
 
+def write_in_json(path: str, data: [dict, list]):
+    with open(path) as fp:
+        json_object = json.load(fp)
+
+    json_object.update(data)
+
+    with open(path, 'w') as json_file:
+        json.dump(json_object, json_file,
+                  indent=4,
+                  separators=(',', ': '))
+
+
 def generate_dates_between_dates(start, end):
     return pd.date_range(start, end, freq='d')
+

@@ -80,7 +80,6 @@ def read_from_file(ticker):
     try:
         with open(f'../Trading/Historical_data/{ticker}.csv', 'r') as file:
             data = file.read()
-            file.close()
             return data
     except FileNotFoundError:
         print('file not found')

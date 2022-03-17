@@ -1,7 +1,7 @@
 from random import randint
 import itertools
 from ClassifierStocksAiClass import ClassifierAi
-
+import Common as Cm
 
 """
 ['epochs', 'units', 'prediction_days', {
@@ -25,7 +25,7 @@ compile: {
                 cosine_similarity,
                 huber,
                 log_cosh,
-        
+
         ],
         metrics: [
                     AUC,
@@ -38,7 +38,7 @@ compile: {
                     PrecisionAtRecall,
                     SensitivityAtSpecificity,
                     SpecificityAtSensitivity,
-                            
+
         ]
 }
 """
@@ -65,13 +65,11 @@ main (SETTINGS: list = None)
 
 LAYERS = ('Dense', 'LSTM', 'Dropout')
 ACTIVATION = [
-    'deserialize', 'elu', 'exponential', 'gelu', 'get',
-    'hard_sigmoid', 'linear', 'relu', 'selu', 'serialize', 'sigmoid',
-    'softmax', 'softplus', 'softsign', 'swish', 'tanh'
+    'relu', 'sigmoid', 'softmax', 'softplus', 'softsign', 'tanh', 'selu', 'elu',
 ]
 COMPILER = {
     'optimizer': [
-        'sgd', 'rmsprop', 'adam', 'adadelta', 'adagrad', 'adamax', 'nadam', 'ftrl'
+        'adam'
     ],
     'loss': [
         'mean_squared_error',
@@ -84,26 +82,17 @@ COMPILER = {
 
     ],
     'metrics': [
-        'AUC',
-        'Precision',
-        'Recall',
-        'TruePositives',
-        'TrueNegatives',
-        'FalsePositives',
-        'FalseNegatives',
-        'PrecisionAtRecall',
-        'SensitivityAtSpecificity',
-        'SpecificityAtSensitivity',
+        'accuracy'
 
     ]
 }
 ACTIVE_LEN = len(ACTIVATION) - 1
-TICKER = 'NIO'
-
+TICKERS = ['NIO', 'TSLA', 'BABA', 'XPEV', 'FB', 'AAPL']
+tickers_length = len(TICKERS) - 1
 
 def generate_layers(units):
     length = randint(4, 10)
-    layers = {}
+    layers = []
     for _ in range(length):
         layer = LAYERS[randint(0, 2)]
         activation = ACTIVATION[randint(0, ACTIVE_LEN)]
@@ -112,8 +101,32 @@ def generate_layers(units):
         else:
             layer_args = {'units': (next_units := randint(10, units)), 'activation': activation}
             units = next_units
-        layers[layer] = layer_args
+        layers.append({layer: layer_args})
     return layers
+
+
+def generate_single_random_layer(index, units):
+    t_units = units
+    print(units, t_units)
+    return {(layer := 'Dense') if index == 0 else (layer := LAYERS[randint(0, 2)]): {
+        'units': (t_units := randint(10, units)) if layer != 'Dropout' else 0.2,
+        'activation': ACTIVATION[randint(0, ACTIVE_LEN)]}}, t_units
+
+
+def generate_layers_from_father(father):
+    print(father)
+    layers_list = combinations_with_father_list((layers := father[3]))
+    units = father[1]
+    layers_list2 = []
+
+    for index_layers, (should, layers_key) in enumerate(zip(layers_list, layers)):
+        layers_list2.append([
+            (units := generate_single_random_layer(index, units if type(units) is int else units[1]))[0]
+            if not layer else layers[index] for index, layer in enumerate(should)
+        ])
+        layers_list2.append(generate_layers(units if type(units) is int else units[1]))
+
+    return layers_list2
 
 
 def generate_compile():
@@ -128,10 +141,11 @@ def settings_generator(children=None):
             'units': (units := randint(12, 70)),
             'prediction_days': randint(5, 90),
             'layers': generate_layers(units),
-            'compile': generate_compile()
+            'compiler': generate_compile()
 
         }
     else:
+        print(children)
         units = True
         settings = [{
             'epochs': randint(10, 30) if not child[0] else child[0],
@@ -139,14 +153,36 @@ def settings_generator(children=None):
             'prediction_days': randint(5, 90) if not child[2] else child[2],
             'layers': generate_layers(units if type(units) is int else child[1]) if not child[3] else child[3],
             # TODO  generate from those more children
-            'compile': generate_compile() if not child[4] else child[4]
+            'compiler': generate_compile() if not child[4] else child[4]
 
         } for child in children]
+        print(children)
+        secondary_settings = [
+            {
+                'epochs': children[-1][0],
+                'units': children[-1][1],
+                'prediction_days': children[-1][2],
+                'layers': layer,
+                'compiler': children[-1][4]
+
+            }
+            for layer in generate_layers_from_father(children[-1])]
+        settings.extend(secondary_settings)
 
     return settings
 
 
 def generate_settings_using_father_dna(father):
+    children = combinations_with_father_list(father)
+    children = list(
+        [value if set_value else set_value for value, set_value in
+         zip(father.values() if type(father) is dict else father, child)]
+        for child in children
+    )
+    return settings_generator(children)
+
+
+def combinations_with_father_list(father):
     children = list(
         itertools.combinations_with_replacement([True, False], len(father))
     )
@@ -154,40 +190,58 @@ def generate_settings_using_father_dna(father):
     children.extend(second)
     children.sort()
     children = list(children for children, _ in itertools.groupby(children))
-    children = list(
-                    [value if set_value else set_value for value, set_value in zip(father.values(), child)]
-                    for child in children
-                    )
-    return settings_generator(children)
+    return children
 
 
 def generate_classifier_ai_stocks_objects(children: list):
     children_ratio_dict = {}
     for index, child in enumerate(children):
         epochs, units, prediction_days, layers, compiler = child.values()
-        print(epochs, units, prediction_days, layers, compiler )
-        child_classifier_obj = ClassifierAi(TICKER,
+        print(epochs, units, prediction_days, layers, compiler, ':)', sep=', ')
+        child_classifier_obj = ClassifierAi(TICKERS[randint(0, tickers_length)],
                                             epochs=epochs,
                                             units=units,
                                             prediction_days=prediction_days,
                                             model_building_blocks={'layers': layers, 'compiler': compiler})
-        children_ratio_dict[index] = ([epochs, units, prediction_days, layers, compiler],
-                                      child_classifier_obj.test_model_and_return_accuracy_ratio())
+        ratio = float(
+            (pr := str(child_classifier_obj.test_model_and_return_accuracy_ratio()[-1]))[0: 7 if len(pr) > 6 else -1])
+        children_ratio_dict[ratio] = {'epochs': epochs, 'units': units,
+                                      'prediction_days': prediction_days, 'layers': layers,
+                                      'compiler': compiler}
+
     return children_ratio_dict
 
 
 def _main(settings):
+    """
+    :returns best of all kids and makes it the next parent
+    """
     children = generate_settings_using_father_dna(settings)
     classifier_ai_stock_objects = generate_classifier_ai_stocks_objects(children)
-
-    'for loop on each of them test model, and return dictionary {id: [settings, ratio]}'
+    return classifier_ai_stock_objects[
+               (best_ratio := max(classifier_ai_stock_objects.keys()))
+           ], best_ratio
 
 
 def main():
-    settings = ['__generate_settings_from_file__ if is not none else None']
-    units = 50
-    father = settings_generator()
-    _main(father)
+    father, last_ratio = generate_father_json_object()
+    print(father, last_ratio)
+    import time
+    time.sleep(2)
+    for _ in range(100):
+        father, best_ratio = _main(father)
+        if best_ratio != last_ratio or str(best_ratio) != str(last_ratio):
+            # Avoid error by putting two keys with same value
+            data = {best_ratio: father}
+            Cm.write_in_json('./settings_for_ai/parameters_status.json', data)
+            last_ratio = best_ratio
 
 
-main()
+def generate_father_json_object():
+    father = Cm.open_json('./settings_for_ai/parameters_status.json')
+    father = father[(last_ratio := f"{max([float(ratio) for index, ratio in enumerate(father)])}")]
+    return father, last_ratio
+
+
+if __name__ == '__main__':
+    main()

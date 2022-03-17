@@ -132,7 +132,6 @@ def update_file(actions, money_achieved, path='documentation.txt'):
            f'{actions_data}'
     with open(path, 'w') as file:
         file.write(data)
-        file.close()
 
 
 def money(actions):
