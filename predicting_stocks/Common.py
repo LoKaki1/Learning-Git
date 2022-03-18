@@ -76,16 +76,33 @@ def load_model_from_file(self):
 
 
 def get_historical_data(ticker, start, end):
-    data = (pd.DataFrame(
-        YahooFinancials(ticker).get_historical_price_data(
-            start_date=start,
-            end_date=end,
-            time_interval='daily')[
-            ticker]['prices']).drop('date', axis=1)
-            .set_index('formatted_date'))
+    try:
+        return (pd.DataFrame(
+            YahooFinancials(ticker).get_historical_price_data(
+                start_date=start,
+                end_date=end,
+                time_interval='daily')[
+                ticker]['prices']).drop('date', axis=1)
+                .set_index('formatted_date'))
+    except OSError as e:
+        print(f"can't connect to yahoo finanace api error - {e}")
+        time.sleep(4)
+        try:
+            return (pd.DataFrame(
+                YahooFinancials(ticker).get_historical_price_data(
+                    start_date=start,
+                    end_date=end,
+                    time_interval='daily')[
+                    ticker]['prices']).drop('date', axis=1)
+                    .set_index('formatted_date'))
+        except OSError:
+            raise InterruptedError("Just no bro..")
 
-    print(data['close'][-1])
-    return data
+
+def best_settings() -> (dict, float):
+    father = open_json('./settings_for_ai/parameters_status.json')
+    father = father[(last_ratio := f"{max([float(ratio) for index, ratio in enumerate(father)])}")]
+    return father, last_ratio
 
 
 def plot(data, pre_prices, ticker):

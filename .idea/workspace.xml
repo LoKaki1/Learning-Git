@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b962c0b9-a62b-4729-b452-19fb96a5cca0" name="Changes" comment="git-fix">
+    <list default="true" id="b962c0b9-a62b-4729-b452-19fb96a5cca0" name="Changes" comment="layers fix">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Trading/data_order_something.py" beforeDir="false" afterPath="$PROJECT_DIR$/Trading/data_order_something.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/prediction.txt" beforeDir="false" afterPath="$PROJECT_DIR$/api/prediction.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/predicting_stocks/ClassifierStocksAiClass.py" beforeDir="false" afterPath="$PROJECT_DIR$/predicting_stocks/ClassifierStocksAiClass.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/predicting_stocks/Common.py" beforeDir="false" afterPath="$PROJECT_DIR$/predicting_stocks/Common.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/predicting_stocks/GenerateSettings.py" beforeDir="false" afterPath="$PROJECT_DIR$/predicting_stocks/GenerateSettings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/predicting_stocks/buying_and_selling_automation.py" beforeDir="false" afterPath="$PROJECT_DIR$/predicting_stocks/buying_and_selling_automation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/predicting_stocks/prediction.txt" beforeDir="false" afterPath="$PROJECT_DIR$/predicting_stocks/prediction.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/predicting_stocks/settings_for_ai/parameters_status.json" beforeDir="false" afterPath="$PROJECT_DIR$/predicting_stocks/settings_for_ai/parameters_status.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -19,7 +17,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="git-fix" />
+        <entry key="$PROJECT_DIR$" value="add-wegith" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -45,7 +43,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
   </component>
-  <component name="RunManager" selected="Python.GenerateSettings">
+  <component name="RunManager" selected="Python.ClassifierStocksAiClass">
     <configuration name="ClassifierStocksAiClass" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Learning-What" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -139,7 +137,14 @@
       <option name="project" value="LOCAL" />
       <updated>1646738448685</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="layers fix">
+      <created>1647517167998</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1647517167998</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -155,7 +160,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="git-fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="git-fix" />
+    <MESSAGE value="layers fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="layers fix" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -166,18 +172,23 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/predicting_stocks/ClassifierStocksAiClass.py</url>
-          <line>208</line>
+          <line>219</line>
           <option name="timeStamp" value="2" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/predicting_stocks/ClassifierStocksAiClass.py</url>
-          <line>435</line>
+          <line>458</line>
           <option name="timeStamp" value="3" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/predicting_stocks/GenerateSettings.py</url>
-          <line>222</line>
+          <line>223</line>
           <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/predicting_stocks/Common.py</url>
+          <line>83</line>
+          <option name="timeStamp" value="5" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

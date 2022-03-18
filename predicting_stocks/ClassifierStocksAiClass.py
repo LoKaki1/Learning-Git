@@ -53,13 +53,11 @@ class ClassifierAi:
                  test_end=TEST_END,
                  other=3,
                  source='IBKR',
-                 model_building_blocks=None):
+                 model_building_blocks=None,
+                 use_best_found_settings=True):
 
         self.ticker = ticker
-        self.epochs, self.units, self.prediction_days, self.prediction_day = self.generate_data(epochs,
-                                                                                                units,
-                                                                                                prediction_days,
-                                                                                                prediction_day)
+
         self.save_model = save_model
         self.start_day = start_day
         self.end_day = end_day
@@ -80,7 +78,26 @@ class ClassifierAi:
         self.model_building_blocks = model_building_blocks
         self.x_train = []
         self.ratio = None
-        print(model_building_blocks)
+        self.use_best_settings = use_best_found_settings
+        if self.use_best_settings:
+            self._generate_best_settings_from_file()
+            self.prediction_day = 1  # need to work on that when add a support for multiple days on evloution
+        else:
+            self.epochs, self.units, self.prediction_days, self.prediction_day = self.generate_data(epochs,
+                                                                                                    units,
+                                                                                                    prediction_days,
+                                                                                                    prediction_day)
+
+    def _generate_best_settings_from_file(self):
+        print('genrating best settings from file.. ')
+        settings, ratio = Cm.best_settings()
+        (self.epochs, self.units, self.prediction_days), self.model_building_blocks = list(settings.values())[0:3], {
+            'layers':
+                settings['layers'],
+            'compiler':
+                settings['compiler']
+        }
+        print(self.epochs, self.units, self.prediction_days, self.model_building_blocks, sep=' -> ')
 
     def generate_data(self, *args):
         json_data = Cm.return_json_data(self.ticker)
@@ -210,6 +227,7 @@ class ClassifierAi:
                 is not None:
             print('loading model from file..')
             model.summary()
+            model: Sequential
             return model
         """ Last model was like this  (took more time but did the job not perfect)"""
         """Add layer with dropout that has dense_units with 0.2"""
@@ -259,7 +277,7 @@ class ClassifierAi:
             model.compile(optimizer=(co := self.model_building_blocks['compiler'])['optimizer'],
                           loss=co['loss'],
                           )
-            model.add(Dense(units=1))
+            model.add(Dense(units=1, activation='linear'))
 
         model.summary()
         model.fit(x_train, y_train,
@@ -295,10 +313,16 @@ class ClassifierAi:
         except ValueError:
             raise ValueError("One of the parameters change please delete the last model or change the flag that won't "
                              "take the last model")
-        prediction = self.scalar.inverse_transform(prediction)
+        try:
+            prediction = self.scalar.inverse_transform(prediction)
+        except ValueError as error:
+            print(f'error ocured{error}')
+            prediction = self.scalar.inverse_transform(
+                np.reshape(
+                    prediction, (real_data.shape[0], real_data.shape[1], 1)).reshape(-1, 1))
         return prediction
 
-    def predict_stock_price_at_specific_day(self):
+    def predict_stock_price_at_specific_day(self, print_ca=False):
         """ return predicted stock price in a specific day
 
             param
@@ -317,15 +341,19 @@ class ClassifierAi:
         self.model_and_its_args = model, scaled_data, = self.preparation_for_machine()
 
         price = self.predict_data(scaled_data)
+        print(price, price.shape)
         if self.daily:
             end_day_predicted = (dt.datetime.strptime(
                 self.end_day, '%Y-%m-%d') + dt.timedelta(days=(
-                self.prediction_day if float(
-                    dt.datetime.now().strftime(
-                        '%H')) < 11 else self.prediction_day - 1))).strftime('%Y-%m-%d')
+                    self.prediction_day if float(
+                        dt.datetime.now().strftime(
+                            '%H')) < 11 else self.prediction_day - 1))).strftime('%Y-%m-%d')
         else:
             end_day_predicted = dt.datetime.now() + dt.timedelta(minutes=self.prediction_day)
-        Cm.write_in_file('prediction.txt', ''.join(['\n', str(price[-1][-1]), ' ', str(end_day_predicted)]))
+        Cm.write_in_file('prediction.txt', ''.join(['\n', (price := str(price[-1][-1])), ' ', str(end_day_predicted)]))
+        if print_ca:
+            print_ca = print
+            print_ca(f"The price is -> {price}", )
         return price
 
     def return_test_data(self, ):
@@ -351,7 +379,7 @@ class ClassifierAi:
         x_test, actual_data = self.return_test_data()
 
         x_test = np.array(x_test)
-        print(x_test)
+        print('test model..')
         x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
         actual_data = np.array(actual_data).reshape(-1, 1)
         actual_data = self.scalar.inverse_transform(actual_data)
@@ -415,7 +443,7 @@ class ClassifierAi:
         try:
             self.ratio = sum([min(t / self.real_prices[i],
                                   self.real_prices[i] / t)
-                              for i, t in enumerate(self.predicted_prices)]) / len(self.predicted_prices)\
+                              for i, t in enumerate(self.predicted_prices)]) / len(self.predicted_prices) \
                 if self.ratio is None else self.ratio
             return self.ratio
         except ZeroDivisionError:
@@ -436,7 +464,12 @@ class ClassifierAi:
 
 
 def main():
-    pass
+    ticker = 'NIO'
+    my_man = ClassifierAi(ticker, load_model_from_local=False, use_best_found_settings=False)
+    my_man.predict_stock_price_at_specific_day(True)
+    my_man = ClassifierAi(ticker, load_model_from_local=False, use_best_found_settings=True)
+    my_man.predict_stock_price_at_specific_day(True)
+    print(Cm.get_last_price(ticker))
 
 
 if __name__ == '__main__':

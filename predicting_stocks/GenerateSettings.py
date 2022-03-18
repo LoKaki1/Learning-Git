@@ -90,6 +90,7 @@ ACTIVE_LEN = len(ACTIVATION) - 1
 TICKERS = ['NIO', 'TSLA', 'BABA', 'XPEV', 'FB', 'AAPL']
 tickers_length = len(TICKERS) - 1
 
+
 def generate_layers(units):
     length = randint(4, 10)
     layers = []
@@ -99,7 +100,7 @@ def generate_layers(units):
         if layer == 'Dropout':
             layer_args = {'units': 0.2, 'activation': activation}
         else:
-            layer_args = {'units': (next_units := randint(10, units)), 'activation': activation}
+            layer_args = {'units': (next_units := randint(1, units)), 'activation': activation}
             units = next_units
         layers.append({layer: layer_args})
     return layers
@@ -109,7 +110,7 @@ def generate_single_random_layer(index, units):
     t_units = units
     print(units, t_units)
     return {(layer := 'Dense') if index == 0 else (layer := LAYERS[randint(0, 2)]): {
-        'units': (t_units := randint(10, units)) if layer != 'Dropout' else 0.2,
+        'units': (t_units := randint(1, units)) if layer != 'Dropout' else 0.2,
         'activation': ACTIVATION[randint(0, ACTIVE_LEN)]}}, t_units
 
 
@@ -224,7 +225,7 @@ def _main(settings):
 
 
 def main():
-    father, last_ratio = generate_father_json_object()
+    father, last_ratio = Cm.best_settings()
     print(father, last_ratio)
     import time
     time.sleep(2)
@@ -235,12 +236,6 @@ def main():
             data = {best_ratio: father}
             Cm.write_in_json('./settings_for_ai/parameters_status.json', data)
             last_ratio = best_ratio
-
-
-def generate_father_json_object():
-    father = Cm.open_json('./settings_for_ai/parameters_status.json')
-    father = father[(last_ratio := f"{max([float(ratio) for index, ratio in enumerate(father)])}")]
-    return father, last_ratio
 
 
 if __name__ == '__main__':
