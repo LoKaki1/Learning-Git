@@ -3,12 +3,13 @@ import pandas as pd
 import datetime as dt
 
 from sklearn.preprocessing import MinMaxScaler
-from tensorflow.keras.layers import Dense, LSTM, Dropout
+from tensorflow.keras.layers import Dense, LSTM, Dropout, Layer
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.backend import clear_session
 import predicting_stocks.Common as Cm
 from Trading.data_order_something import read_data
 import re
+from typing import Union
 
 TICKER = 'NIO'
 X_VALUES = ['open', 'low', 'high', 'close', ]
@@ -25,7 +26,7 @@ BATCH_SIZE = 32
 PARAMETERS = [EPOCHS, UNITS, PREDICTION_DAYS, PREDICTION_DAY]
 
 
-def _handle_first_layer(layer, units, activation, input_shape: tuple, index):
+def _handle_first_layer(layer, units: Union[str, int], activation: str, input_shape: tuple, index: int):
     return layer(units=units,
                  activation=activation,
                  input_shape=input_shape) if index == 0 else \
@@ -243,17 +244,13 @@ class ClassifierAi:
             ])
             """ Returns only one value """
 
-            model.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
+            model.compile(optimizer='adam', loss='mean_squared_error')
             """ Fitting x_train to y_train, that makes
              a function that has x values and y values 
               example:  
                     x_train =  (23, 24, 25, 26, 123123 ... * (prediction_days)) * all_data
                     y_train = (1) ...* all_data - create a func that x[n] = y[n] for n in index   """
         else:
-            """
-            model_building_blocks =  
-                                    
-            """
             layer_dict = {'Dense': Dense, 'LSTM': LSTM, 'Dropout': Dropout}
             model_list = []
             for index, layer in enumerate(self.model_building_blocks['layers']):
@@ -271,13 +268,14 @@ class ClassifierAi:
                     weights = LSTM(units=layer_data['units'], return_sequences=True)
                 else:
                     weights = Dropout(rate=layer_data['units'])
-
                 model_list.append(weights)
+
             model = Sequential(model_list)
             model.compile(optimizer=(co := self.model_building_blocks['compiler'])['optimizer'],
                           loss=co['loss'],
                           )
-            model.add(Dense(units=1, activation='linear'))
+            if self.model_building_blocks['layers'][-1]['units'] > 1:
+                model.add(Dense(units=1, activation='linear'))
 
         model.summary()
         model.fit(x_train, y_train,
@@ -341,7 +339,6 @@ class ClassifierAi:
         self.model_and_its_args = model, scaled_data, = self.preparation_for_machine()
 
         price = self.predict_data(scaled_data)
-        print(price, price.shape)
         if self.daily:
             end_day_predicted = (dt.datetime.strptime(
                 self.end_day, '%Y-%m-%d') + dt.timedelta(days=(
@@ -352,6 +349,7 @@ class ClassifierAi:
             end_day_predicted = dt.datetime.now() + dt.timedelta(minutes=self.prediction_day)
         Cm.write_in_file('prediction.txt', ''.join(['\n', (price := str(price[-1][-1])), ' ', str(end_day_predicted)]))
         if print_ca:
+            # Make sure that print function is on my variables :)
             print_ca = print
             print_ca(f"The price is -> {price}", )
         return price

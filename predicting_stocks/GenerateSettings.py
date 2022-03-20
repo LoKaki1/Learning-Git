@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, getrandbits
 import itertools
 from ClassifierStocksAiClass import ClassifierAi
 import Common as Cm
@@ -106,16 +106,17 @@ def generate_layers(units):
     return layers
 
 
+def _units(units):
+    return units // 2 if bool(getrandbits(1)) else int(units * 0.75)
+
+
 def generate_single_random_layer(index, units):
-    t_units = units
-    print(units, t_units)
     return {(layer := 'Dense') if index == 0 else (layer := LAYERS[randint(0, 2)]): {
-        'units': (t_units := randint(1, units)) if layer != 'Dropout' else 0.2,
-        'activation': ACTIVATION[randint(0, ACTIVE_LEN)]}}, t_units
+        'units': (units := _units(units)) if layer != 'Dropout' else 0.2,
+        'activation': ACTIVATION[randint(0, ACTIVE_LEN)]}}, units
 
 
 def generate_layers_from_father(father):
-    print(father)
     layers_list = combinations_with_father_list((layers := father[3]))
     units = father[1]
     layers_list2 = []
@@ -126,6 +127,8 @@ def generate_layers_from_father(father):
             if not layer else layers[index] for index, layer in enumerate(should)
         ])
         layers_list2.append(generate_layers(units if type(units) is int else units[1]))
+        if units < 4:
+            break
 
     return layers_list2
 
