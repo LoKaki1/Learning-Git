@@ -1,11 +1,9 @@
-
 import datetime as dt
 from flask import Flask, request
 from predicting_stocks.ClassifierStocksAiClass import ClassifierAi, END
 import predicting_stocks.Common as Cm
 from flask_cors import CORS
 import json
-
 
 app = Flask(__name__)
 cors = CORS(app, support_credentials=True)
@@ -48,12 +46,14 @@ def predict_stock():
                                 units=units,
                                 prediction_days=prediction_days,
                                 prediction_day=prediction_day,
-                                load_model_from_local=True,
+                                load_model_from_local=False,
                                 )
     date = Cm.handle_with_time(ticker, json_object)
     ticker_settings, settings_not_found = handle_settings(stock_object, json_object, ticker)
     if type(date) is not float or settings_not_found:
-        predicted_price = str(stock_object.predict_stock_price_at_specific_day()[-1][-1])
+        price = stock_object.predict_stock_price_at_specific_day()
+        print(price)
+        predicted_price = str(price)
         Cm.save_in_data_base(ticker,
                              predicted_price,
                              ticker_settings,
@@ -86,7 +86,7 @@ def _create_watchlist():
     return json.dumps(recreate_data)
 
 
-@app.route('/prices', methods=['POST'])
+@app.route('/prices/daily', methods=['POST'])
 def current_price():
     ticker = dict(request.get_json()).get('ticker')
     data = Cm.get_historical_data(ticker, start := dt.datetime(year=2021, month=1, day=1).strftime('%Y-%m-%d'), END)
@@ -98,6 +98,22 @@ def current_price():
             price)[0: 5])
         for price in prices]}
         for date, prices in zip(dates, data) if data[-1] != prices]
+    return json.dumps(data)
+
+
+@app.route('/prices/interday', methods=['POST'])
+def interday():
+    (ticker, period, interval) = (request.get_json().get('ticker'),
+                                  request.get_json().get('period', 1),
+                                  request.get_json().get('interval', '1m'))
+    data = Cm.no_iteration_interday_with_yahoo(ticker, period, interval)
+    print(data)
+    data = [
+        {
+            'x': key,
+            'y': [float(str(value)[0: 5]) for value in values]
+        }
+        for key, values in data.items()]
     print(data)
     return json.dumps(data)
 

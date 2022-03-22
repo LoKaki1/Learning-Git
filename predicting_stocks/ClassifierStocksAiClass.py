@@ -3,7 +3,7 @@ import pandas as pd
 import datetime as dt
 
 from sklearn.preprocessing import MinMaxScaler
-from tensorflow.keras.layers import Dense, LSTM, Dropout, Layer
+from tensorflow.keras.layers import Dense, LSTM, Dropout
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.backend import clear_session
 import predicting_stocks.Common as Cm
@@ -269,13 +269,12 @@ class ClassifierAi:
                 else:
                     weights = Dropout(rate=layer_data['units'])
                 model_list.append(weights)
-
+            if (new := Dense(units=1, activation='linear')) not in model_list:
+                model_list.append(new)
             model = Sequential(model_list)
             model.compile(optimizer=(co := self.model_building_blocks['compiler'])['optimizer'],
                           loss=co['loss'],
                           )
-            if self.model_building_blocks['layers'][-1]['units'] > 1:
-                model.add(Dense(units=1, activation='linear'))
 
         model.summary()
         model.fit(x_train, y_train,
@@ -318,6 +317,7 @@ class ClassifierAi:
             prediction = self.scalar.inverse_transform(
                 np.reshape(
                     prediction, (real_data.shape[0], real_data.shape[1], 1)).reshape(-1, 1))
+            print(prediction)
         return prediction
 
     def predict_stock_price_at_specific_day(self, print_ca=False):
@@ -467,7 +467,6 @@ def main():
     my_man.predict_stock_price_at_specific_day(True)
     my_man = ClassifierAi(ticker, load_model_from_local=False, use_best_found_settings=True)
     my_man.predict_stock_price_at_specific_day(True)
-    print(Cm.get_last_price(ticker))
 
 
 if __name__ == '__main__':

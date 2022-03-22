@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b962c0b9-a62b-4729-b452-19fb96a5cca0" name="Changes" comment="layers fix">
+    <list default="true" id="b962c0b9-a62b-4729-b452-19fb96a5cca0" name="Changes" comment="test branch and fix :)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/database.json" beforeDir="false" afterPath="$PROJECT_DIR$/api/database.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/flask_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/flask_api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/prediction.txt" beforeDir="false" afterPath="$PROJECT_DIR$/api/prediction.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/predicting_stocks/ClassifierStocksAiClass.py" beforeDir="false" afterPath="$PROJECT_DIR$/predicting_stocks/ClassifierStocksAiClass.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/predicting_stocks/GenerateSettings.py" beforeDir="false" afterPath="$PROJECT_DIR$/predicting_stocks/GenerateSettings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/predicting_stocks/Common.py" beforeDir="false" afterPath="$PROJECT_DIR$/predicting_stocks/Common.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/predicting_stocks/prediction.txt" beforeDir="false" afterPath="$PROJECT_DIR$/predicting_stocks/prediction.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -15,7 +18,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="Making_default_model" />
+        <entry key="$PROJECT_DIR$" value="test-branch" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -41,7 +44,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
   </component>
-  <component name="RunManager" selected="Python.GenerateSettings">
+  <component name="RunManager" selected="Python.Common">
     <configuration name="ClassifierStocksAiClass" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Learning-What" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -135,10 +138,10 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.ClassifierStocksAiClass" />
-        <item itemvalue="Python.test___future__" />
         <item itemvalue="Python.Common" />
         <item itemvalue="Python.flask_api" />
+        <item itemvalue="Python.ClassifierStocksAiClass" />
+        <item itemvalue="Python.test___future__" />
       </list>
     </recent_temporary>
   </component>
@@ -172,7 +175,14 @@
       <option name="project" value="LOCAL" />
       <updated>1647603463707</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="test branch and fix :)">
+      <created>1647776794199</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1647776794199</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -189,34 +199,16 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="git-fix" />
     <MESSAGE value="layers fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="layers fix" />
+    <MESSAGE value="test branch and fix :)" />
+    <option name="LAST_COMMIT_MESSAGE" value="test branch and fix :)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/predicting_stocks/Common.py</url>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/predicting_stocks/ClassifierStocksAiClass.py</url>
-          <line>220</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/predicting_stocks/ClassifierStocksAiClass.py</url>
-          <line>459</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/predicting_stocks/GenerateSettings.py</url>
           <line>226</line>
           <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/predicting_stocks/Common.py</url>
-          <line>83</line>
-          <option name="timeStamp" value="5" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$USER_HOME$/AppData/Local/Programs/Python/Python39/Lib/test/test___future__.py</url>

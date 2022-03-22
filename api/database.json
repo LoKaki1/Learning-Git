@@ -1,1 +1,16 @@
-{"NIO": {"id": 5, "price": "19.068218", "settings": [{"epochs": 12, "units": 50, "prediction_days": 21, "prediction_day": 1}, {"epochs": 12, "units": 12, "prediction_days": 12, "prediction_day": 1}, {"epochs": 12, "units": 50, "prediction_days": 12, "prediction_day": 1}, {"epochs": 45, "units": 50, "prediction_days": 12, "prediction_day": 1}, {"epochs": 32, "units": 50, "prediction_days": 12, "prediction_day": 1}], "date": "2022-03-10", "current_price": "20.170"}}
+{
+    "NIO": {
+        "id": 1,
+        "price": "21.152048",
+        "settings": [
+            {
+                "epochs": 28,
+                "units": 57,
+                "prediction_days": 14,
+                "prediction_day": 1
+            }
+        ],
+        "date": "2022-03-21",
+        "current_price": "20.860"
+    }
+}

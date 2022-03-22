@@ -100,7 +100,7 @@ def get_historical_data(ticker, start, end):
 
 
 def best_settings() -> (dict, float):
-    father = open_json('./settings_for_ai/parameters_status.json')
+    father = open_json(r'../predicting_stocks/settings_for_ai/parameters_status.json')
     father = father[(last_ratio := f"{max([float(ratio) for index, ratio in enumerate(father)])}")]
     return father, last_ratio
 
@@ -121,7 +121,10 @@ def write_in_json_file(path, data: dict, ticker=None):
         json_object = json.load(read_file)
         json_object[ticker] = ast.literal_eval(data)[ticker]
         with open(path, 'w') as write_file:
-            json.dump(json_object, write_file)
+            json.dump(json_object, write_file,
+                      indent=4,
+                      separators=(',', ': ')
+                      )
 
 
 def return_json_data(ticker, json_path='../predicting_stocks/settings_for_ai/parameters_status.json'):
@@ -145,8 +148,7 @@ def return_json_data(ticker, json_path='../predicting_stocks/settings_for_ai/par
 
 def check_data(x_train, y_train, constant=1):
     for i in range(0, len(x_train) - constant):
-        if y_train[i] != x_train[i + constant][-1]:
-            raise InterruptedError("something went wrong in the code please check it")
+        assert y_train[i] == x_train[i + constant][-1], "not good data"
 
 
 def get_data_from_saved_file(ticker, ):
@@ -167,8 +169,14 @@ def get_data_from_file_or_yahoo(ticker):
         intraday_with_yahoo(ticker)
 
 
-def intraday_with_yahoo(ticker, other: [str, int] = '3'):
-    data = yf.download(tickers=ticker, period=f'{str(other)}d', interval='1m')
+def no_iteration_interday_with_yahoo(ticker, other: [str, int] = '3', interval='1m'):
+    data = yf.download(tickers=ticker, period=f'{str(other)}d', interval=interval)
+    dates = list(data['Open'].keys())
+    return {date.strftime('%Y-%m-%d %H:%M'): [data[key][index] for key in X_VALUES[1]] for index, date in enumerate(dates)}
+
+
+def intraday_with_yahoo(ticker, other: [str, int] = '3', interval=1):
+    data = yf.download(tickers=ticker, period=f'{str(other)}d', interval=interval)
     with open(f'../Trading/Historical_data/{ticker}.txt', 'w') as file:
         data_dict = dict((key, [i for i in data[key]]) for key in ['Open', 'Close', 'Low', 'High'])
         file.write(str(data_dict))
@@ -213,7 +221,7 @@ def save_in_data_base(ticker, price, settings, date, _id):
 
 
 def get_last_price(ticker):
-    return get_historical_data(ticker, (t := (dt.datetime.now()) - dt.timedelta(days=2)).strftime('%Y-%m-%d'),
+    return get_historical_data(ticker, (dt.datetime.now() - dt.timedelta(days=5)).strftime('%Y-%m-%d'),
                                dt.datetime.now().strftime('%Y-%m-%d'), )['close'][-1]
 
 
@@ -238,3 +246,6 @@ def write_in_json(path: str, data: [dict, list]):
 def generate_dates_between_dates(start, end):
     return pd.date_range(start, end, freq='d')
 
+
+def generates_dates_times_between_to_dates(start, end):
+    return[start + dt.timedelta(minutes=i) for i in range(int((end - start).seconds + 1) // 60)]
