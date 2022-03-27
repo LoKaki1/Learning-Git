@@ -224,27 +224,26 @@ class ClassifierAi:
         clear_session()
 
         """ Building The Model """
-        if self.load_model_from_local and (model := Cm.load_model_from_file(self)) \
-                is not None:
+        if (self.load_model_from_local and (model := Cm.load_model_from_file(self))
+                is not None):
             print('loading model from file..')
-            model.summary()
-            model: Sequential
             return model
+        if self.model is not None:
+            print('No need to rebuild model :)')
+            return self.model
         """ Last model was like this  (took more time but did the job not perfect)"""
         """Add layer with dropout that has dense_units with 0.2"""
         """ Add LSTM layer that is a short cut for layer short term memory which contains the data in the stm :) """
         # Create a blank model with 4 layers that each contains number of units which is the neurons of each layer
         if self.model_building_blocks is None:
             model = Sequential([
-                Dense(units=self.units, activation='relu', input_shape=(x_train.shape[1], 1)),
-                Dense(units=self.units // 2, activation='relu'),
-                LSTM(units=self.units // 4, ),
-                Dropout(DENSE_UNITS),
-                Dense(units=1, activation='linear')
+                Dense(units=57, activation='tanh', input_shape=(x_train.shape[1], 1)),
+                Dense(units=25, activation='relu'),
+                LSTM(units=7, activation='relu'),
             ])
             """ Returns only one value """
 
-            model.compile(optimizer='adam', loss='mean_squared_error')
+            model.compile(optimizer='adam', loss='log_cosh', )
             """ Fitting x_train to y_train, that makes
              a function that has x values and y values 
               example:  
@@ -278,7 +277,7 @@ class ClassifierAi:
 
         model.summary()
         model.fit(x_train, y_train,
-                  epochs=self.epochs, batch_size=BATCH_SIZE, shuffle=False, verbose='auto', )
+                  epochs=self.epochs, batch_size=BATCH_SIZE, shuffle=True, verbose='auto', )
 
         if self.save_model:
             model.save(f'saved_model/{self.ticker}_model/'
@@ -463,10 +462,10 @@ class ClassifierAi:
 
 def main():
     ticker = 'NIO'
-    my_man = ClassifierAi(ticker, load_model_from_local=False, use_best_found_settings=False)
+    my_man = ClassifierAi(ticker, epochs=28, units=57, prediction_days=14, load_model_from_local=False,
+                          use_best_found_settings=False)
     my_man.predict_stock_price_at_specific_day(True)
-    my_man = ClassifierAi(ticker, load_model_from_local=False, use_best_found_settings=True)
-    my_man.predict_stock_price_at_specific_day(True)
+    print(my_man.test_model_and_return_accuracy_ratio())
 
 
 if __name__ == '__main__':

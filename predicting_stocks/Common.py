@@ -1,3 +1,4 @@
+import binascii
 import json
 import os
 
@@ -10,6 +11,7 @@ from tensorflow.keras.models import load_model
 from Trading.data_order_something import read_data, read_from_file
 import yfinance as yf
 import re
+from flask import request
 
 import time
 
@@ -217,7 +219,7 @@ def save_in_data_base(ticker, price, settings, date, _id):
             "current_price": (t := str(get_last_price(ticker)))[0:6 if len(t) >= 6 else -1]
         }
     }
-    write_in_json_file('database.json', data, ticker)
+    write_in_json_file('../api/Databases/database.json', data, ticker)
 
 
 def get_last_price(ticker):
@@ -249,3 +251,18 @@ def generate_dates_between_dates(start, end):
 
 def generates_dates_times_between_to_dates(start, end):
     return[start + dt.timedelta(minutes=i) for i in range(int((end - start).seconds + 1) // 60)]
+
+
+def generate_tokens(user):
+    write_in_json('../api/Databases/tokens.json', {user: (token := binascii.hexlify(os.urandom(20)).decode())})
+    return token
+
+
+def decorator_for_api(api_func):
+    def wrapper(*args, **kwargs):
+        database = open_json('../api/Databases/tokens.json')
+        print(request.get_json().get('token', None))
+        if request.get_json().get('token', None) not in list(database.values()):
+            return json.dumps({'data': 'lost connection try to login again'})
+        return api_func(*args, **kwargs)
+    return wrapper

@@ -1,7 +1,7 @@
 {
     "NIO": {
-        "id": 1,
-        "price": "21.152048",
+        "id": 2,
+        "price": "21.307402",
         "settings": [
             {
                 "epochs": 28,
@@ -10,7 +10,7 @@
                 "prediction_day": 1
             }
         ],
-        "date": "2022-03-21",
-        "current_price": "20.860"
+        "date": "2022-03-26",
+        "current_price": "19.909"
     }
 }

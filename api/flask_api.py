@@ -8,22 +8,44 @@ import json
 app = Flask(__name__)
 cors = CORS(app, support_credentials=True)
 app.config['CORS_HEADERS'] = 'application/json'
+user_database_path = '../api/Databases/sami.json'
+
+
+def _get_user_password_and_data_base():
+    return (data := dict(request.get_json())).get('user'), data.get('password'), Cm.open_json(user_database_path)
+
+
+@app.route('/register', methods=['POST'])
+def register():
+    """
+    function to register
+    json post = {user: "username", password: "password"}
+    """
+    username, password, user_database = _get_user_password_and_data_base()
+    if username in user_database['users']:
+        return json.dumps({'data': 'User with this username already exists'})
+    user_database['users'][username] = password
+    Cm.write_in_json(path=user_database_path, data=user_database)
+    return json.dumps({'data': 'User added to database'})
 
 
 @app.route('/login', methods=['POST'])
 def login():
-    user, password, database = (j := request.get_json())['user'], j['password'], Cm.open_json('sami.json')
-    return json.dumps({
-        'message': 'connected :)' if user in database and database[user] == password else 'not connected'
-    })
+    """
+    function to log in
+    """
+    username, password, user_database = _get_user_password_and_data_base()
+    if username not in user_database['users'] or user_database['users'][username] != password:
+        return json.dumps({'data': 'Username or password not valid'})
+    token = Cm.generate_tokens(username)
+    return json.dumps({'data': 'User connected :)', 'token': token})
 
 
-@app.route('/sign')
-def sign_up():
-    pass
-
+# Todo decorator that checks every time if the token is in database before each request :)
+# Todo decorator that return json.dumps for a string instead of writing it each time
 
 @app.route('/predict', methods=['POST'])
+@Cm.decorator_for_api
 def predict_stock():
     ticker, epochs, units, prediction_days, prediction_day, = (data := dict(
         request.get_json())).get(
@@ -31,15 +53,7 @@ def predict_stock():
         'epochs'), data.get('units'), data.get(
         'prediction_days'), data.get(
         'prediction_day')
-    json_object = Cm.open_json('../api/database.json')
-    # if isinstance(today := Cm.handle_with_time(
-    #         ticker,
-    #         json_object,
-    #         epochs,
-    #         units,
-    #         prediction_days,
-    #         prediction_day), float):
-    #     pass
+    json_object = Cm.open_json('Databases/database.json')
 
     stock_object = ClassifierAi(ticker,
                                 epochs=epochs,
@@ -51,8 +65,7 @@ def predict_stock():
     date = Cm.handle_with_time(ticker, json_object)
     ticker_settings, settings_not_found = handle_settings(stock_object, json_object, ticker)
     if type(date) is not float or settings_not_found:
-        price = stock_object.predict_stock_price_at_specific_day()
-        print(price)
+        price = stock_object.predict_stock_price_at_specific_day(True)
         predicted_price = str(price)
         Cm.save_in_data_base(ticker,
                              predicted_price,
@@ -78,7 +91,7 @@ def watchlist():
 
 
 def _create_watchlist():
-    data = Cm.open_json('../api/database.json')
+    data = Cm.open_json('Databases/database.json')
     recreate_data = []
     for i in data:
         data[i]['ticker'] = i
@@ -107,14 +120,12 @@ def interday():
                                   request.get_json().get('period', 1),
                                   request.get_json().get('interval', '1m'))
     data = Cm.no_iteration_interday_with_yahoo(ticker, period, interval)
-    print(data)
     data = [
         {
             'x': key,
             'y': [float(str(value)[0: 5]) for value in values]
         }
         for key, values in data.items()]
-    print(data)
     return json.dumps(data)
 
 
