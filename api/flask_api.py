@@ -9,6 +9,7 @@ app = Flask(__name__)
 cors = CORS(app, support_credentials=True)
 app.config['CORS_HEADERS'] = 'application/json'
 user_database_path = '../api/Databases/sami.json'
+user_token_wrong = json.dumps({'data': 'lost connection try to relog in'})
 
 
 def _get_user_password_and_data_base():
@@ -24,6 +25,8 @@ def register():
     username, password, user_database = _get_user_password_and_data_base()
     if username in user_database['users']:
         return json.dumps({'data': 'User with this username already exists'})
+    if username is None or password is None or password == username:
+        return json.dumps({'data': 'Not valid user name or password'})
     user_database['users'][username] = password
     Cm.write_in_json(path=user_database_path, data=user_database)
     return json.dumps({'data': 'User added to database'})
@@ -41,11 +44,8 @@ def login():
     return json.dumps({'data': 'User connected :)', 'token': token})
 
 
-# Todo decorator that checks every time if the token is in database before each request :)
-# Todo decorator that return json.dumps for a string instead of writing it each time
-
 @app.route('/predict', methods=['POST'])
-@Cm.decorator_for_api
+@Cm.token_checking
 def predict_stock():
     ticker, epochs, units, prediction_days, prediction_day, = (data := dict(
         request.get_json())).get(
@@ -85,7 +85,8 @@ def handle_settings(stock_object, json_object, ticker):
     return ticker_settings, False
 
 
-@app.route('/watchlist', methods=['GET'])
+@app.route('/watchlist', methods=['POST'])
+@Cm.token_checking
 def watchlist():
     return _create_watchlist()
 
@@ -100,6 +101,7 @@ def _create_watchlist():
 
 
 @app.route('/prices/daily', methods=['POST'])
+@Cm.token_checking
 def current_price():
     ticker = dict(request.get_json()).get('ticker')
     data = Cm.get_historical_data(ticker, start := dt.datetime(year=2021, month=1, day=1).strftime('%Y-%m-%d'), END)
@@ -115,6 +117,7 @@ def current_price():
 
 
 @app.route('/prices/interday', methods=['POST'])
+@Cm.token_checking
 def interday():
     (ticker, period, interval) = (request.get_json().get('ticker'),
                                   request.get_json().get('period', 1),

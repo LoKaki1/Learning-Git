@@ -2,16 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b962c0b9-a62b-4729-b452-19fb96a5cca0" name="Changes" comment="test branch and fix :)">
-      <change afterPath="$PROJECT_DIR$/api/Databases/sami.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/Databases/tokens.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/database.json" beforeDir="false" afterPath="$PROJECT_DIR$/api/Databases/database.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Trading/Historical_data/APM.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Trading/Historical_data/FGI.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Trading/Historical_data/JMIA.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Trading/Historical_data/NIO.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Trading/Historical_data/TSLA.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Trading/data_order_something.py" beforeDir="false" afterPath="$PROJECT_DIR$/Trading/data_order_something.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/Databases/database.json" beforeDir="false" afterPath="$PROJECT_DIR$/api/Databases/database.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/flask_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/flask_api.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/prediction.txt" beforeDir="false" afterPath="$PROJECT_DIR$/api/prediction.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/sami.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/predicting_stocks/ClassifierStocksAiClass.py" beforeDir="false" afterPath="$PROJECT_DIR$/predicting_stocks/ClassifierStocksAiClass.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/predicting_stocks/Common.py" beforeDir="false" afterPath="$PROJECT_DIR$/predicting_stocks/Common.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/predicting_stocks/prediction.txt" beforeDir="false" afterPath="$PROJECT_DIR$/predicting_stocks/prediction.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,7 +55,7 @@
       <recent name="C:\Users\Shahar rozolio\PycharmProjects\Learning-What" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.flask_api (1)">
+  <component name="RunManager" selected="Python.data_order_something">
     <configuration name="ClassifierStocksAiClass" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Learning-What" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -89,6 +90,27 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/predicting_stocks/Common.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="data_order_something" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Learning-What" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Trading" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Trading/data_order_something.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -139,42 +161,21 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="test___future__" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Learning-What" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$USER_HOME$/AppData/Local/Programs/Python/Python39/Lib/test" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$USER_HOME$/AppData/Local/Programs/Python/Python39/Lib/test/test___future__.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <list>
       <item itemvalue="Python.GenerateSettings" />
       <item itemvalue="Python.ClassifierStocksAiClass" />
       <item itemvalue="Python.Common" />
       <item itemvalue="Python.flask_api" />
-      <item itemvalue="Python.test___future__" />
       <item itemvalue="Python.flask_api (1)" />
+      <item itemvalue="Python.data_order_something" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.data_order_something" />
         <item itemvalue="Python.flask_api (1)" />
         <item itemvalue="Python.Common" />
         <item itemvalue="Python.ClassifierStocksAiClass" />
         <item itemvalue="Python.flask_api" />
-        <item itemvalue="Python.test___future__" />
       </list>
     </recent_temporary>
   </component>

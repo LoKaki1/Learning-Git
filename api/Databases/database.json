@@ -12,5 +12,47 @@
         ],
         "date": "2022-03-26",
         "current_price": "19.909"
+    },
+    "AAPL": {
+        "id": 3,
+        "price": "171.36061",
+        "settings": [
+            {
+                "epochs": 28,
+                "units": 57,
+                "prediction_days": 14,
+                "prediction_day": 1
+            }
+        ],
+        "date": "2022-03-27",
+        "current_price": "174.72"
+    },
+    "BABA": {
+        "id": 4,
+        "price": "113.89842",
+        "settings": [
+            {
+                "epochs": 28,
+                "units": 57,
+                "prediction_days": 14,
+                "prediction_day": 1
+            }
+        ],
+        "date": "2022-03-27",
+        "current_price": "112.98"
+    },
+    "XPEV": {
+        "id": 5,
+        "price": "31.296919",
+        "settings": [
+            {
+                "epochs": 28,
+                "units": 57,
+                "prediction_days": 14,
+                "prediction_day": 1
+            }
+        ],
+        "date": "2022-03-27",
+        "current_price": "27.049"
     }
 }

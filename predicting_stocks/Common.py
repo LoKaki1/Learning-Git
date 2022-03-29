@@ -6,6 +6,7 @@ import datetime as dt
 import matplotlib.pyplot as plt
 import ast
 import pandas as pd
+from functools import wraps
 from yahoofinancials import YahooFinancials
 from tensorflow.keras.models import load_model
 from Trading.data_order_something import read_data, read_from_file
@@ -16,6 +17,7 @@ from flask import request
 import time
 
 X_VALUES = [['open', 'low', 'high', 'close'], ['Open', 'Low', 'High', 'Close']]
+tokens = '../api/Databases/tokens.json'
 
 
 def write_in_file(path, data):
@@ -174,7 +176,8 @@ def get_data_from_file_or_yahoo(ticker):
 def no_iteration_interday_with_yahoo(ticker, other: [str, int] = '3', interval='1m'):
     data = yf.download(tickers=ticker, period=f'{str(other)}d', interval=interval)
     dates = list(data['Open'].keys())
-    return {date.strftime('%Y-%m-%d %H:%M'): [data[key][index] for key in X_VALUES[1]] for index, date in enumerate(dates)}
+    return {date.strftime('%Y-%m-%d %H:%M'): [data[key][index]
+                                              for key in X_VALUES[1]] for index, date in enumerate(dates)}
 
 
 def intraday_with_yahoo(ticker, other: [str, int] = '3', interval=1):
@@ -254,12 +257,14 @@ def generates_dates_times_between_to_dates(start, end):
 
 
 def generate_tokens(user):
-    write_in_json('../api/Databases/tokens.json', {user: (token := binascii.hexlify(os.urandom(20)).decode())})
+    write_in_json(tokens, {user: (token := binascii.hexlify(os.urandom(20)).decode())})
     return token
 
 
-def decorator_for_api(api_func):
+def token_checking(api_func):
+    @wraps(api_func)
     def wrapper(*args, **kwargs):
+        print(f'{request.get_json()}')
         database = open_json('../api/Databases/tokens.json')
         print(request.get_json().get('token', None))
         if request.get_json().get('token', None) not in list(database.values()):
