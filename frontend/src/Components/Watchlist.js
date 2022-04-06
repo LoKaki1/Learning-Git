@@ -2,10 +2,6 @@ import { DataGrid } from '@mui/x-data-grid'
 import StocksCharts from './StocksCharts';
 import axios from 'axios';
 import { useState } from 'react';
-import Parameters from './Parameters.js'
-import Draggable from 'react-draggable'
-
-
 
 
 export default function Watchlist(props){
@@ -53,8 +49,8 @@ export default function Watchlist(props){
     const [data, setData] = useState([])
     const graphStatic = <StocksCharts data={data}/>
     const [graph, setGraph] = useState(false, [])
-    const getHistroicalData = (ticker) => {
-      axios.post('http://127.0.0.1:5000/prices', {
+    const getHistroicalData = (ticker, args='daily') => {
+      axios.post(`http://127.0.0.1:5000/prices/${args}`, {
         "ticker": ticker
       }).then((response) => {
         console.log(response)
@@ -67,9 +63,18 @@ export default function Watchlist(props){
         console.log(error)
       })
     }
+    const [activeTicker, setActiveTicker] = useState()
+    function showGraph(ticker, args='daily'){
+      getHistroicalData(ticker, args)
+      setGraph(true)
+    }
 
     return (
-
+        <>
+        <div>
+          <button onClick={() => {showGraph(activeTicker || rows[0].ticker, 'interday')}}>1m</button>
+          <button>1d</button>
+        </div>
         <div className='data-grid'>
             <DataGrid
             columns={columns}
@@ -85,11 +90,13 @@ export default function Watchlist(props){
                       console.log(params.row.ticker)
                       getHistroicalData(params.row.ticker)
                       setGraph(true)
+                      setActiveTicker(params.row.ticker)
                     }
                     else{
                       setGraph(false)
                     }
                     if (!t.ctrlKey && params.field === 'price'){
+                      setActiveTicker(params.row.ticker)
                       }}}
             
             scrollbarSize={50}
@@ -98,6 +105,7 @@ export default function Watchlist(props){
              {graph ? graphStatic: <div/>}
              
         </div>
+       </>
 
     )
 }

@@ -1,22 +1,24 @@
 
 import React, {useState} from 'react';
-import ParametersInput from './Components/Parameters.js';
-import Watchlist from './Components/Watchlist.js';
+import ClientPage from './Components/clientPage';
+import {BrowserRouter as Router, Route, Routes } from "react-router-dom";
+
+
+import RegisterPage from './Components/registerPage';
 
 export default function App() {
-  
-  const [benny, setBenny] = useState({}) 
-  const [brendon, setBrendon] = useState([])
-  const [isDraggable, setIsDraggable] = useState(true)
-    return (
-    <>
+  const [clentToken, setClientToken] = useState()
 
-        
-        <ParametersInput active={benny}  all={brendon} setAll={setBrendon} setActive={setBenny} isDraggable={isDraggable} setIsDraggable={setIsDraggable}/>
-      
-        <Watchlist rowsProp={brendon} active={benny} setAll={setBrendon}/>
+  return (
+    <>
+      <Router>
+        <Routes>
+          <Route path='/' element={<RegisterPage/>}/>
+          <Route path='/home' element={<ClientPage/>}></Route>
+        </Routes>
+      </Router>
     </>
-    )
+  )
   
   }
 

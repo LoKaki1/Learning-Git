@@ -1,13 +1,11 @@
-import React, {useState, useEffect} from 'react';
-import axios from 'axios';
-import './components.css'
-import { Switch } from '@mui/material';
-import DraggableInputs from './DragableInputs';
+import React, {useState, useEffect} from 'react'
+import axios from 'axios'
+import '../Common/StyleSheets/components.css'
 
 export default function ParametersInput(props) {
     const [load, setLoad] = useState(false, [])  
     useEffect(() => {
-      axios.get('http://127.0.0.1:5000/watchlist').
+      axios.post('http://127.0.0.1:5000/watchlist', {token: 'd8a712798e4589958a9be46e746944cc5657e50a'}).
       then((response) => {
         props.setAll(response.data)
       }, (error) =>{
@@ -21,7 +19,8 @@ export default function ParametersInput(props) {
       props.setActive((oldBenny) => {
         return { 
         ...oldBenny,  
-        [`${key}`]: input.value.toUpperCase()
+        [`${key}`]: input.value.toUpperCase(),
+        "token": 'd8a712798e4589958a9be46e746944cc5657e50a'
       }
       
       })
@@ -30,7 +29,8 @@ export default function ParametersInput(props) {
     }
     const predictStock = (active=props.active, setAll=props.setAll) => {
         setLoad(true)
-        axios.post('http://127.0.0.1:5000/predict', active || {"ticker": 'NIO'})
+      
+        axios.post('http://127.0.0.1:5000/predict', active || {"ticker": 'NIO', })
         .then((response) => {
           console.log(response)
           setAll(response.data)
@@ -52,17 +52,12 @@ export default function ParametersInput(props) {
         </form>
         {load ? loader: <div></div>}
         </div>
-        <div style={{position:'absolute', left: 1620, top:50}}>
-          <Switch onClick={() => {
-            props.setIsDraggable(!props.isDraggable)
-            console.log(props.isDraggable)
-          }}> 
-          </Switch>
-        </div>  
-        <DraggableInputs func={handleChange} text={'epochs'} isDragable={props.isDragable} defaultX={1466} defaultY={109} setIsDraggable={props.setIsDraggable} isDraggable={props.isDraggable}/>
-        <DraggableInputs func={handleChange} text={'units'} isDragable={props.isDragable} defaultX={1466} defaultY={159} setIsDraggable={props.setIsDraggable} isDraggable={props.isDraggable}/>
-        <DraggableInputs func={handleChange} text={'prediction days'} isDragable={props.isDragable} defaultX={1466} defaultY={209} setIsDraggable={props.setIsDraggable} isDraggable={props.isDraggable}/>
-        <DraggableInputs func={handleChange} text={'prediction day'} isDragable={props.isDragable} defaultX={1466} defaultY={259} setIsDraggable={props.setIsDraggable} isDraggable={props.isDraggable}/>
+ 
+      <input  className='parameters'
+              type="text"
+              style={{position: 'absolute', left:1466, top:109}} 
+              onChange={(e) => handleChange(e, 'epochs')} 
+              placeholder='Enter epochs..'/>
 
     
         </>

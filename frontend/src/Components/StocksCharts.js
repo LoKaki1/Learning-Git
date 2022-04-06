@@ -1,6 +1,5 @@
 
 import Chart from 'react-apexcharts'
-import Draggable from 'react-draggable'
 
 
 export default function StocksCharts(props){
