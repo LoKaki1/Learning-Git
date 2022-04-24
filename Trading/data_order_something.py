@@ -1,6 +1,6 @@
 from ibapi.wrapper import EWrapper
 from ibapi.client import EClient
-from ibapi.contract import Contract
+from ibapi.contract import Contract, ContractDetails
 import datetime as dt
 import pandas as pd
 import time
@@ -18,7 +18,7 @@ class MyWrapper(EWrapper, EClient):
         self.wrapper = EWrapper()
         self.app = EClient(self)
         self.other = other
-        self.app.connect("127.0.0.1", 7497, clientId=999)
+        self.app.connect("127.0.0.1", 4002, clientId=999)
 
     def nextValidId(self, order_id: int):
         print("Setting nextValidOrderId: %d", order_id)
@@ -32,6 +32,7 @@ class MyWrapper(EWrapper, EClient):
         line = vars(bar)
         # pop date and make it the index, add rest to df
         # will overwrite last bar at that same time
+        print(line)
         self.df.loc[pd.to_datetime(line.pop('date'))] = line
 
     def historicalDataEnd(self, req_id: int, start_date: str, end_date: str):
@@ -71,7 +72,7 @@ def get_last_and_first_dates(ticker):
     """
     Return:  The last and first values o
     """
-    return [(p := pd.read_csv(path)['date'])[0], p[len(p) - 1]]\
+    return [(p := pd.read_csv(path)), p[len(p) - 1]]\
         if os.path.exists((path :=
             f'../Trading/Historical_data/{ticker}.csv')) else ['']
 
@@ -105,3 +106,12 @@ def read_data(ticker='NIO', other='3'):
     app.disconnect()
     app.wrapper.df.close.plot()
     return path
+
+def get_last_price(ticker):
+    app = MyWrapper(ticker).app
+    threading.Thread(target=app.run()).start()
+    timing = time.time() + 2900
+
+
+if __name__ == '__main__':
+    read_data()

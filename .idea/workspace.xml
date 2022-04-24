@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b962c0b9-a62b-4729-b452-19fb96a5cca0" name="Changes" comment="test branch and fix :)">
+    <list default="true" id="b962c0b9-a62b-4729-b452-19fb96a5cca0" name="Changes" comment="Add tokens">
+      <change afterPath="$PROJECT_DIR$/Trading/Historical_data/last_price.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Trading/ScannerInIneractive.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Trading/premarket_data.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Trading/scanner.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/api/UserClient.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Trading/Historical_data/APM.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Trading/Historical_data/FGI.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Trading/Historical_data/JMIA.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Trading/Historical_data/NIO.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Trading/Historical_data/TSLA.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Trading/data_order_something.py" beforeDir="false" afterPath="$PROJECT_DIR$/Trading/data_order_something.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/Databases/database.json" beforeDir="false" afterPath="$PROJECT_DIR$/api/Databases/database.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/Databases/sami.json" beforeDir="false" afterPath="$PROJECT_DIR$/api/Databases/sami.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/Databases/tokens.json" beforeDir="false" afterPath="$PROJECT_DIR$/api/Databases/tokens.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/flask_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/flask_api.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/prediction.txt" beforeDir="false" afterPath="$PROJECT_DIR$/api/prediction.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/predicting_stocks/Common.py" beforeDir="false" afterPath="$PROJECT_DIR$/predicting_stocks/Common.py" afterDir="false" />
@@ -19,10 +23,17 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="Add_Layers" />
+        <entry key="$PROJECT_DIR$" value="Get-Scanner-From-API" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -55,8 +66,8 @@
       <recent name="C:\Users\Shahar rozolio\PycharmProjects\Learning-What" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.data_order_something">
-    <configuration name="ClassifierStocksAiClass" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.UserClient">
+    <configuration name="ScannerInIneractive" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Learning-What" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -64,11 +75,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/predicting_stocks" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Trading" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/predicting_stocks/ClassifierStocksAiClass.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Trading/ScannerInIneractive.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -77,7 +88,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="Common" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="UserClient" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Learning-What" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -85,11 +96,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/predicting_stocks" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/api" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/predicting_stocks/Common.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/api/UserClient.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -140,7 +151,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="flask_api" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="premarket_data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Learning-What" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -148,11 +159,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/api" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Trading" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="C:\Users\Shahar rozolio\PycharmProjects\Learning-What\api\flask_api.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Trading/premarket_data.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -163,19 +174,19 @@
     </configuration>
     <list>
       <item itemvalue="Python.GenerateSettings" />
-      <item itemvalue="Python.ClassifierStocksAiClass" />
-      <item itemvalue="Python.Common" />
-      <item itemvalue="Python.flask_api" />
       <item itemvalue="Python.flask_api (1)" />
       <item itemvalue="Python.data_order_something" />
+      <item itemvalue="Python.ScannerInIneractive" />
+      <item itemvalue="Python.premarket_data" />
+      <item itemvalue="Python.UserClient" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.data_order_something" />
+        <item itemvalue="Python.UserClient" />
         <item itemvalue="Python.flask_api (1)" />
-        <item itemvalue="Python.Common" />
-        <item itemvalue="Python.ClassifierStocksAiClass" />
-        <item itemvalue="Python.flask_api" />
+        <item itemvalue="Python.ScannerInIneractive" />
+        <item itemvalue="Python.premarket_data" />
+        <item itemvalue="Python.data_order_something" />
       </list>
     </recent_temporary>
   </component>
@@ -223,7 +234,14 @@
       <option name="project" value="LOCAL" />
       <updated>1647966870063</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Add tokens">
+      <created>1648556865907</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1648556865907</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -241,7 +259,8 @@
     <MESSAGE value="git-fix" />
     <MESSAGE value="layers fix" />
     <MESSAGE value="test branch and fix :)" />
-    <option name="LAST_COMMIT_MESSAGE" value="test branch and fix :)" />
+    <MESSAGE value="Add tokens" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add tokens" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

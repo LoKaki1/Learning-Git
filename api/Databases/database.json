@@ -1,7 +1,7 @@
 {
     "NIO": {
-        "id": 2,
-        "price": "21.307402",
+        "id": 6,
+        "price": "24.324823",
         "settings": [
             {
                 "epochs": 28,
@@ -10,8 +10,8 @@
                 "prediction_day": 1
             }
         ],
-        "date": "2022-03-26",
-        "current_price": "19.909"
+        "date": "2022-04-06",
+        "current_price": "22.469"
     },
     "AAPL": {
         "id": 3,
@@ -56,3 +56,4 @@
         "current_price": "27.049"
     }
 }
+

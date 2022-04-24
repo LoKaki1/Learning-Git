@@ -4,6 +4,7 @@ from predicting_stocks.ClassifierStocksAiClass import ClassifierAi, END
 import predicting_stocks.Common as Cm
 from flask_cors import CORS
 import json
+from Trading.ScannerInIneractive import get_most_gain_scanner
 
 app = Flask(__name__)
 cors = CORS(app, support_credentials=True)
@@ -131,6 +132,12 @@ def interday():
         for key, values in data.items()]
     return json.dumps(data)
 
+
+@app.route('/scanners/most_gainers', methods=['POST'])
+@Cm.token_checking
+def get_scanner():
+    (scanner, scanner_args) = request.get_json().get('scanner'), request.get_json().get('scanner_args')
+    return json.dumps(get_most_gain_scanner(scanner=scanner, scanner_args=scanner_args))
 
 if __name__ == '__main__':
     app.run(host='localhost', )

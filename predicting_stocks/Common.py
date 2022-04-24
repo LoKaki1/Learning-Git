@@ -230,7 +230,7 @@ def get_last_price(ticker):
                                dt.datetime.now().strftime('%Y-%m-%d'), )['close'][-1]
 
 
-def open_json(path):
+def open_json(path: str) -> dict:
     with open(path, 'r') as file:
         json_data = json.loads(file.read())
     return json_data
@@ -271,3 +271,15 @@ def token_checking(api_func):
             return json.dumps({'data': 'lost connection try to login again'})
         return api_func(*args, **kwargs)
     return wrapper
+
+
+def get_from_interactive(**kwargs):
+    kwargs['app'].disconnect()
+    try:
+
+        return open_json(kwargs['path'])[kwargs['ticker']][kwargs['key']] if 'ticker' and 'key' in kwargs else open_json(kwargs['path'])
+    except [KeyError, FileNotFoundError] as e:
+        print(e)
+        return -1
+
+
