@@ -1,10 +1,9 @@
 {
-    "users": {
-        "user": "password",
-        "Shahar": "123",
-        "asfdas": "fasdf",
-        "gfdg": "dfgfd",
-        "fsdf": "sdfsd",
-        "gsfdg": "sdfgdfsg"
-    }
+    "user": "password",
+    "Shahar": "123",
+    "asfdas": "fasdf",
+    "gfdg": "dfgfd",
+    "fsdf": "sdfsd",
+    "gsfdg": "sdfgdfsg",
+    "a123": "12"
 }

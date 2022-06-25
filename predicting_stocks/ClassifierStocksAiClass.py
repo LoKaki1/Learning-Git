@@ -10,6 +10,7 @@ import predicting_stocks.Common as Cm
 from Trading.data_order_something import read_data
 import re
 from typing import Union
+from Trading.yahoo_api import LiveData
 
 TICKER = 'NIO'
 X_VALUES = ['open', 'low', 'high', 'close', ]
@@ -22,7 +23,7 @@ UNITS = 50
 PREDICTION_DAY = 1
 DENSE_UNITS = 0.2
 EPOCHS = 12
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 PARAMETERS = [EPOCHS, UNITS, PREDICTION_DAYS, PREDICTION_DAY]
 
 
@@ -46,16 +47,16 @@ class ClassifierAi:
                  end_day=END,
                  model_and_its_args=None,
                  daily=True,
-                 load_model_from_local=True,
-                 new_data=True,
-                 load_data_from_local=True,
+                 load_model_from_local=False,
+                 new_data=False,
+                 load_data_from_local=False,
                  save_model=True,
                  test_start=TEST_START,
                  test_end=TEST_END,
-                 other=3,
+                 other=1,
                  source='IBKR',
                  model_building_blocks=None,
-                 use_best_found_settings=True):
+                 use_best_found_settings=False):
 
         self.ticker = ticker
 
@@ -80,6 +81,7 @@ class ClassifierAi:
         self.x_train = []
         self.ratio = None
         self.use_best_settings = use_best_found_settings
+        self.last_price = LiveData(ticker).get_live_price() if not self.daily else Cm.get_last_price(ticker)
         if self.use_best_settings:
             self._generate_best_settings_from_file()
             self.prediction_day = 1  # need to work on that when add a support for multiple days on evloution
@@ -88,6 +90,9 @@ class ClassifierAi:
                                                                                                     units,
                                                                                                     prediction_days,
                                                                                                     prediction_day)
+
+    def live_last_price(self):
+        return LiveData(self.ticker).get_live_price() if not self.daily else Cm.get_last_price(self.ticker)
 
     def _generate_best_settings_from_file(self):
         print('genrating best settings from file.. ')
@@ -159,8 +164,7 @@ class ClassifierAi:
                 return self._get_data_from_interactive()
             try:
                 return Cm.intraday_with_yahoo(self.ticker, self.other)
-            except Exception as e:
-                print(e.args)
+            except [Exception]:
                 read_data(self.ticker, self.other)
                 return self._get_data_from_interactive()
 
@@ -236,14 +240,18 @@ class ClassifierAi:
         """ Add LSTM layer that is a short cut for layer short term memory which contains the data in the stm :) """
         # Create a blank model with 4 layers that each contains number of units which is the neurons of each layer
         if self.model_building_blocks is None:
+            print(f'using the default model with  {self.epochs=} {self.units=}'
+                  f' {self.prediction_days=} {self.prediction_day=}')
             model = Sequential([
-                Dense(units=57, activation='tanh', input_shape=(x_train.shape[1], 1)),
-                Dense(units=25, activation='relu'),
-                LSTM(units=7, activation='relu'),
+                LSTM(50, return_sequences=True, input_shape=(x_train.shape[1], 1)),
+                Dropout(0.2),
+                LSTM(50, return_sequences=True),
+                Dropout(0.2),
+                Dense(1)
             ])
             """ Returns only one value """
 
-            model.compile(optimizer='adam', loss='log_cosh', )
+            model.compile(optimizer='adam', loss='mean_squared_error', )
             """ Fitting x_train to y_train, that makes
              a function that has x values and y values 
               example:  
@@ -277,7 +285,7 @@ class ClassifierAi:
 
         model.summary()
         model.fit(x_train, y_train,
-                  epochs=self.epochs, batch_size=BATCH_SIZE, shuffle=True, verbose='auto', )
+                  epochs=self.epochs, batch_size=BATCH_SIZE, shuffle=False, verbose='auto', )
 
         if self.save_model:
             model.save(f'saved_model/{self.ticker}_model/'
@@ -316,7 +324,6 @@ class ClassifierAi:
             prediction = self.scalar.inverse_transform(
                 np.reshape(
                     prediction, (real_data.shape[0], real_data.shape[1], 1)).reshape(-1, 1))
-            print(prediction)
         return prediction
 
     def predict_stock_price_at_specific_day(self, print_ca=False):
@@ -351,7 +358,7 @@ class ClassifierAi:
             # Make sure that print function is on my variables :)
             print_ca = print
             print_ca(f"The price is -> {price}", )
-        return price
+        return float(price)
 
     def return_test_data(self, ):
         test_data_time = (dt.datetime.strptime(self.test_start, '%Y-%m-%d') -
@@ -451,13 +458,26 @@ class ClassifierAi:
         if self.ratio is not None:
             return self.ratio
         self.test_model()
-        return self.accuracy_ratio()
+        return self.accuracy_ratio()[-1]
 
     def get_settings(self):
         return {'epochs': self.epochs,
                 'units': self.units,
                 'prediction_days': self.prediction_days,
                 'prediction_day': self.prediction_day}
+
+    def predict_price(self, **options):
+        """
+            :returns -
+                (predicted_price, last_price, change, presnaage_change, **optional: accuracy_ratio)
+        """
+        data = {'predicted_price': (pp := self.predict_stock_price_at_specific_day()),
+                'last_price': (lp := self.live_last_price()),
+                'change': (change := pp - lp),
+                'change_presentage': change / lp * 100}
+        if options.get('ratio', False):
+            data['ratio'] = self.test_model_and_return_accuracy_ratio()
+        return data
 
 
 def main():

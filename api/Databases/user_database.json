@@ -1,0 +1,28 @@
+{
+    "a123": {
+        "watchlist": {
+            "NIO": {
+                "predicted_price": 22.330128,
+                "last_price": 14.920000076293945,
+                "change": 7.410127923706053,
+                "change_presentage": 49.665736500094525,
+                "id": "2960cc4d4cf5e6fc3e81dcac5fb50c0b0dafe24e"
+            }
+        },
+        "scanner": {},
+        "settings": {},
+        "active_watchlist": [
+            "NIO",
+            "TSLA",
+            "XPEV",
+            "RIOT",
+            "FB",
+            "LI",
+            "MARA"
+        ],
+        "dates": {
+            "period": "5d",
+            "interval": "5m"
+        }
+    }
+}

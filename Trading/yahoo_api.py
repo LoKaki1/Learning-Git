@@ -4,6 +4,8 @@ from selenium import webdriver, common
 # from webdriver_manager.chrome import ChromeDriverManager
 # import predicting_stocks.Common as Cm
 
+CHROME_DRIVER_PATH = 'D:/chromedriver.exe'
+
 
 def _generate_chrome_driver(background_process):
 
@@ -11,9 +13,9 @@ def _generate_chrome_driver(background_process):
     mini_option.add_argument('--headless')
 
     return webdriver.Chrome(
-        'C:/webdriver/chromedriver97.exe', options=mini_option) if background_process else\
+        CHROME_DRIVER_PATH, options=mini_option) if background_process else\
         webdriver.Chrome(
-        'C:/webdriver/chromedriver97.exe',)
+        CHROME_DRIVER_PATH,)
 
 
 class LiveData:
@@ -28,10 +30,10 @@ class LiveData:
             price = self.chrome.find_element(by='xpath', value=self.pre_price_xpath)
         except common.exceptions.NoSuchElementException:
             price = self.chrome.find_element(by='xpath', value=self.price_xpath)
-        return price.text
+        return float(price.text)
 
-
-live = LiveData('NIO')
-while True:
-    print(live.get_live_price())
-    time.sleep(2)
+#
+# live = LiveData('NIO')
+# while True:
+#     print(live.get_live_price())
+#     time.sleep(2)

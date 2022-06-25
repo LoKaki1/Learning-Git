@@ -98,7 +98,7 @@ def _create_watchlist():
     for i in data:
         data[i]['ticker'] = i
         recreate_data.append(data[i])
-    return json.dumps(recreate_data)
+    return recreate_data
 
 
 @app.route('/prices/daily', methods=['POST'])
@@ -114,7 +114,7 @@ def current_price():
             price)[0: 5])
         for price in prices]}
         for date, prices in zip(dates, data) if data[-1] != prices]
-    return json.dumps(data)
+    return data
 
 
 @app.route('/prices/interday', methods=['POST'])
@@ -130,14 +130,15 @@ def interday():
             'y': [float(str(value)[0: 5]) for value in values]
         }
         for key, values in data.items()]
-    return json.dumps(data)
+    return data
 
 
 @app.route('/scanners/most_gainers', methods=['POST'])
 @Cm.token_checking
 def get_scanner():
     (scanner, scanner_args) = request.get_json().get('scanner'), request.get_json().get('scanner_args')
-    return json.dumps(get_most_gain_scanner(scanner=scanner, scanner_args=scanner_args))
+    return get_most_gain_scanner(scanner=scanner, scanner_args=scanner_args)
+
 
 if __name__ == '__main__':
     app.run(host='localhost', )

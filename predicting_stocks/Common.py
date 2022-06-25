@@ -3,6 +3,8 @@ import json
 import os
 
 import datetime as dt
+from typing import Union, List, Any
+
 import matplotlib.pyplot as plt
 import ast
 import pandas as pd
@@ -17,7 +19,18 @@ from flask import request
 import time
 
 X_VALUES = [['open', 'low', 'high', 'close'], ['Open', 'Low', 'High', 'Close']]
-tokens = '../api/Databases/tokens.json'
+DATA_BASE_KEYS = ['watchlist', 'scanner', 'settings', 'active_watchlist', 'dates']
+
+DATABASE_PATH = '../api/Databases/user_database.json'
+TOKENS = '../api/Databases/tokens.json'
+
+START = dt.datetime(2021, 4, 27).strftime('%Y-%m-%d')
+END = dt.datetime.now().strftime('%Y-%m-%d')
+
+DEFAULT_DICT = {'start': START, 'period': '1d', 'interval': '1m'}
+
+ALLOWED_INTERVALS = ['1m', '2m', '5m', '15m', '30m', '60m', '90m', '1h', '1d', '5d', '1wk', '1mo', '3mo']
+ALLOWED_PERIODS = ['1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max']
 
 
 def write_in_file(path, data):
@@ -132,22 +145,24 @@ def write_in_json_file(path, data: dict, ticker=None):
 
 
 def return_json_data(ticker, json_path='../predicting_stocks/settings_for_ai/parameters_status.json'):
-    try:
-        with open(json_path, 'r'):
-            print(json_path)
-    except FileNotFoundError:
-        print('did not find file', json_path, sep=', ')
-        return [None for _ in range(4)]
-
-    if not json_path:
-        return None
-    with open(json_path, 'r') as json_file:
-        p = json.load(json_file)
-        if ticker in p:
-            p = p[ticker]['settings']
-            return [p['epochs'], p['units'], p['prediction_days'], p['prediction_day']]
-        else:
-            return [None for _ in range(4)]
+    # try:
+    #     with open(json_path, 'r'):
+    #         print(json_path)
+    # except FileNotFoundError:
+    #     print('did not find file', json_path, sep=', ')
+    #     return [None for _ in range(4)]
+    return [setting for setting in file[ticker]['settings'].values()]\
+        if os.path.exists(json_path) and ticker in (file := open_json(json_path)) else [None for _ in range(4)]
+    #
+    # if not json_path:
+    #     return None
+    # with open(json_path, 'r') as json_file:
+    #     p = json.load(json_file)
+    #     if ticker in p:
+    #         p = p[ticker]['settings']
+    #         return [p['epochs'], p['units'], p['prediction_days'], p['prediction_day']]
+    #     else:
+    #         return [None for _ in range(4)]
 
 
 def check_data(x_train, y_train, constant=1):
@@ -173,24 +188,21 @@ def get_data_from_file_or_yahoo(ticker):
         intraday_with_yahoo(ticker)
 
 
-def no_iteration_interday_with_yahoo(ticker, other: [str, int] = '3', interval='1m'):
-    data = yf.download(tickers=ticker, period=f'{str(other)}d', interval=interval)
+def no_iteration_interday_with_yahoo(ticker, other: Union[str, int] = '1d', interval='1m'):
+    assert interval in ALLOWED_INTERVALS and other in ALLOWED_PERIODS,\
+        f"{other} or {interval} are not allowed to use as period or interval"
+    data = yf.download(tickers=ticker, period=str(other), interval=interval)
     dates = list(data['Open'].keys())
     return {date.strftime('%Y-%m-%d %H:%M'): [data[key][index]
                                               for key in X_VALUES[1]] for index, date in enumerate(dates)}
 
 
-def intraday_with_yahoo(ticker, other: [str, int] = '3', interval=1):
+def intraday_with_yahoo(ticker, other: Union[str, int] = '2', interval='1m'):
     data = yf.download(tickers=ticker, period=f'{str(other)}d', interval=interval)
     with open(f'../Trading/Historical_data/{ticker}.txt', 'w') as file:
         data_dict = dict((key, [i for i in data[key]]) for key in ['Open', 'Close', 'Low', 'High'])
         file.write(str(data_dict))
     return iterate_data(data_dict, what=1)
-
-
-def open_json_file(path):
-    with open(path, 'r') as file:
-        return json.loads(file.read())
 
 
 def handle_with_time(ticker, json_object, ):
@@ -242,10 +254,7 @@ def write_in_json(path: str, data: [dict, list]):
 
     json_object.update(data)
 
-    with open(path, 'w') as json_file:
-        json.dump(json_object, json_file,
-                  indent=4,
-                  separators=(',', ': '))
+    write_json(path, json_object)
 
 
 def generate_dates_between_dates(start, end):
@@ -253,12 +262,15 @@ def generate_dates_between_dates(start, end):
 
 
 def generates_dates_times_between_to_dates(start, end):
-    return[start + dt.timedelta(minutes=i) for i in range(int((end - start).seconds + 1) // 60)]
+    return [start + dt.timedelta(minutes=i) for i in range(int((end - start).seconds + 1) // 60)]
 
 
 def generate_tokens(user):
-    write_in_json(tokens, {user: (token := binascii.hexlify(os.urandom(20)).decode())})
+    write_in_json(TOKENS, {user: (token := generate_uniq_id())})
     return token
+
+def generate_uniq_id():
+    return binascii.hexlify(os.urandom(20)).decode()
 
 
 def token_checking(api_func):
@@ -269,7 +281,8 @@ def token_checking(api_func):
         print(request.get_json().get('token', None))
         if request.get_json().get('token', None) not in list(database.values()):
             return json.dumps({'data': 'lost connection try to login again'})
-        return api_func(*args, **kwargs)
+        return json.dumps(api_func(*args, **kwargs))
+
     return wrapper
 
 
@@ -277,9 +290,87 @@ def get_from_interactive(**kwargs):
     kwargs['app'].disconnect()
     try:
 
-        return open_json(kwargs['path'])[kwargs['ticker']][kwargs['key']] if 'ticker' and 'key' in kwargs else open_json(kwargs['path'])
+        return open_json(kwargs['path'])[kwargs['ticker']][
+            kwargs['key']] if 'ticker' and 'key' in kwargs else open_json(kwargs['path'])
     except [KeyError, FileNotFoundError] as e:
         print(e)
         return -1
 
 
+def list_in_list(lst1, lst2) -> bool:
+    return all(var in lst2 for var in lst1)
+
+
+def token_authentication(client_headers, client_request, client_args):
+    token = client_headers.get('token', False)
+    user = client_headers.get('user', False)
+    if not token or not user:
+        return 'You are asking for element which requires authentication', \
+               'No authentication, not allowed, 405', False
+    user_tokens = open_json('Databases/tokens.json')
+    if user not in user_tokens or token != user_tokens[user]:
+        return 'You are asking for element which requires authentication', \
+               'No authentication, not allowed, 405', False
+    return {'request': client_request, 'args': client_args, 'headers': client_headers}, '200 ok', True
+
+
+def write_json(path, data):
+    with open(path, 'w') as json_file:
+        json.dump(data, json_file,
+                  indent=4,
+                  separators=(',', ': '))
+
+
+def add_to_database(client: str, data: Union[list, dict, bytes, str], key: str) -> Union[list, dict, bytes, str]:
+    assert key in DATA_BASE_KEYS, f"The keys in {key} not in allowed keys"
+    all_data = open_json(DATABASE_PATH)
+    if client not in all_data:
+        all_data[client] = {key: {} for key in DATA_BASE_KEYS}
+
+    all_data[client][key].update(data)
+    write_in_json(DATABASE_PATH, all_data)
+    return all_data
+
+
+def histrical_data_json_format(ticker, start, end=END):
+
+    data = get_historical_data(ticker, start, end)
+    data = iterate_data(data)
+    dates = generate_dates_between_dates(start, end)
+    return [{'x': date.strftime(
+        '%Y-%m-%d'), 'y': [
+        float(str(
+            price)[0: 5])
+        for price in prices]}
+        for date, prices in zip(dates, data) if data[-1] != prices]
+
+
+def interday_data_json_format(ticker, period, interval):
+    data = no_iteration_interday_with_yahoo(ticker, period, interval)
+    return [
+        {
+            'x': key,
+            'y': [float(str(value)[0: 5]) for value in values]
+        }
+        for key, values in data.items()
+    ]
+
+
+def get_user_start_day(user, key):
+    return data[user]['dates'].get(key, DEFAULT_DICT[key]) if user in (data := open_json(DATABASE_PATH)) else DEFAULT_DICT[key]
+
+
+def found_in_list_of_dict(iterate: Union[list[dict], dict[dict]], key: str, value: str) -> (bool, Any):
+    print(iterate)
+    if not iterate:
+        return False, None
+    for target in iterate:
+        if target[key] == value:
+            return True, target
+    return False, None
+
+
+def remove_key_from_json(path: str, key):
+    data = open_json(path)
+    data.pop(key)
+    write_json(path, data)

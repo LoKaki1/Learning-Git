@@ -1,0 +1,1174 @@
+{
+    "0.0": {
+        "epochs": 18,
+        "units": 67,
+        "prediction_days": 58,
+        "layers": [
+            {
+                "Dense": {
+                    "units": 49,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 11,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 10,
+                    "activation": "softplus"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "relu"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "softsign"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "log_cosh",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.1": {
+        "epochs": 19,
+        "units": 67,
+        "prediction_days": 58,
+        "layers": [
+            {
+                "Dense": {
+                    "units": 49,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 11,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 10,
+                    "activation": "softplus"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "relu"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "softsign"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "log_cosh",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.86675": {
+        "epochs": 17,
+        "units": 40,
+        "prediction_days": 43,
+        "layers": [
+            {
+                "Dense": {
+                    "units": 49,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 11,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 10,
+                    "activation": "softplus"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "relu"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "softsign"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "log_cosh",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.88685": {
+        "epochs": 27,
+        "units": 46,
+        "prediction_days": 43,
+        "layers": [
+            {
+                "Dense": {
+                    "units": 49,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 11,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 10,
+                    "activation": "softplus"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "relu"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "softsign"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "log_cosh",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.90834": {
+        "epochs": 23,
+        "units": 23,
+        "prediction_days": 15,
+        "layers": [
+            {
+                "Dense": {
+                    "units": 49,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 11,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 10,
+                    "activation": "softplus"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "relu"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "softsign"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "log_cosh",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.90956": {
+        "epochs": 28,
+        "units": 29,
+        "prediction_days": 15,
+        "layers": [
+            {
+                "Dense": {
+                    "units": 49,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 11,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 10,
+                    "activation": "softplus"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "relu"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "softsign"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "log_cosh",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.92229": {
+        "epochs": 28,
+        "units": 44,
+        "prediction_days": 24,
+        "layers": [
+            {
+                "Dense": {
+                    "units": 21,
+                    "activation": "selu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 12,
+                    "activation": "sigmoid"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 12,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 12,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "softplus"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "mean_squared_error",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.93359": {
+        "epochs": 28,
+        "units": 41,
+        "prediction_days": 13,
+        "layers": [
+            {
+                "LSTM": {
+                    "units": 41,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 41,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 41,
+                    "activation": "elu"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 25,
+                    "activation": "softplus"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 24,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "tanh"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "mean_squared_error",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.94143": {
+        "epochs": 18,
+        "units": 41,
+        "prediction_days": 13,
+        "layers": [
+            {
+                "LSTM": {
+                    "units": 41,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 41,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 41,
+                    "activation": "elu"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 25,
+                    "activation": "softplus"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 24,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "tanh"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "mean_squared_error",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.94902": {
+        "epochs": 17,
+        "units": 17,
+        "prediction_days": 9,
+        "layers": [
+            {
+                "LSTM": {
+                    "units": 41,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 41,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 41,
+                    "activation": "elu"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 25,
+                    "activation": "softplus"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 24,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "tanh"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "mean_squared_error",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.95234": {
+        "epochs": 14,
+        "units": 39,
+        "prediction_days": 9,
+        "layers": [
+            {
+                "LSTM": {
+                    "units": 41,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 41,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 41,
+                    "activation": "elu"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 25,
+                    "activation": "softplus"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 24,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "tanh"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "mean_squared_error",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.95256": {
+        "epochs": 14,
+        "units": 39,
+        "prediction_days": 9,
+        "layers": [
+            {
+                "LSTM": {
+                    "units": 41,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 41,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 41,
+                    "activation": "elu"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 25,
+                    "activation": "softplus"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 24,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "tanh"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "mean_squared_error",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.95259": {
+        "epochs": 11,
+        "units": 39,
+        "prediction_days": 9,
+        "layers": [
+            {
+                "LSTM": {
+                    "units": 41,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 41,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 41,
+                    "activation": "elu"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 25,
+                    "activation": "softplus"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 24,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "tanh"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "mean_squared_error",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.95247": {
+        "epochs": 11,
+        "units": 39,
+        "prediction_days": 9,
+        "layers": [
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "selu"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "softplus"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "selu"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "tanh"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "mean_squared_error",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.95531": {
+        "epochs": 12,
+        "units": 39,
+        "prediction_days": 9,
+        "layers": [
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "sigmoid"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "relu"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "softmax"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "selu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 10,
+                    "activation": "sigmoid"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "selu"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "sigmoid"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "softsign"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "mean_squared_error",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.97065": {
+        "epochs": 14,
+        "units": 27,
+        "prediction_days": 8,
+        "layers": [
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "softplus"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "relu"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "softmax"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 10,
+                    "activation": "softsign"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "mean_squared_error",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.97055": {
+        "epochs": 14,
+        "units": 27,
+        "prediction_days": 8,
+        "layers": [
+            {
+                "Dense": {
+                    "units": 10,
+                    "activation": "softplus"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "sigmoid"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 10,
+                    "activation": "selu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 10,
+                    "activation": "elu"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "softplus"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "relu"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "softmax"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 10,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 10,
+                    "activation": "softsign"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "mean_squared_error",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.9857": {
+        "epochs": 24,
+        "units": 13,
+        "prediction_days": 8,
+        "layers": [
+            {
+                "LSTM": {
+                    "units": 1,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 1,
+                    "activation": "relu"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 1,
+                    "activation": "sigmoid"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 1,
+                    "activation": "softmax"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 1,
+                    "activation": "softplus"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 1,
+                    "activation": "selu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 1,
+                    "activation": "relu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 1,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 1,
+                    "activation": "softmax"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 1,
+                    "activation": "selu"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "mean_squared_error",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.98571": {
+        "epochs": 24,
+        "units": 13,
+        "prediction_days": 8,
+        "layers": [
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 1,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 1,
+                    "activation": "selu"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 1,
+                    "activation": "softplus"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "mean_squared_error",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.96943": {
+        "epochs": 24,
+        "units": 13,
+        "prediction_days": 8,
+        "layers": [
+            {
+                "Dense": {
+                    "units": 1,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 1,
+                    "activation": "softplus"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 1,
+                    "activation": "sigmoid"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 1,
+                    "activation": "sigmoid"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "softplus"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "mean_squared_error",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.98594": {
+        "epochs": 21,
+        "units": 57,
+        "prediction_days": 14,
+        "layers": [
+            {
+                "Dense": {
+                    "units": 36,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 25,
+                    "activation": "relu"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 7,
+                    "activation": "relu"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "log_cosh",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    },
+    "0.98723": {
+        "epochs": 28,
+        "units": 57,
+        "prediction_days": 14,
+        "layers": [
+            {
+                "Dense": {
+                    "units": 57,
+                    "activation": "tanh"
+                }
+            },
+            {
+                "Dense": {
+                    "units": 25,
+                    "activation": "relu"
+                }
+            },
+            {
+                "Dropout": {
+                    "units": 0.2,
+                    "activation": "softsign"
+                }
+            },
+            {
+                "LSTM": {
+                    "units": 7,
+                    "activation": "relu"
+                }
+            }
+        ],
+        "compiler": {
+            "optimizer": "adam",
+            "loss": "log_cosh",
+            "metrics": [
+                "accuracy"
+            ]
+        }
+    }
+}
